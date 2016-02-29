@@ -2,7 +2,7 @@ package es.berry.restyle.main;
 
 import org.apache.commons.cli.CommandLine;
 
-// FIXME: type concept should be reviewed (and the concept itself!)
+// FIXME: type concept should be reviewed
 
 public abstract class CodeGenerator {
 
