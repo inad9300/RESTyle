@@ -35,9 +35,9 @@ final public class Main {
 
     private static Logger getLoggersChain() {
         Logger consoleLogger = new ConsoleLogger(Logger.DEBUG);
-        Logger fileLogger = new FileLogger(Logger.ERROR, "error_log");
+        // Logger fileLogger = new FileLogger(Logger.ERROR, "error_log");
 
-        consoleLogger.setNext(fileLogger);
+        // consoleLogger.setNext(fileLogger);
 
         return consoleLogger; // Return the one everyone else is linked to
     }

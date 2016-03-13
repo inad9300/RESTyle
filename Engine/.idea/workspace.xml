@@ -22,7 +22,6 @@
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__net_sf_jopt_simple_jopt_simple_4_6.xml" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_atteo_evo_inflector_1_0_1.xml" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_mozilla_rhino_1_7R4.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/error_log" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/CommandOptions.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/FieldsTypeResolver.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/InheritanceStrategies.java" />
@@ -41,6 +40,7 @@
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/utils/Json.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/resources/examples/spec.json" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/resources/examples/spec.yaml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/resources/specification/predefined-types.json" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/resources/specification/schema.json" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/examples/spec.json" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/examples/spec.yaml" />
@@ -93,11 +93,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="SpecCompletor.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="SpecCompletor.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/SpecCompletor.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="2.1921098">
-              <caret line="77" column="31" selection-start-line="77" selection-start-column="31" selection-end-line="77" selection-end-column="31" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="0" column="30" selection-start-line="0" selection-start-column="30" selection-end-line="0" selection-end-column="30" />
               <folding />
             </state>
           </provider>
@@ -107,19 +107,17 @@
         <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/FieldsTypeResolver.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="26" column="25" selection-start-line="26" selection-start-column="17" selection-end-line="26" selection-end-column="25" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
+              <caret line="4" column="43" selection-start-line="4" selection-start-column="43" selection-end-line="4" selection-end-column="43" />
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Main.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Main.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="31" column="56" selection-start-line="31" selection-start-column="56" selection-end-line="31" selection-end-column="56" />
+            <state vertical-scroll-proportion="0.06174957">
+              <caret line="20" column="26" selection-start-line="20" selection-start-column="26" selection-end-line="20" selection-end-column="26" />
               <folding />
             </state>
           </provider>
@@ -189,10 +187,10 @@
         <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/Spec.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/SpecificationException.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/FieldsTypeResolver.java" />
-        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/Main.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/ResourcesTypeResolver.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/InheritanceStrategies.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/SpecCompletor.java" />
+        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/Main.java" />
       </list>
     </option>
   </component>
@@ -1132,14 +1130,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/logging/FileLogger.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.90625">
-          <caret line="34" column="67" selection-start-line="34" selection-start-column="67" selection-end-line="34" selection-end-column="67" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/Database.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.29508197">
@@ -1234,10 +1224,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/Main.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/SpecCompletor.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="31" column="56" selection-start-line="31" selection-start-column="56" selection-end-line="31" selection-end-column="56" />
+          <caret line="0" column="30" selection-start-line="0" selection-start-column="30" selection-end-line="0" selection-end-column="30" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/logging/FileLogger.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.55574614">
+          <caret line="23" column="13" selection-start-line="23" selection-start-column="13" selection-end-line="23" selection-end-column="13" />
           <folding />
         </state>
       </provider>
@@ -1245,17 +1243,15 @@
     <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/FieldsTypeResolver.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="26" column="25" selection-start-line="26" selection-start-column="17" selection-end-line="26" selection-end-column="25" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <caret line="4" column="43" selection-start-line="4" selection-start-column="43" selection-end-line="4" selection-end-column="43" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/SpecCompletor.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/Main.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="2.1921098">
-          <caret line="77" column="31" selection-start-line="77" selection-start-column="31" selection-end-line="77" selection-end-column="31" />
+        <state vertical-scroll-proportion="0.06174957">
+          <caret line="20" column="26" selection-start-line="20" selection-start-column="26" selection-end-line="20" selection-end-column="26" />
           <folding />
         </state>
       </provider>
