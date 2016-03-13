@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# USE:
+# ./json-to-pojo <source-file> <target-directory>
+
+TMP_FILE="Spec.json" # => "Spec" will be the name of the main Java class
+
+nodejs json-deref.js $1 false $TMP_FILE
+
+./jsonschema2pojo-0.4.21/jsonschema2pojo \
+    --annotation-style JACKSON2 \
+    --omit-hashcode-and-equals \
+    --omit-tostring \
+    --package es.berry.restyle.specification \
+    --remove-old-output \
+    --source $TMP_FILE \
+    --target $2 \
+    --include-dynamic-accessors
+
+rm -f $TMP_FILE

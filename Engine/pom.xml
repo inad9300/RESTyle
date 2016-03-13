@@ -32,6 +32,13 @@
             <version>${jackson-version}</version>
         </dependency>
 
+        <!-- json-schema-validator: https://github.com/fge/json-schema-validator -->
+        <dependency>
+            <groupId>com.github.fge</groupId>
+            <artifactId>json-schema-validator</artifactId>
+            <version>2.2.6</version>
+        </dependency>
+
         <!-- Apache Commons CLI: http://commons.apache.org/proper/commons-cli -->
         <dependency>
             <groupId>commons-cli</groupId>
@@ -51,6 +58,13 @@
             <groupId>ro.fortsoft.pf4j</groupId>
             <artifactId>pf4j</artifactId>
             <version>${pf4j-version}</version>
+        </dependency>
+
+        <!-- English pluralization -->
+        <dependency>
+            <groupId>org.atteo</groupId>
+            <artifactId>evo-inflector</artifactId>
+            <version>1.0.1</version>
         </dependency>
     </dependencies>
 

@@ -1,0 +1,8 @@
+{
+  "name": "scripts",
+  "version": "0.0.0",
+  "description": "File to keep all the dependencies that the different scripts may need",
+  "dependencies": {
+    "json-schema-deref": "0.2.x"
+  }
+}

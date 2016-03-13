@@ -3,7 +3,7 @@ package es.berry.restyle.generators;
 // NOTE: should require the following command options: --output-file
 // IDEA: templates vs. pure Java-based solution?
 
-import es.berry.restyle.configuration.Field;
+import es.berry.restyle.specification.Field;
 import es.berry.restyle.utils.Strings;
 
 import java.math.BigInteger;
@@ -102,10 +102,10 @@ public class MysqlCreationScriptCore {
 
             // MySQL automatically uses FLOAT for precisions between 0 and 23, and DOUBLE if it is between 24 and 53
             if (field.getPrecision() != null) {
-                if (field.getPrecision().length == 1) // IDEA: allow simple integers (not in an array)
-                    mysqlType += " (" + field.getPrecision()[0] + ")";
-                else if (field.getPrecision().length == 2)
-                    mysqlType += " (" + field.getPrecision()[0] + ", " + field.getPrecision()[1] + ")";
+                if (field.getPrecision().size() == 1) // IDEA: allow simple integers (not in an array)
+                    mysqlType += " (" + field.getPrecision().get(0) + ")";
+                else if (field.getPrecision().size() == 2)
+                    mysqlType += " (" + field.getPrecision().get(0) + ", " + field.getPrecision().get(1) + ")";
                 else
                     throw new IllegalArgumentException("Wrong format when defining the precision.");
             }
@@ -118,18 +118,18 @@ public class MysqlCreationScriptCore {
             String mysqlType = "DECIMAL";
 
             if (field.getPrecision() != null)
-                mysqlType += " (" + field.getPrecision()[0] + ", " + field.getPrecision()[1] + ")";
+                mysqlType += " (" + field.getPrecision().get(0) + ", " + field.getPrecision().get(1) + ")";
 
             if (field.getMin() < 0)
                 mysqlType += " UNSIGNED";
 
             return mysqlType;
         } else if (ownType.equals("string")) {
-            if (field.getIn() != null) {
+            if (field.getEnum() != null) {
                 String mysqlType = "ENUM(";
 
                 List<String> inValues = new ArrayList<String>();
-                for (Object val : field.getIn())
+                for (Object val : field.getEnum())
                     inValues.add(val.toString());
 
                 final String separator = ", ";
@@ -194,13 +194,13 @@ public class MysqlCreationScriptCore {
     private static String getMysqlTypeModifier(Field field) {
         List<String> modifiers = new ArrayList<String>();
 
-        if (field.isRequired())
+        if (field.getRequired())
             modifiers.add("NOT NULL");
 
-        if (field.getDefaultExpression() != null)
-            modifiers.add("DEFAULT " + field.getDefaultExpression());
+        if (field.getDefault() != null)
+            modifiers.add("DEFAULT " + field.getDefault());
 
-        if (field.isUnique())
+        if (field.getUnique())
             modifiers.add("UNIQUE");
 
         return Strings.join(modifiers, " ");
@@ -266,17 +266,17 @@ public class MysqlCreationScriptCore {
         return s;
     }
 
-    public String createOneToOneRelation() { // FIXME: wrong name
+    /*public String createOneToOneRelation() { // FIXME: wrong name
         String stmt = "ALTER TABLE `" + subresource + "`"
                 + "\nADD FOREIGN KEY (`id`) REFERENCES `" + resource + "`(id)";
 
-        if (/* resource#1 subresource with "on_delete" */ true)
+        if (resource#1 subresource with "on_delete")
             stmt += "\nON DELETE " + on_delete;
 
         return stmt + ";";
-    }
+    }*/
 
-    public String createOneToManyRelation() {
+    /*public String createOneToManyRelation() {
         final String pkType = "INT UNSIGNED";
         final String pkColPrefix = "id_";
         final String newCol = pkColPrefix + resource;
@@ -284,18 +284,18 @@ public class MysqlCreationScriptCore {
         String stmt = "ALTER TABLE `" + resource + "`"
                 + "\nADD COLUMN `" + newCol + "` " + pkType;
 
-        if (/* required relationship */ true)
+        if (required relationship)
             stmt += " NOT NULL";
 
         stmt += ";"
                 + "\nALTER TABLE `" + resource + "`"
                 + "\nADD FOREIGN KEY (`" + newCol + "`) REFERENCES `" + resource + "`(id)";
 
-        if (/* resource#1 subresource with "on_delete" */true)
+        if (resource#1 subresource with "on_delete")
             stmt += "\nON DELETE " + on_delete;
 
         return stmt + ";";
-    }
+    }*/
 
     public String createManyToManyRelation() {
         String stmt;

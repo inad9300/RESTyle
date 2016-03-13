@@ -1,0 +1,59 @@
+{
+    "title": "Bookstore",
+    "description": "The best bookstore ever",
+    "version": "v1",
+    "baseUrl": "https://api.bookstore.example.org/{version}/",
+    "dataFormats": ["application/json", "text/xml"],
+    "encoding": "UTF-8",
+    "timeZone": "UTC",
+    "dateFormat": "ISO-8601",
+    "roles": [
+        { "name": "admin", "isAdmin": true },
+        { "name": "user" },
+        { "name": "vip_user", "isA": "user" },
+        { "name": "guest", "isGuest": true }
+    ],
+    "database": {
+        "dbms": "MySQL",
+        "name": "test_db",
+        "host": "localhost",
+        "port": 3306,
+        "prefix": "api_",
+        "admin": {
+            "name": "root",
+            "password": "root"
+        }
+    },
+    "types": [{
+        "name": "email",
+        "type": "string",
+        "min": 3,
+        "pattern": "/^(?!(?:(?:\\x22?\\x5C[\\x00-\\x7E]\\x22?)|(?:\\x22?[^\\x5C\\x22]\\x22?)){255,})(?!(?:(?:\\x22?\\x5C[\\x00-\\x7E]\\x22?)|(?:\\x22?[^\\x5C\\x22]\\x22?)){65,}@)(?:(?:[\\x21\\x23-\\x27\\x2A\\x2B\\x2D\\x2F-\\x39\\x3D\\x3F\\x5E-\\x7E]+)|(?:\\x22(?:[\\x01-\\x08\\x0B\\x0C\\x0E-\\x1F\\x21\\x23-\\x5B\\x5D-\\x7F]|(?:\\x5C[\\x00-\\x7F]))*\\x22))(?:\\.(?:(?:[\\x21\\x23-\\x27\\x2A\\x2B\\x2D\\x2F-\\x39\\x3D\\x3F\\x5E-\\x7E]+)|(?:\\x22(?:[\\x01-\\x08\\x0B\\x0C\\x0E-\\x1F\\x21\\x23-\\x5B\\x5D-\\x7F]|(?:\\x5C[\\x00-\\x7F]))*\\x22)))*@(?:(?:(?!.*[^.]{64,})(?:(?:(?:xn--)?[a-z0-9]+(?:-[a-z0-9]+)*\\.){1,126}){1,}(?:(?:[a-z][a-z0-9]*)|(?:(?:xn--)[a-z0-9]+))(?:-[a-z0-9]+)*)|(?:\\[(?:(?:IPv6:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){7})|(?:(?!(?:.*[a-f0-9][:\\]]){7,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?)))|(?:(?:IPv6:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){5}:)|(?:(?!(?:.*[a-f0-9]:){5,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3}:)?)))?(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))(?:\\.(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))){3}))\\]))$/iD"
+    }],
+    "resources": [{
+        "name": "book",
+        "description": "Bunch of pages glued together.",
+        "fields": [{
+            "name": "title",
+            "description": "Title of the book.",
+            "type": "string",
+            "required": true,
+            "min": 1,
+            "max": 300
+        }, {
+            "name": "author",
+            "description": "Person who wrote the book.",
+            "type": "string",
+            "required": true,
+            "min": 1,
+            "max": 300,
+            "default": "Anon."
+        }]
+    }, {
+        "name": "author",
+        "fields": [{
+            "name": "mail",
+            "type": "email"
+        }]
+    }]
+}

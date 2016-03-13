@@ -1,4 +1,4 @@
-package es.berry.restyle.main;
+package es.berry.restyle.core;
 
 import org.apache.commons.cli.CommandLine;
 
