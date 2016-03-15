@@ -1,15 +1,18 @@
 package es.berry.restyle.generators;
 
-public class MysqlResetScript {
+import es.berry.restyle.core.Generator;
+import es.berry.restyle.specification.Spec;
 
-    private String dbName;
+public class MysqlResetScript extends Generator {
 
-    public MysqlResetScript(String dbName) {
-        this.dbName = dbName;
+    public MysqlResetScript(Spec spec) {
+        super(spec);
     }
 
-    public String deleteDatabase() {
-        return "DROP DATABASE IF EXISTS `" + this.dbName + "`;\n";
-    }
+    @Override
+    public void generate() {}
 
+    private String deleteDatabase() {
+        return "DROP DATABASE IF EXISTS `" + "dbName" + "`;\n";
+    }
 }

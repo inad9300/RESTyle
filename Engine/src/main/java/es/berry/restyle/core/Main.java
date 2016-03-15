@@ -11,22 +11,23 @@ import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
 import es.berry.restyle.logging.ConsoleLogger;
-import es.berry.restyle.logging.FileLogger;
 import es.berry.restyle.logging.Logger;
 import es.berry.restyle.specification.Spec;
 import es.berry.restyle.utils.Strings;
 import org.apache.commons.cli.*;
+import org.reflections.Reflections;
 
 import java.io.File;
-import java.util.Iterator;
+import java.lang.reflect.Constructor;
+import java.util.*;
 
 final public class Main {
 
     private final static String APP_NAME = "RESTyle";
-    private final static File PLUGINS_DIR = new File("plugins"); // FIXME
+    private final static File PLUGINS_DIR = new File("./src/plugins");
 
     private final static Options OPTS = CommandOptions.get();
-    private final static Logger LOG = getLoggersChain();
+    private final static Logger log = getLoggersChain();
 
 //    private static void printHelp() {
 //        HelpFormatter formatter = new HelpFormatter();
@@ -46,7 +47,7 @@ final public class Main {
         try {
             final String[] mockArgs = {
                     "-" + CommandOptions.SPEC_S, "/home/daniel/Code/RESTyle/Engine/src/main/resources/examples/spec.json",
-                    "-" + CommandOptions.PLUGINS_S, "",
+                    "-" + CommandOptions.PLUGINS_S, "MysqlCreationScript",
                     "-" + CommandOptions.OUT_S, ""
             };
 
@@ -57,7 +58,7 @@ final public class Main {
             try {
                 cmd = parser.parse(OPTS, mockArgs);
             } catch (ParseException e) {
-                LOG.error("Error parsing the command-line options:\n" + e.getMessage());
+                log.error("Error parsing the command-line options:\n" + e.getMessage());
             }
 
 
@@ -65,11 +66,11 @@ final public class Main {
             // ------------------
             final String specPath = cmd.getOptionValue(CommandOptions.SPEC_S);
             if (Strings.isEmpty(specPath))
-                LOG.error("A value must be specified for option " + CommandOptions.SPEC_L + ".");
+                log.error("A value must be specified for option " + CommandOptions.SPEC_L + ".");
 
             final File specFile = new File(specPath);
             if (!specFile.exists() || !specFile.isFile())
-                LOG.error("The specification file does not exist.");
+                log.error("The specification file does not exist.");
 
 
             // Configure mapper depending on the format
@@ -85,7 +86,7 @@ final public class Main {
             } else if (specPath.endsWith(".yaml") || specPath.endsWith(".yml"))
                 mapper = new ObjectMapper(new YAMLFactory());
             else
-                LOG.error("The specification file has an unsupported extension.");
+                log.error("The specification file has an unsupported extension.");
 
 
             // Validate JSON, and prepare the baseUrl
@@ -95,7 +96,7 @@ final public class Main {
                 specNode = mapper.readTree(specFile);
             } catch (JsonProcessingException e) {
                 // Will inform about JSON validation errors
-                LOG.error("Error processing the specification file:\n" + e.getMessage());
+                log.error("Error processing the specification file:\n" + e.getMessage());
             }
             specNode = ((ObjectNode) specNode).put(
                     "baseUrl",
@@ -129,23 +130,35 @@ final public class Main {
             try {
                 spec = mapper.treeToValue(specNode, Spec.class);
             } catch (JsonProcessingException e) {
-                LOG.error("Error processing the file:\n" + e.getOriginalMessage());
+                log.error("Error processing the file:\n" + e.getOriginalMessage());
             }
             spec = new SpecCompletor(spec).addDefaultValues().getSpec();
             spec = new FieldsTypeResolver(spec).resolve().getSpec();
+//            System.out.println( mapper.writeValueAsString(spec) );
 
-            System.out.println( mapper.writeValueAsString(spec) );
 
             // Load and execute plugins
             // ------------------------
-            // TODO
-//            PluginManager pm = new DefaultPluginManager(PLUGINS_DIR);
-//            pm.loadPlugins();
-//            pm.startPlugins();
-//            pm.stopPlugins();
+            Reflections reflections = new Reflections("es.berry.restyle.generators");
+            Set<Class<? extends Generator>> concreteGenerators = reflections.getSubTypesOf(Generator.class);
+
+            List<String> availablePlugins = new ArrayList<String>();
+            for (Class<? extends Generator> gen : concreteGenerators)
+                availablePlugins.add(gen.getSimpleName());
+
+            List<String> selectedPlugins = Arrays.asList(cmd.getOptionValues(CommandOptions.PLUGINS_S));
+            for (int i = 0; i < selectedPlugins.size(); ++i)
+                if (!availablePlugins.contains(selectedPlugins.get(i)))
+                    log.error("The plugin \"" + selectedPlugins.get(i) + "\" is not in the list of available plugins. " +
+                            "Please, select one of the following:\n" + Strings.list(availablePlugins));
+
+            for (Class<? extends Generator> gen : concreteGenerators)
+                if (selectedPlugins.contains(gen.getSimpleName()))
+                    gen.getConstructor(Spec.class).newInstance(spec).generate();
+
         } catch (Exception e) { // TODO: catch more specific exceptions, in more specific places
-            e.printStackTrace();
-            LOG.error("Sorry, an unexpected error occurred :( ...\n" + e.getMessage());
+//            e.printStackTrace();
+            log.error("Sorry, an unexpected error occurred :( ...\n" + e.getMessage());
         }
     }
 }

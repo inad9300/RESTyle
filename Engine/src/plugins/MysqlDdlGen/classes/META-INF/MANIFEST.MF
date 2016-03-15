@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+# Created-By: Apache Maven
+# Built-By: decebal
+Build-Jdk: 1.8.0_74
+Plugin-Class: es.berry.restyle.plugins.MysqlDdlGen
+# Plugin-Dependencies: x, y, z
+Plugin-Id: mysql-ddl-gen
+# Plugin-Provider: Decebal Suiu
+Plugin-Version: 0.0.1

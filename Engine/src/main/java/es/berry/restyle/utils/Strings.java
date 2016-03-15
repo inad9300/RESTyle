@@ -16,6 +16,21 @@ public class Strings {
         return result;
     }
 
+    public static String list(List<String> strings) {
+        return list(strings, "-");
+    }
+
+    public static String list(List<String> strings, String listingSymbol) {
+        final int size = strings.size();
+
+        String result = "";
+
+        for (int i = 0; i < size; ++i)
+            result += listingSymbol + " " + strings.get(i) + "\n";
+
+        return result;
+    }
+
     public static boolean isEmpty(String str) {
         return str == null || str.isEmpty();
     }
