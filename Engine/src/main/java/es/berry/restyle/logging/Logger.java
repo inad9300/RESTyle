@@ -21,15 +21,13 @@ public abstract class Logger {
     }
 
     protected void handleRequest(LogRequest req) {
-        if (req.getSeverity() >= this.minimumSeverity) {
+        if (req.getSeverity() >= this.minimumSeverity)
             this.log(req.getMessage(), req.getDevMessage());
-        }
-        if (this.next != null) {
+
+        if (this.next != null)
             this.next.handleRequest(req);
-        } else if (req.getSeverity() == Logger.ERROR) {
-            // If an error occurred and there are no more handlers, exit informing the OS
-            System.exit(1);
-        }
+        else if (req.getSeverity() == Logger.ERROR)
+            System.exit(1); // If an error occurred and there are no more handlers, exit informing the OS
     }
 
     public void debug(String msg) {

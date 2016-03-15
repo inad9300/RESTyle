@@ -1,7 +1,7 @@
 package es.berry.restyle.generators;
 
 // NOTE: should require the following command options: --output-file
-// IDEA: templates vs. pure Java-based solution?
+// IDEA: templates vs. pure Java-based solution? A bit of both
 
 import es.berry.restyle.core.Generator;
 import es.berry.restyle.specification.Field;
@@ -175,12 +175,11 @@ public class MysqlCreationScript extends Generator {
                 return "LONGTEXT";
             else
                 throw new RuntimeException("...");
-        } else if (ownType.equals("bool")) {
+        } else if (ownType.equals("bool"))
             return "BIT(1)";
-        } else if (ownType.equals("date")) {
-            // Reference: http://dev.mysql.com/doc/refman/5.7/en/datetime.html
-            return "DATETIME";
-        } else if (ownType.equals("blob")) {
+        else if (ownType.equals("date"))
+            return "DATETIME"; // Reference: http://dev.mysql.com/doc/refman/5.7/en/datetime.html
+        else if (ownType.equals("blob")) {
             // TODO: normalize spec. to include always bytes (accept different units)
             if (field.getMax() < TINY_MAX)
                 return "TINYBLOB";
@@ -192,10 +191,9 @@ public class MysqlCreationScript extends Generator {
                 return "LONGBLOB";
             else
                 throw new RuntimeException("...");
-        } else {
+        } else
             throw new RuntimeException("The type provided for the field " + field.getName() + " is not valid. Given: " +
                     ownType + ". Please, consider reworking the validation algorithm for the data specification.");
-        }
     }
 
     private String getMysqlTypeModifier(Field field) {

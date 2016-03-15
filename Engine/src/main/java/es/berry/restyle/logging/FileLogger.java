@@ -19,16 +19,15 @@ public class FileLogger extends Logger {
     protected void log(String message, String devMessage) {
         File logfile = new File(this.filename);
         try {
-            if (logfile.exists() == false) {
+            if (!logfile.exists())
                 logfile.createNewFile();
-            }
+
             PrintWriter writer = new PrintWriter(new FileWriter(logfile, true));
 
             String ts = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
             writer.append(ts + " - " + message + "\n");
-            if (devMessage != null && !devMessage.equals("")) {
+            if (devMessage != null && !devMessage.equals(""))
                 writer.append("\t-> More information:\n" + devMessage + "\n");
-            }
 
             writer.close();
         } catch (IOException e) {
