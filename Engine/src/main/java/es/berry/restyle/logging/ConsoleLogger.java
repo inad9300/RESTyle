@@ -1,5 +1,7 @@
 package es.berry.restyle.logging;
 
+import es.berry.restyle.utils.Strings;
+
 public class ConsoleLogger extends Logger {
 
     public ConsoleLogger(int minSeverity) {
@@ -7,6 +9,9 @@ public class ConsoleLogger extends Logger {
     }
 
     protected void log(String message, String devMessage) {
-        System.out.println(message); // Ignore the developer message
+        System.out.println(message);
+
+        if (!Strings.isEmpty(devMessage))
+            System.out.println("\t-> More info: " + devMessage);
     }
 }

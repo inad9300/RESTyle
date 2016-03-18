@@ -20,14 +20,14 @@ public class RateLimit {
      * 
      */
     @JsonProperty("numOfRequests")
-    private Integer numOfRequests;
+    private Long numOfRequests;
     /**
      * 
      * (Required)
      * 
      */
     @JsonProperty("refreshTime")
-    private Integer refreshTime;
+    private Long refreshTime;
     protected final static Object NOT_FOUND_VALUE = new Object();
 
     /**
@@ -38,7 +38,7 @@ public class RateLimit {
      *     The numOfRequests
      */
     @JsonProperty("numOfRequests")
-    public Integer getNumOfRequests() {
+    public Long getNumOfRequests() {
         return numOfRequests;
     }
 
@@ -50,7 +50,7 @@ public class RateLimit {
      *     The numOfRequests
      */
     @JsonProperty("numOfRequests")
-    public void setNumOfRequests(Integer numOfRequests) {
+    public void setNumOfRequests(Long numOfRequests) {
         this.numOfRequests = numOfRequests;
     }
 
@@ -62,7 +62,7 @@ public class RateLimit {
      *     The refreshTime
      */
     @JsonProperty("refreshTime")
-    public Integer getRefreshTime() {
+    public Long getRefreshTime() {
         return refreshTime;
     }
 
@@ -74,24 +74,24 @@ public class RateLimit {
      *     The refreshTime
      */
     @JsonProperty("refreshTime")
-    public void setRefreshTime(Integer refreshTime) {
+    public void setRefreshTime(Long refreshTime) {
         this.refreshTime = refreshTime;
     }
 
     protected boolean declaredProperty(String name, Object value) {
         if ("numOfRequests".equals(name)) {
-            if (value instanceof Integer) {
-                setNumOfRequests(((Integer) value));
+            if (value instanceof Long) {
+                setNumOfRequests(((Long) value));
             } else {
-                throw new IllegalArgumentException(("property \"numOfRequests\" is of type \"java.lang.Integer\", but got "+ value.getClass().toString()));
+                throw new IllegalArgumentException(("property \"numOfRequests\" is of type \"java.lang.Long\", but got "+ value.getClass().toString()));
             }
             return true;
         } else {
             if ("refreshTime".equals(name)) {
-                if (value instanceof Integer) {
-                    setRefreshTime(((Integer) value));
+                if (value instanceof Long) {
+                    setRefreshTime(((Long) value));
                 } else {
-                    throw new IllegalArgumentException(("property \"refreshTime\" is of type \"java.lang.Integer\", but got "+ value.getClass().toString()));
+                    throw new IllegalArgumentException(("property \"refreshTime\" is of type \"java.lang.Long\", but got "+ value.getClass().toString()));
                 }
                 return true;
             } else {

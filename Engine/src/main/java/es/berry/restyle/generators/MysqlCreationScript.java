@@ -5,210 +5,95 @@ package es.berry.restyle.generators;
 
 import es.berry.restyle.core.Generator;
 import es.berry.restyle.specification.Field;
+import es.berry.restyle.specification.Resource;
 import es.berry.restyle.specification.Spec;
 import es.berry.restyle.utils.Strings;
 
-import java.math.BigInteger;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 public class MysqlCreationScript extends Generator {
-
-    // Integers. Reference: http://dev.mysql.com/doc/refman/5.7/en/integer-types.html
-    // Signed
-    private static final int S_TINY_MIN = -128;
-    private static final int S_TINY_MAX = 127;
-    private static final int S_SMALL_MIN = -32768;
-    private static final int S_SMALL_MAX = 32767;
-    private static final int S_MEDIUM_MIN = -8388608;
-    private static final int S_MEDIUM_MAX = 8388607;
-    private static final int S_INT_MIN = -2147483648;
-    private static final int S_INT_MAX = 2147483647;
-    private static final long S_BIG_MIN = -9223372036854775808L;
-    private static final long S_BIG_MAX = 9223372036854775807L;
-    // Unsigned
-    private static final int U_TINY_MAX = 255;
-    private static final int U_SMALL_MAX = 65535;
-    private static final int U_MEDIUM_MAX = 16777215;
-    private static final long U_INT_MAX = 4294967295L;
-    private static final BigInteger U_BIG_MAX = new BigInteger("18446744073709551615");
-
-    // Blobs and texts. Reference: http://dev.mysql.com/doc/refman/5.7/en/storage-requirements.html
-    private static final int TINY_MAX = 255;
-    private static final int TEXT_MAX = 65535;
-    private static final int MEDIUM_MAX = 16777215;
-    private static final long LONG_MAX = 4294967295L;
-
-    private static final int MAX_BYTES_UTF8 = 3;
-    private static final int MAX_BYTES_UTF8MB4 = 4;
-
-    private static final int CHAR_MAX_CHARS = 255;
-    private static final int VARCHAR_MAX_BYTES = 65535;
+    private static final String REVERSE_QUOTE = "`";
 
     // TODO: verify:
     // - Table names length
-    // - "The maximum number of digits (M) for DECIMAL is 65. The maximum number of supported decimals (D) is 30. If D is omitted, the default is 0. If M is omitted, the default is 10."
-    // - etc.
+    // - "The maximum number of digits (M) for DECIMAL is 65. The maximum number of supported decimals (D) is 30.
+    //    If D is omitted, the default is 0. If M is omitted, the default is 10."
 
     public MysqlCreationScript(Spec spec) {
         super(spec);
     }
 
     @Override
-    public void generate() {}
+    public void generate() {
+        String result = getInitialConfig();
 
-    private String getMysqlType(Field field) {
-        String ownType = field.getType();
+        for (Resource r : spec.getResources())
+            result += doResourcePart(r);
 
-        if (ownType.equals("int")) {
-            if (field.getMin() == null && field.getMax() == null)
-                return "INT";
-
-            // TODO: what if only one or the other is null?
-
-            if (field.getMin() < 0) { // Signed
-                if (field.getMin() >= S_TINY_MIN && field.getMax() <= S_TINY_MAX)
-                    return "TINYINT";
-                else if (field.getMin() >= S_SMALL_MIN && field.getMax() <= S_SMALL_MAX)
-                    return "SMALLINT";
-                else if (field.getMin() >= S_MEDIUM_MIN && field.getMax() <= S_MEDIUM_MAX)
-                    return "MEDIUMINT";
-                else if (field.getMin() >= S_INT_MIN && field.getMax() <= S_INT_MAX)
-                    return "INT";
-                else if (field.getMin() >= S_BIG_MIN && field.getMax() <= S_BIG_MAX)
-                    return "BIGINT";
-                else
-                    throw new IllegalArgumentException(
-                            "The int values must be between " + S_BIG_MIN + " and " + S_BIG_MAX + ". Given minimum and maximum: "
-                                    + field.getMin() + " and " + field.getMax() + ".");
-            } else { // Unsigned
-                String mysqlType;
-
-                if (field.getMax() == null)
-                    mysqlType = "INT";
-                else if (field.getMax() <= U_TINY_MAX)
-                    mysqlType = "TINYINT";
-                else if (field.getMax() <= U_SMALL_MAX)
-                    mysqlType = "SMALLINT";
-                else if (field.getMax() <= U_MEDIUM_MAX)
-                    mysqlType = "MEDIUMINT";
-                else if (field.getMax() <= U_INT_MAX)
-                    mysqlType = "INT";
-                else if (U_BIG_MAX.compareTo(new BigInteger(field.getMax().toString())) <= 0)
-                    mysqlType = "BIGINT";
-                else
-                    throw new IllegalArgumentException(
-                            "The maximum value of an unsigned int cannot be greater than " + U_BIG_MAX + ". Given: "
-                                    + field.getMax() + ".");
-
-                return mysqlType + " UNSIGNED";
-            }
-        } else if (ownType.equals("float")) {
-            String mysqlType = "FLOAT";
-
-            // MySQL automatically uses FLOAT for precisions between 0 and 23, and DOUBLE if it is between 24 and 53
-            if (field.getPrecision() != null) {
-                if (field.getPrecision().size() == 1) // IDEA: allow simple integers (not in an array)
-                    mysqlType += " (" + field.getPrecision().get(0) + ")";
-                else if (field.getPrecision().size() == 2)
-                    mysqlType += " (" + field.getPrecision().get(0) + ", " + field.getPrecision().get(1) + ")";
-                else
-                    throw new IllegalArgumentException("Wrong format when defining the precision.");
-            }
-
-            if (field.getMin() < 0)
-                mysqlType += " UNSIGNED";
-
-            return mysqlType;
-        } else if (ownType.equals("decimal")) {
-            String mysqlType = "DECIMAL";
-
-            if (field.getPrecision() != null)
-                mysqlType += " (" + field.getPrecision().get(0) + ", " + field.getPrecision().get(1) + ")";
-
-            if (field.getMin() < 0)
-                mysqlType += " UNSIGNED";
-
-            return mysqlType;
-        } else if (ownType.equals("string")) {
-            if (field.getEnum() != null) {
-                String mysqlType = "ENUM(";
-
-                List<String> inValues = new ArrayList<String>();
-                for (Object val : field.getEnum())
-                    inValues.add(val.toString());
-
-                final String separator = ", ";
-
-                // From http://dev.mysql.com/doc/refman/5.7/en/enum.html: "To prevent unexpected results when using the
-                // ORDER BY clause on an ENUM column, (...) Specify the ENUM list in alphabetic order."
-                Collections.sort(inValues);
-
-                for (String val : inValues)
-                    mysqlType += val + ", ";
-
-                mysqlType.substring(0, mysqlType.length() - separator.length()); // Remove last separator
-
-                mysqlType += ")";
-                return mysqlType;
-            }
-
-            if (field.getMax() == field.getMin() && field.getMin() <= CHAR_MAX_CHARS)
-                return "CHAR (" + field.getMin() + ")";
-
-            // NOTE: "BLOB and TEXT columns cannot have DEFAULT values."
-
-            int minLen = field.getMin() * MAX_BYTES_UTF8MB4;
-            int maxLen = field.getMax() * MAX_BYTES_UTF8MB4;
-
-            // NOTE: by now, TEXT_MAX = VARCHAR_MAX_BYTES = 65535 bytes, so TINYTEXT and TEXT will not be chosen
-            if (maxLen <= VARCHAR_MAX_BYTES)
-                return "VARCHAR (" + minLen + ")";
-            else if (maxLen < TINY_MAX)
-                return "TINYTEXT";
-            else if (maxLen < TEXT_MAX)
-                return "TEXT";
-            else if (maxLen < MEDIUM_MAX)
-                return "MEDIUMTEXT";
-            else if (maxLen < LONG_MAX)
-                return "LONGTEXT";
-            else
-                throw new RuntimeException("...");
-        } else if (ownType.equals("bool"))
-            return "BIT(1)";
-        else if (ownType.equals("date"))
-            return "DATETIME"; // Reference: http://dev.mysql.com/doc/refman/5.7/en/datetime.html
-        else if (ownType.equals("blob")) {
-            // TODO: normalize spec. to include always bytes (accept different units)
-            if (field.getMax() < TINY_MAX)
-                return "TINYBLOB";
-            else if (field.getMax() < TEXT_MAX)
-                return "BLOB";
-            else if (field.getMax() < MEDIUM_MAX)
-                return "MEDIUMBLOB";
-            else if (field.getMax() < LONG_MAX)
-                return "LONGBLOB";
-            else
-                throw new RuntimeException("...");
-        } else
-            throw new RuntimeException("The type provided for the field " + field.getName() + " is not valid. Given: " +
-                    ownType + ". Please, consider reworking the validation algorithm for the data specification.");
+        try {
+            Strings.toFile(result, "generate_database.sql");
+        } catch (IOException e) {
+            // FIXME: use logging system
+            System.out.println("Error creating file in plugin " + this.getClass().getSimpleName()
+                    + ": " + e.getMessage());
+        }
     }
 
-    private String getMysqlTypeModifier(Field field) {
-        List<String> modifiers = new ArrayList<String>();
+    private String createUsersAndGrantPrivileges() {
+        // GRANT ALL PRIVILEGES ON `my_db`.* TO `username`@localhost IDENTIFIED BY 'password';
+        return null;
+    }
 
-        if (field.getRequired())
-            modifiers.add("NOT NULL");
+    private String getInitialConfig() { // TODO: include collation in spec
+        final String charset = MysqlHelper.adaptStandardName(spec.getEncoding());
+        String s = "SET NAMES " + charset + " COLLATE utf8_unicode_ci;\n\n"
+                + "CREATE DATABASE IF NOT EXISTS `" + spec.getDatabase().getName() + "`\n"
+                + "\tDEFAULT CHARACTER SET " + charset + "\n"
+                + "\tDEFAULT COLLATE utf8_unicode_ci;\n\n"
+                + "USE `" + spec.getDatabase().getName() + "`;";
+        return s;
+    }
 
-        if (field.getDefault() != null)
-            modifiers.add("DEFAULT " + field.getDefault());
+    private String createTable(Resource r) {
+        List<String> s = new ArrayList<String>();
+        s.add("CREATE TABLE IF NOT EXISTS" + Strings.surround(r.getName(), REVERSE_QUOTE) + " (");
 
-        if (field.getUnique())
-            modifiers.add("UNIQUE");
+        if (r.getIdInjection())
+            s.add("\t`id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY");
 
-        return Strings.join(modifiers, " ");
+        Set<Field> fields = r.getFields();
+        assert fields != null;
+
+//        r.getAbstract();
+//        r.getInheritanceStrategy();
+//        r.getBase();
+//        r.getAcceptExtraFields();
+//        r.getAcl();
+//        r.getCheck();
+//        r.getIndex();
+//        r.getPaginable();
+//        r.getRelations();
+
+//        for (Field field : fields) {
+//            s += "\t" + "`" + field.getName() + "` "
+//                    + MysqlHelper.getType(field) + " "
+//                    + MysqlHelper.getTypeModifier(field) + " "
+//                    + getMysqlForeignKey(field);
+//        }
+//
+//        s += getMysqlChecks(fields);
+//
+//        s += ");";
+
+        return Strings.join(s, "\n");
+    }
+
+    private String doResourcePart(Resource r) {
+        String s = createTable(r);
+        return s;
     }
 
     private String getMysqlForeignKey(Field field) {
@@ -238,37 +123,6 @@ public class MysqlCreationScript extends Generator {
         // TODO: support more cases (e.g. start_date < end_date)
 
         return "CHECK (" + Strings.join(checks, " AND ") + ")";
-    }
-
-    private String initialConfig() {
-        String s = "SET NAMES utf8 COLLATE utf8_unicode_ci;\n\n"
-                + "CREATE DATABASE IF NOT EXISTS `" + "config.database.name" + "`\n"
-                + "\tDEFAULT CHARACTER SET utf8\n"
-                + "\tDEFAULT COLLATE utf8_unicode_ci;\n\n"
-
-                + "USE `" + "config.database.name" + "`;";
-        // GRANT ALL PRIVILEGES ON `my_db`.* TO `username`@localhost IDENTIFIED BY 'password';
-        return s;
-    }
-
-    private String createTable(String name) {
-        String s = "CREATE TABLE IF NOT EXISTS `" + name + "` (\n"
-                + "\t`id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,\n"; // Ending with comma since we assume more values
-
-        List<Field> fields = null;
-        // IDEA (?): assert fields != null;
-        for (Field field : fields) {
-            s += "\t" + "`" + field.getName() + "` "
-                    + getMysqlType(field) + " "
-                    + getMysqlTypeModifier(field) + " "
-                    + getMysqlForeignKey(field);
-        }
-
-        s += getMysqlChecks(fields);
-
-        s += ");";
-
-        return s;
     }
 
     /*private String createOneToOneRelation() { // FIXME: wrong name

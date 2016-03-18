@@ -39,10 +39,10 @@ final public class SpecCompletor {
 
     private static void addFieldDefaultValues(Field field) {
         if (field.getMin() == null)
-            field.setMin(DEF_MIN);
+            field.setMin((long) DEF_MIN);
 
         if (field.getMax() == null)
-            field.setMax(DEF_MAX);
+            field.setMax((long) DEF_MAX);
 
         if (field.getFilterable() == null)
             field.setFilterable(DEF_FILTERABLE);
@@ -78,7 +78,7 @@ final public class SpecCompletor {
                 role.setIsGuest(DEF_IS_GUEST);
 
             if (role.getRateLimit() != null && role.getRateLimit().getNumOfRequests() == null)
-                role.getRateLimit().setNumOfRequests(DEF_RATE_LIMIT_REQ_NUM);
+                role.getRateLimit().setNumOfRequests((long) DEF_RATE_LIMIT_REQ_NUM);
         }
 
         for (Resource resource : spec.getResources()) {
@@ -99,10 +99,10 @@ final public class SpecCompletor {
 
             for (Relation relation : resource.getRelations()) {
                 if (relation.getMin() == null)
-                    relation.setMin(DEF_MIN_INSTANCES);
+                    relation.setMin((long) DEF_MIN_INSTANCES);
 
                 if (relation.getMax() == null)
-                    relation.setMax(DEF_MAX_INSTANCES);
+                    relation.setMax((long) DEF_MAX_INSTANCES);
 
                 for (Field field : relation.getFields()) {
                     addFieldDefaultValues(field);

@@ -44,9 +44,9 @@ public class Relation {
     @JsonProperty("type")
     private Relation.Type type;
     @JsonProperty("min")
-    private Integer min;
+    private Long min;
     @JsonProperty("max")
-    private Integer max;
+    private Long max;
     @JsonProperty("embed")
     private Boolean embed;
     @JsonProperty("onDelete")
@@ -118,7 +118,7 @@ public class Relation {
      *     The min
      */
     @JsonProperty("min")
-    public Integer getMin() {
+    public Long getMin() {
         return min;
     }
 
@@ -128,7 +128,7 @@ public class Relation {
      *     The min
      */
     @JsonProperty("min")
-    public void setMin(Integer min) {
+    public void setMin(Long min) {
         this.min = min;
     }
 
@@ -138,7 +138,7 @@ public class Relation {
      *     The max
      */
     @JsonProperty("max")
-    public Integer getMax() {
+    public Long getMax() {
         return max;
     }
 
@@ -148,7 +148,7 @@ public class Relation {
      *     The max
      */
     @JsonProperty("max")
-    public void setMax(Integer max) {
+    public void setMax(Long max) {
         this.max = max;
     }
 
@@ -285,23 +285,23 @@ public class Relation {
                 if (value instanceof Relation.Type) {
                     setType(((Relation.Type) value));
                 } else {
-                    throw new IllegalArgumentException(("property \"type\" is of type \"Relation.Type\", but got "+ value.getClass().toString()));
+                    throw new IllegalArgumentException(("property \"type\" is of type \"es.berry.restyle.specification.Relation.Type\", but got "+ value.getClass().toString()));
                 }
                 return true;
             } else {
                 if ("min".equals(name)) {
-                    if (value instanceof Integer) {
-                        setMin(((Integer) value));
+                    if (value instanceof Long) {
+                        setMin(((Long) value));
                     } else {
-                        throw new IllegalArgumentException(("property \"min\" is of type \"java.lang.Integer\", but got "+ value.getClass().toString()));
+                        throw new IllegalArgumentException(("property \"min\" is of type \"java.lang.Long\", but got "+ value.getClass().toString()));
                     }
                     return true;
                 } else {
                     if ("max".equals(name)) {
-                        if (value instanceof Integer) {
-                            setMax(((Integer) value));
+                        if (value instanceof Long) {
+                            setMax(((Long) value));
                         } else {
-                            throw new IllegalArgumentException(("property \"max\" is of type \"java.lang.Integer\", but got "+ value.getClass().toString()));
+                            throw new IllegalArgumentException(("property \"max\" is of type \"java.lang.Long\", but got "+ value.getClass().toString()));
                         }
                         return true;
                     } else {
@@ -333,7 +333,7 @@ public class Relation {
                                         if (value instanceof Set) {
                                             setFields(((Set<Field> ) value));
                                         } else {
-                                            throw new IllegalArgumentException(("property \"fields\" is of type \"java.util.Set<Field>\", but got "+ value.getClass().toString()));
+                                            throw new IllegalArgumentException(("property \"fields\" is of type \"java.util.Set<es.berry.restyle.specification.Field>\", but got "+ value.getClass().toString()));
                                         }
                                         return true;
                                     } else {

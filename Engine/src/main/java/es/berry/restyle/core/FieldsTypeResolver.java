@@ -5,16 +5,12 @@ import es.berry.restyle.specification.Resource;
 import es.berry.restyle.specification.Spec;
 import es.berry.restyle.specification.Type;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 public class FieldsTypeResolver {
 
     final private Spec spec;
-
-    final private Set<String> basicTypes = new HashSet<String>(Arrays.asList(
-            "int", "float", "decimal", "string", "bool", "date", "time", "datetime", "file"));
 
     public FieldsTypeResolver(Spec spec) {
         this.spec = spec;
@@ -43,9 +39,9 @@ public class FieldsTypeResolver {
     }
 
     private Field resolveOne(Field field) {
-        if (basicTypes.contains(field.getType())) {
+        if (SpecTypes.ALL.contains(field.getType()))
             return field;
-        } else {
+        else {
             Type parentType = findType(field.getType());
 
             if (parentType.getName() == parentType.getType())

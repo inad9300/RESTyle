@@ -1,5 +1,7 @@
 package es.berry.restyle.logging;
 
+import es.berry.restyle.utils.Strings;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -24,10 +26,10 @@ public class FileLogger extends Logger {
 
             PrintWriter writer = new PrintWriter(new FileWriter(logfile, true));
 
-            String ts = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
+            final String ts = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
             writer.append(ts + " - " + message + "\n");
-            if (devMessage != null && !devMessage.equals(""))
-                writer.append("\t-> More information:\n" + devMessage + "\n");
+            if (!Strings.isEmpty(devMessage))
+                writer.append("\t-> More info:\n" + devMessage + "\n");
 
             writer.close();
         } catch (IOException e) {

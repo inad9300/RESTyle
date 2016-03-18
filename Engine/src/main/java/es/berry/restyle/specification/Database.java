@@ -25,7 +25,7 @@ public class Database {
     @JsonProperty("host")
     private String host;
     @JsonProperty("port")
-    private Integer port;
+    private Long port;
     @JsonProperty("prefix")
     private String prefix;
     /**
@@ -101,7 +101,7 @@ public class Database {
      *     The port
      */
     @JsonProperty("port")
-    public Integer getPort() {
+    public Long getPort() {
         return port;
     }
 
@@ -111,7 +111,7 @@ public class Database {
      *     The port
      */
     @JsonProperty("port")
-    public void setPort(Integer port) {
+    public void setPort(Long port) {
         this.port = port;
     }
 
@@ -181,10 +181,10 @@ public class Database {
                     return true;
                 } else {
                     if ("port".equals(name)) {
-                        if (value instanceof Integer) {
-                            setPort(((Integer) value));
+                        if (value instanceof Long) {
+                            setPort(((Long) value));
                         } else {
-                            throw new IllegalArgumentException(("property \"port\" is of type \"java.lang.Integer\", but got "+ value.getClass().toString()));
+                            throw new IllegalArgumentException(("property \"port\" is of type \"java.lang.Long\", but got "+ value.getClass().toString()));
                         }
                         return true;
                     } else {
@@ -200,7 +200,7 @@ public class Database {
                                 if (value instanceof Admin) {
                                     setAdmin(((Admin) value));
                                 } else {
-                                    throw new IllegalArgumentException(("property \"admin\" is of type \"Admin\", but got "+ value.getClass().toString()));
+                                    throw new IllegalArgumentException(("property \"admin\" is of type \"es.berry.restyle.specification.Admin\", but got "+ value.getClass().toString()));
                                 }
                                 return true;
                             } else {

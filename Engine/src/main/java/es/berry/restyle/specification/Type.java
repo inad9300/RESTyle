@@ -53,14 +53,14 @@ public class Type {
     @JsonProperty("required")
     private Boolean required;
     @JsonProperty("min")
-    private Integer min;
+    private Long min;
     @JsonProperty("max")
-    private Integer max;
+    private Long max;
     @JsonProperty("enum")
     @JsonDeserialize(as = java.util.LinkedHashSet.class)
     private Set<Object> _enum = new LinkedHashSet<Object>();
     @JsonProperty("precision")
-    private List<Integer> precision = new ArrayList<Integer>();
+    private List<Long> precision = new ArrayList<Long>();
     @JsonProperty("default")
     private Object _default;
     @JsonProperty("onUpdate")
@@ -175,7 +175,7 @@ public class Type {
      *     The min
      */
     @JsonProperty("min")
-    public Integer getMin() {
+    public Long getMin() {
         return min;
     }
 
@@ -185,7 +185,7 @@ public class Type {
      *     The min
      */
     @JsonProperty("min")
-    public void setMin(Integer min) {
+    public void setMin(Long min) {
         this.min = min;
     }
 
@@ -195,7 +195,7 @@ public class Type {
      *     The max
      */
     @JsonProperty("max")
-    public Integer getMax() {
+    public Long getMax() {
         return max;
     }
 
@@ -205,7 +205,7 @@ public class Type {
      *     The max
      */
     @JsonProperty("max")
-    public void setMax(Integer max) {
+    public void setMax(Long max) {
         this.max = max;
     }
 
@@ -235,7 +235,7 @@ public class Type {
      *     The precision
      */
     @JsonProperty("precision")
-    public List<Integer> getPrecision() {
+    public List<Long> getPrecision() {
         return precision;
     }
 
@@ -245,7 +245,7 @@ public class Type {
      *     The precision
      */
     @JsonProperty("precision")
-    public void setPrecision(List<Integer> precision) {
+    public void setPrecision(List<Long> precision) {
         this.precision = precision;
     }
 
@@ -463,18 +463,18 @@ public class Type {
                         return true;
                     } else {
                         if ("min".equals(name)) {
-                            if (value instanceof Integer) {
-                                setMin(((Integer) value));
+                            if (value instanceof Long) {
+                                setMin(((Long) value));
                             } else {
-                                throw new IllegalArgumentException(("property \"min\" is of type \"java.lang.Integer\", but got "+ value.getClass().toString()));
+                                throw new IllegalArgumentException(("property \"min\" is of type \"java.lang.Long\", but got "+ value.getClass().toString()));
                             }
                             return true;
                         } else {
                             if ("max".equals(name)) {
-                                if (value instanceof Integer) {
-                                    setMax(((Integer) value));
+                                if (value instanceof Long) {
+                                    setMax(((Long) value));
                                 } else {
-                                    throw new IllegalArgumentException(("property \"max\" is of type \"java.lang.Integer\", but got "+ value.getClass().toString()));
+                                    throw new IllegalArgumentException(("property \"max\" is of type \"java.lang.Long\", but got "+ value.getClass().toString()));
                                 }
                                 return true;
                             } else {
@@ -488,9 +488,9 @@ public class Type {
                                 } else {
                                     if ("precision".equals(name)) {
                                         if (value instanceof List) {
-                                            setPrecision(((List<Integer> ) value));
+                                            setPrecision(((List<Long> ) value));
                                         } else {
-                                            throw new IllegalArgumentException(("property \"precision\" is of type \"java.util.List<java.lang.Integer>\", but got "+ value.getClass().toString()));
+                                            throw new IllegalArgumentException(("property \"precision\" is of type \"java.util.List<java.lang.Long>\", but got "+ value.getClass().toString()));
                                         }
                                         return true;
                                     } else {

@@ -7,10 +7,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.github.fge.jackson.JsonLoader;
+import com.github.fge.jsonschema.core.exceptions.ProcessingException;
+import com.github.fge.jsonschema.core.report.ProcessingMessage;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
 import es.berry.restyle.logging.ConsoleLogger;
+import es.berry.restyle.logging.EmailLogger;
+import es.berry.restyle.logging.FileLogger;
 import es.berry.restyle.logging.Logger;
 import es.berry.restyle.specification.Spec;
 import es.berry.restyle.utils.Strings;
@@ -18,27 +22,29 @@ import org.apache.commons.cli.*;
 import org.reflections.Reflections;
 
 import java.io.File;
-import java.lang.reflect.Constructor;
-import java.util.*;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 final public class Main {
-
-    private final static String APP_NAME = "RESTyle";
-    private final static File PLUGINS_DIR = new File("./src/plugins");
-
     private final static Options OPTS = CommandOptions.get();
     private final static Logger log = getLoggersChain();
 
-//    private static void printHelp() {
-//        HelpFormatter formatter = new HelpFormatter();
-//        formatter.printHelp(APP_NAME, OPTS);
-//    }
+    private static void printHelp() {
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp(Config.APP_NAME, OPTS);
+    }
 
     private static Logger getLoggersChain() {
-        Logger consoleLogger = new ConsoleLogger(Logger.DEBUG);
-        // Logger fileLogger = new FileLogger(Logger.ERROR, "error_log");
+        Logger consoleLogger = new ConsoleLogger(Logger.INFO);
+        Logger fileLogger = new FileLogger(Logger.ERROR, Config.LOG_FILE);
+        Logger emailLogger = new EmailLogger(Logger.CRITICAL, "logging-test@berry.es", Config.DEV_EMAILS);
 
-        // consoleLogger.setNext(fileLogger);
+        consoleLogger.setNext(fileLogger);
+        fileLogger.setNext(emailLogger);
 
         return consoleLogger; // Return the one everyone else is linked to
     }
@@ -60,6 +66,7 @@ final public class Main {
             } catch (ParseException e) {
                 log.error("Error parsing the command-line options:\n" + e.getMessage());
             }
+            assert cmd != null;
 
 
             // Validate arguments
@@ -86,7 +93,9 @@ final public class Main {
             } else if (specPath.endsWith(".yaml") || specPath.endsWith(".yml"))
                 mapper = new ObjectMapper(new YAMLFactory());
             else
-                log.error("The specification file has an unsupported extension.");
+                log.error("The specification file has an unsupported extension. Valid extensions are: .json, .yaml, .yml");
+
+            assert mapper != null;
 
 
             // Validate JSON, and prepare the baseUrl
@@ -96,8 +105,12 @@ final public class Main {
                 specNode = mapper.readTree(specFile);
             } catch (JsonProcessingException e) {
                 // Will inform about JSON validation errors
-                log.error("Error processing the specification file:\n" + e.getMessage());
+                log.error("Error processing the specification file: " + e.getMessage());
+            } catch (IOException e) {
+                log.error("Error reading the specification file: " + e.getMessage());
             }
+            assert specNode != null;
+
             specNode = ((ObjectNode) specNode).put(
                     "baseUrl",
                     specNode.get("baseUrl").asText()
@@ -108,19 +121,25 @@ final public class Main {
             // Validate specification against schema
             // -------------------------------------
             final String schemaPath = "./src/main/resources/specification/schema.json";
-            final JsonNode schemaNode = JsonLoader.fromFile(new File(schemaPath));
-            final JsonSchema schema = JsonSchemaFactory.byDefault().getJsonSchema(schemaNode);
+            final JsonNode schemaNode;
+            try {
+                schemaNode = JsonLoader.fromFile(new File(schemaPath));
+                final JsonSchema schema = JsonSchemaFactory.byDefault().getJsonSchema(schemaNode);
 
-            ProcessingReport report = schema.validate(specNode);
-            if (!report.isSuccess()) {
-                System.out.println("The specification provided does not conform the meta-specification defined for it:");
-                System.out.println("--- BEGIN REPORT ---");
+                ProcessingReport report = schema.validate(specNode);
+                if (!report.isSuccess()) {
+                    System.out.println("The specification provided does not conform the meta-specification defined for it:"
+                            + "\n--- BEGIN REPORT ---");
 
-                Iterator it = report.iterator();
-                while (it.hasNext())
-                    System.out.print(it.next());
+                    for (ProcessingMessage msg : report)
+                        System.out.print(msg);
 
-                System.out.println("--- END REPORT ---");
+                    System.out.println("--- END REPORT ---");
+                }
+            } catch (IOException e) {
+                log.error("The JSON schema file could not be read.");
+            } catch (ProcessingException e) {
+                log.error("An error happened when processing the JSON schema file.");
             }
 
 
@@ -147,18 +166,26 @@ final public class Main {
                 availablePlugins.add(gen.getSimpleName());
 
             List<String> selectedPlugins = Arrays.asList(cmd.getOptionValues(CommandOptions.PLUGINS_S));
-            for (int i = 0; i < selectedPlugins.size(); ++i)
-                if (!availablePlugins.contains(selectedPlugins.get(i)))
-                    log.error("The plugin \"" + selectedPlugins.get(i) + "\" is not in the list of available plugins. " +
+            for (String selectedPlugin : selectedPlugins)
+                if (!availablePlugins.contains(selectedPlugin))
+                    log.error("The plugin \"" + selectedPlugin + "\" is not in the list of available plugins. " +
                             "Please, select one of the following:\n" + Strings.list(availablePlugins));
 
             for (Class<? extends Generator> gen : concreteGenerators)
                 if (selectedPlugins.contains(gen.getSimpleName()))
-                    gen.getConstructor(Spec.class).newInstance(spec).generate();
-
-        } catch (Exception e) { // TODO: catch more specific exceptions, in more specific places
-//            e.printStackTrace();
-            log.error("Sorry, an unexpected error occurred :( ...\n" + e.getMessage());
+                    try {
+                        gen.getConstructor(Spec.class).newInstance(spec).generate();
+                    } catch (InstantiationException e) {
+                        log.broke("Impossible to instantiate plugin class " + gen.getSimpleName(), e);
+                    } catch (IllegalAccessException e) {
+                        log.broke("Impossible to access generate method", e);
+                    } catch (InvocationTargetException e) {
+                        log.broke("Impossible to invoke generate method", e);
+                    } catch (NoSuchMethodException e) {
+                        log.broke("Impossible to find generate method", e);
+                    }
+        } catch (Exception e) {
+            log.broke("Sorry, an unexpected error occurred )", e);
         }
     }
 }
