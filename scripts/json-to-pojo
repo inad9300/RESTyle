@@ -11,6 +11,7 @@ nodejs json-deref.js $1 false $TMP_FILE
     --annotation-style JACKSON2 \
     --omit-hashcode-and-equals \
     --omit-tostring \
+    --long-integers \
     --package es.berry.restyle.specification \
     --remove-old-output \
     --source $TMP_FILE \
