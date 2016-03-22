@@ -42,7 +42,7 @@ public class Relation {
      * 
      */
     @JsonProperty("type")
-    private Relation.Type type;
+    private String type;
     @JsonProperty("min")
     private Long min;
     @JsonProperty("max")
@@ -96,7 +96,7 @@ public class Relation {
      *     The type
      */
     @JsonProperty("type")
-    public Relation.Type getType() {
+    public String getType() {
         return type;
     }
 
@@ -108,7 +108,7 @@ public class Relation {
      *     The type
      */
     @JsonProperty("type")
-    public void setType(Relation.Type type) {
+    public void setType(String type) {
         this.type = type;
     }
 
@@ -282,10 +282,10 @@ public class Relation {
             return true;
         } else {
             if ("type".equals(name)) {
-                if (value instanceof Relation.Type) {
-                    setType(((Relation.Type) value));
+                if (value instanceof String) {
+                    setType(((String) value));
                 } else {
-                    throw new IllegalArgumentException(("property \"type\" is of type \"es.berry.restyle.specification.Relation.Type\", but got "+ value.getClass().toString()));
+                    throw new IllegalArgumentException(("property \"type\" is of type \"java.lang.String\", but got "+ value.getClass().toString()));
                 }
                 return true;
             } else {

@@ -12,6 +12,8 @@ import com.github.fge.jsonschema.core.report.ProcessingMessage;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
+import es.berry.restyle.exceptions.PluginException;
+import es.berry.restyle.exceptions.SpecException;
 import es.berry.restyle.logging.ConsoleLogger;
 import es.berry.restyle.logging.EmailLogger;
 import es.berry.restyle.logging.FileLogger;
@@ -151,6 +153,7 @@ final public class Main {
             } catch (JsonProcessingException e) {
                 log.error("Error processing the file:\n" + e.getOriginalMessage());
             }
+            new SpecAdvanceValidator(spec).validate();
             spec = new SpecCompletor(spec).addDefaultValues().getSpec();
             spec = new FieldsTypeResolver(spec).resolve().getSpec();
 //            System.out.println( mapper.writeValueAsString(spec) );
@@ -184,8 +187,12 @@ final public class Main {
                     } catch (NoSuchMethodException e) {
                         log.broke("Impossible to find generate method", e);
                     }
+        } catch (SpecException e) {
+            log.error("There exists an error with the specification", e);
+        } catch (PluginException e) {
+            log.error("A plugin experimented an error", e);
         } catch (Exception e) {
-            log.broke("Sorry, an unexpected error occurred )", e);
+            log.broke("An unexpected error occurred", e);
         }
     }
 }

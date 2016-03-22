@@ -91,11 +91,16 @@ final public class SpecCompletor {
             if (resource.getPaginable() == null)
                 resource.setPaginable(DEF_PAGINABLE);
 
-            for (Field field : resource.getFields()) {
+            for (Field field : resource.getFields())
                 addFieldDefaultValues(field);
-            }
 
-            // TODO: index, acl
+            for (String idx : resource.getIndex())
+                if (!idx.startsWith("-") || !idx.startsWith("+"))
+                    // FIXME: enough for modifying the real idx in the resource?
+                    // TODO: Java test for the sentence right above
+                    idx = "+" + idx; // Ascending order by default
+
+            // TODO: acl
 
             for (Relation relation : resource.getRelations()) {
                 if (relation.getMin() == null)
@@ -104,9 +109,8 @@ final public class SpecCompletor {
                 if (relation.getMax() == null)
                     relation.setMax((long) DEF_MAX_INSTANCES);
 
-                for (Field field : relation.getFields()) {
+                for (Field field : relation.getFields())
                     addFieldDefaultValues(field);
-                }
             }
         }
         return this;

@@ -29,9 +29,12 @@ public class MysqlHelper {
 
         if (field.getRequired())
             modifiers.add("NOT NULL");
+        else
+            modifiers.add("NULL");
+
+        final String SINGLE_QUOTE = "'";
 
         if (field.getDefault() != null) {
-            final String SINGLE_QUOTE = "'";
             final String defStr = field.getDefault().toString();
             final boolean needsQuotes = field.getType().equals(SpecTypes.STRING)
                     && !defStr.startsWith(SINGLE_QUOTE)
@@ -39,8 +42,15 @@ public class MysqlHelper {
             modifiers.add("DEFAULT " + (needsQuotes ? Strings.surround(defStr, SINGLE_QUOTE) : field.getDefault()));
         }
 
+        // TODO: include in the spec.
+//        if (field.getAutoIncrement())
+//            modifiers.add("AUTO_INCREMENT");
+
         if (field.getUnique())
             modifiers.add("UNIQUE");
+
+        if (Strings.isEmpty(field.getDescription()))
+            modifiers.add("COMMENT " + Strings.surround(field.getDescription(), SINGLE_QUOTE));
 
         return Strings.join(modifiers, " ");
     }
@@ -103,8 +113,8 @@ public class MysqlHelper {
                     return "BIGINT";
                 else
                     throw new IllegalArgumentException(
-                            "The int values must be between " + S_BIG_MIN + " and " + S_BIG_MAX + ". Given minimum and maximum: "
-                                    + field.getMin() + " and " + field.getMax() + ".");
+                            "The int values must be between " + S_BIG_MIN + " and " + S_BIG_MAX
+                                    + ". Given minimum and maximum: " + field.getMin() + " and " + field.getMax() + ".");
             } else { // Unsigned
                 String mysqlType;
 
@@ -132,11 +142,12 @@ public class MysqlHelper {
 
             // IDEA: use min and max values to determine the precision!
 
+            // TODO: "The maximum number of digits (M) for DECIMAL is 65. The maximum number of supported decimals (D)
+            // is 30. If D is omitted, the default is 0. If M is omitted, the default is 10."
+
             // MySQL automatically uses FLOAT for precisions between 0 and 23, and DOUBLE if it is between 24 and 53
             if (field.getPrecision() != null) {
-                if (field.getPrecision().size() != 2)
-                    throw new IllegalArgumentException("Wrong format when defining the precision. "
-                            + "It must be a two-element array.");
+                assert field.getPrecision().size() == 2;
 
                 mysqlType += " (" + field.getPrecision().get(0) + ", " + field.getPrecision().get(1) + ")";
             }

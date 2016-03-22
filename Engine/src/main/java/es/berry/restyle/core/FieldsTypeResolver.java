@@ -1,5 +1,6 @@
 package es.berry.restyle.core;
 
+import es.berry.restyle.exceptions.SpecException;
 import es.berry.restyle.specification.Field;
 import es.berry.restyle.specification.Resource;
 import es.berry.restyle.specification.Spec;

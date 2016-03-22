@@ -1,4 +1,4 @@
-package es.berry.restyle.core;
+package es.berry.restyle.exceptions;
 
 public class SpecException extends RuntimeException {
 
