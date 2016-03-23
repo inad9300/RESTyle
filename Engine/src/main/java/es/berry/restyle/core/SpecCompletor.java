@@ -16,11 +16,14 @@ final public class SpecCompletor {
     // Resources
     private final static boolean DEF_ABSTRACT = false;
     private final static boolean DEF_PAGINABLE = true;
+    private static final boolean DEF_ID_INJECTION = false;
     private final static int DEF_MIN_INSTANCES = 0;
     private final static int DEF_MAX_INSTANCES = 0;
     // Fields
     private final static int DEF_MIN = 0;
     private final static int DEF_MAX = 0;
+    private static final boolean DEF_REQUIRED = false;
+    private static final boolean DEF_UNIQUE = false;
     private final static boolean DEF_FILTERABLE = true;
     private final static boolean DEF_SORTABLE = true;
     private final static boolean DEF_WRITE_ONLY = false;
@@ -43,6 +46,12 @@ final public class SpecCompletor {
 
         if (field.getMax() == null)
             field.setMax((long) DEF_MAX);
+
+        if (field.getRequired() == null)
+            field.setRequired(DEF_REQUIRED);
+
+        if (field.getUnique() == null)
+            field.setUnique(DEF_UNIQUE);
 
         if (field.getFilterable() == null)
             field.setFilterable(DEF_FILTERABLE);
@@ -90,6 +99,9 @@ final public class SpecCompletor {
 
             if (resource.getPaginable() == null)
                 resource.setPaginable(DEF_PAGINABLE);
+
+            if (resource.getIdInjection() == null)
+                resource.setIdInjection(DEF_ID_INJECTION);
 
             for (Field field : resource.getFields())
                 addFieldDefaultValues(field);

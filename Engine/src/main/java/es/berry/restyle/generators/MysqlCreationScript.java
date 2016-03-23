@@ -6,6 +6,9 @@ package es.berry.restyle.generators;
 // TODO: add plugin defaults, such as { "onDelete": "cascade" },
 // or { "embed"_ true } when { "type": "hasOne" }
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import es.berry.restyle.core.TemplateGen;
 import es.berry.restyle.core.Generator;
 import es.berry.restyle.exceptions.PluginException;
 import es.berry.restyle.specification.Field;
@@ -28,6 +31,7 @@ public class MysqlCreationScript extends Generator {
 
     public MysqlCreationScript(Spec spec) {
         super(spec);
+        this.setTmpl( new TemplateGen(MysqlCreationScript.class, "sql") );
     }
 
     @Override
@@ -41,6 +45,7 @@ public class MysqlCreationScript extends Generator {
             Strings.toFile(result, "generate_database.sql");
         } catch (IOException e) {
             // FIXME: use logging system
+            e.printStackTrace();
             System.out.println("Error creating file in plugin " + this.getClass().getSimpleName()
                     + ": " + e.getMessage());
         }
@@ -48,12 +53,12 @@ public class MysqlCreationScript extends Generator {
 
     private String getInitialConfig() { // IDEA: include collation in spec
         final String charset = MysqlHelper.adaptStandardName(spec.getEncoding());
-        String s = "SET NAMES " + charset + " COLLATE utf8_unicode_ci;\n\n"
-                + "CREATE DATABASE IF NOT EXISTS `" + spec.getDatabase().getName() + "`\n"
-                + "\tDEFAULT CHARACTER SET " + charset + "\n"
-                + "\tDEFAULT COLLATE utf8_unicode_ci;\n\n"
-                + "USE `" + spec.getDatabase().getName() + "`;";
-        return s;
+
+        ObjectNode node = new ObjectMapper().createObjectNode();
+        node.put("charset", charset);
+        node.put("dbName", spec.getDatabase().getName());
+
+        return tmpl.compile("initial_config", node);
     }
 
     private String createUsersAndGrantPrivileges() {

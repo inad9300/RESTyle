@@ -10,7 +10,7 @@
 
     <properties>
         <jackson-version>2.7.0</jackson-version>
-        <pf4j-version>0.12.0</pf4j-version>
+        <handlebars-version>4.0.5</handlebars-version>
     </properties>
 
     <dependencies>
@@ -73,10 +73,17 @@
         </dependency>
 
         <!-- Plugin Framework for Java (PF4J) -->
-        <dependency>
+        <!-- <dependency>
             <groupId>ro.fortsoft.pf4j</groupId>
             <artifactId>pf4j</artifactId>
-            <version>${pf4j-version}</version>
+            <version>0.12.0</version>
+        </dependency> -->
+
+        <!-- Reflections (dynamic class loading) -->
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.9-RC1</version>
         </dependency>
 
         <!-- English pluralization -->
@@ -84,13 +91,6 @@
             <groupId>org.atteo</groupId>
             <artifactId>evo-inflector</artifactId>
             <version>1.0.1</version>
-        </dependency>
-
-        <!-- Reflections (dynamic class loading) -->
-        <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <version>0.9.9-RC1</version>
         </dependency>
 
         <!-- To allow sending emails -->
@@ -103,6 +103,29 @@
             <groupId>javax.activation</groupId>
             <artifactId>activation</artifactId>
             <version>1.1.1</version>
+        </dependency>
+
+        <!-- Template engine -->
+        <dependency>
+            <groupId>com.github.jknack</groupId>
+            <artifactId>handlebars</artifactId>
+            <version>${handlebars-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.jknack</groupId>
+            <artifactId>handlebars-jackson2</artifactId>
+            <version>${handlebars-version}</version>
+        </dependency>
+        <!-- Which apparently depends on... -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.19</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.19</version>
         </dependency>
     </dependencies>
 

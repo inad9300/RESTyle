@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.github.fge.jackson.JsonLoader;
@@ -12,6 +13,8 @@ import com.github.fge.jsonschema.core.report.ProcessingMessage;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Template;
 import es.berry.restyle.exceptions.PluginException;
 import es.berry.restyle.exceptions.SpecException;
 import es.berry.restyle.logging.ConsoleLogger;
@@ -26,6 +29,7 @@ import org.reflections.Reflections;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,7 +47,7 @@ final public class Main {
     private static Logger getLoggersChain() {
         Logger consoleLogger = new ConsoleLogger(Logger.INFO);
         Logger fileLogger = new FileLogger(Logger.ERROR, Config.LOG_FILE);
-        Logger emailLogger = new EmailLogger(Logger.CRITICAL, "logging-test@berry.es", Config.DEV_EMAILS);
+        Logger emailLogger = new EmailLogger(Logger.CRITICAL, "logging-test@berry.es", Config.DEV_EMAILS); // FIXME
 
         consoleLogger.setNext(fileLogger);
         fileLogger.setNext(emailLogger);
@@ -171,8 +175,8 @@ final public class Main {
             List<String> selectedPlugins = Arrays.asList(cmd.getOptionValues(CommandOptions.PLUGINS_S));
             for (String selectedPlugin : selectedPlugins)
                 if (!availablePlugins.contains(selectedPlugin))
-                    log.error("The plugin \"" + selectedPlugin + "\" is not in the list of available plugins. " +
-                            "Please, select one of the following:\n" + Strings.list(availablePlugins));
+                    log.error("The plugin " + Strings.surround(selectedPlugin, "\"") + " is not in the list of available plugins. "
+                            + "Please, select one of the following:\n" + Strings.list(availablePlugins));
 
             for (Class<? extends Generator> gen : concreteGenerators)
                 if (selectedPlugins.contains(gen.getSimpleName()))

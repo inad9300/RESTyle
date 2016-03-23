@@ -51,23 +51,23 @@ public abstract class Logger {
     }
 
     public void info(String introMsg, Exception e) {
-        introMsg = Strings.isEmpty(introMsg) ? "" : introMsg + "";
-        handleRequest(new LogRequest(Logger.INFO, introMsg + e.getMessage(), e.getStackTrace().toString()));
+        introMsg = Strings.isEmpty(introMsg) ? "" : introMsg + ": ";
+        handleRequest(new LogRequest(Logger.INFO, introMsg + e.getMessage(), Strings.fromException(e)));
     }
 
     public void warn(String introMsg, Exception e) {
-        introMsg = Strings.isEmpty(introMsg) ? "" : introMsg + "";
-        handleRequest(new LogRequest(Logger.WARN, introMsg + e.getMessage(), e.getStackTrace().toString()));
+        introMsg = Strings.isEmpty(introMsg) ? "" : introMsg + ": ";
+        handleRequest(new LogRequest(Logger.WARN, introMsg + e.getMessage(), Strings.fromException(e)));
     }
 
     public void error(String introMsg, Exception e) {
-        introMsg = Strings.isEmpty(introMsg) ? "" : introMsg + "";
-        handleRequest(new LogRequest(Logger.ERROR, introMsg + e.getMessage(), e.getStackTrace().toString()));
+        introMsg = Strings.isEmpty(introMsg) ? "" : introMsg + ": ";
+        handleRequest(new LogRequest(Logger.ERROR, introMsg + e.getMessage(), Strings.fromException(e)));
     }
 
     public void broke(String introMsg, Exception e) {
-        introMsg = Strings.isEmpty(introMsg) ? "" : introMsg + "";
-        handleRequest(new LogRequest(Logger.CRITICAL, introMsg + e.getMessage(), e.getStackTrace().toString()));
+        introMsg = Strings.isEmpty(introMsg) ? "" : introMsg + ": ";
+        handleRequest(new LogRequest(Logger.CRITICAL, introMsg + e.getMessage(), Strings.fromException(e)));
     }
 
     public void info(String msg, String devMsg) {
