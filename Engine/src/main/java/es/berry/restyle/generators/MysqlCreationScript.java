@@ -41,7 +41,7 @@ public class MysqlCreationScript extends Generator {
             result += doResourcePart(res);
 
         try {
-            Strings.toFile(result, "generate_database.sql");
+            Strings.toFile(result, this.out.getAbsolutePath() + "/generate_database.sql");
         } catch (IOException e) {
             log.error("Error creating file in plugin " + this.getClass().getSimpleName(), e);
         }

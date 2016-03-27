@@ -73,7 +73,7 @@ final public class Main {
             for (Class<? extends Generator> gen : concreteGenerators)
                 availablePlugins.add(gen.getSimpleName());
 
-            if (cmd.hasOption(CommandOptions.SPEC_S)) {
+            if (cmd.hasOption(CommandOptions.LIST_PLUGINS_S)) {
                 Strings.list(availablePlugins);
                 System.exit(0);
             }
