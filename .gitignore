@@ -13,3 +13,8 @@ hs_err_pid*
 
 # Node.js dependencies
 node_modules
+
+# Maven
+/Engine/bin
+/Engine/target
+/Engine/assembly
