@@ -1,5 +1,5 @@
 
-package es.berry.restyle.specification;
+package es.berry.restyle.specification.generated;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -461,7 +461,7 @@ public class Resource {
                                                 if (value instanceof Set) {
                                                     setFields(((Set<Field> ) value));
                                                 } else {
-                                                    throw new IllegalArgumentException(("property \"fields\" is of type \"java.util.Set<es.berry.restyle.specification.Field>\", but got "+ value.getClass().toString()));
+                                                    throw new IllegalArgumentException(("property \"fields\" is of type \"java.util.Set<es.berry.restyle.specification.generated.Field>\", but got "+ value.getClass().toString()));
                                                 }
                                                 return true;
                                             } else {
@@ -477,7 +477,7 @@ public class Resource {
                                                         if (value instanceof Set) {
                                                             setRelations(((Set<Relation> ) value));
                                                         } else {
-                                                            throw new IllegalArgumentException(("property \"relations\" is of type \"java.util.Set<es.berry.restyle.specification.Relation>\", but got "+ value.getClass().toString()));
+                                                            throw new IllegalArgumentException(("property \"relations\" is of type \"java.util.Set<es.berry.restyle.specification.generated.Relation>\", but got "+ value.getClass().toString()));
                                                         }
                                                         return true;
                                                     } else {

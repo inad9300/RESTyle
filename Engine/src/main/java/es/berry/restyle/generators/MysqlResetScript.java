@@ -1,13 +1,9 @@
 package es.berry.restyle.generators;
 
 import es.berry.restyle.core.Generator;
-import es.berry.restyle.specification.Spec;
+import es.berry.restyle.specification.generated.Spec;
 
 public class MysqlResetScript extends Generator {
-
-    public MysqlResetScript(Spec spec) {
-        super(spec);
-    }
 
     @Override
     public void generate() {}

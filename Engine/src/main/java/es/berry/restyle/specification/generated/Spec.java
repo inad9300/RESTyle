@@ -1,5 +1,5 @@
 
-package es.berry.restyle.specification;
+package es.berry.restyle.specification.generated;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -433,7 +433,7 @@ public class Spec {
                                                 if (value instanceof Set) {
                                                     setRoles(((Set<Role> ) value));
                                                 } else {
-                                                    throw new IllegalArgumentException(("property \"roles\" is of type \"java.util.Set<es.berry.restyle.specification.Role>\", but got "+ value.getClass().toString()));
+                                                    throw new IllegalArgumentException(("property \"roles\" is of type \"java.util.Set<es.berry.restyle.specification.generated.Role>\", but got "+ value.getClass().toString()));
                                                 }
                                                 return true;
                                             } else {
@@ -441,7 +441,7 @@ public class Spec {
                                                     if (value instanceof Database) {
                                                         setDatabase(((Database) value));
                                                     } else {
-                                                        throw new IllegalArgumentException(("property \"database\" is of type \"es.berry.restyle.specification.Database\", but got "+ value.getClass().toString()));
+                                                        throw new IllegalArgumentException(("property \"database\" is of type \"es.berry.restyle.specification.generated.Database\", but got "+ value.getClass().toString()));
                                                     }
                                                     return true;
                                                 } else {
@@ -449,7 +449,7 @@ public class Spec {
                                                         if (value instanceof Set) {
                                                             setTypes(((Set<Type> ) value));
                                                         } else {
-                                                            throw new IllegalArgumentException(("property \"types\" is of type \"java.util.Set<es.berry.restyle.specification.Type>\", but got "+ value.getClass().toString()));
+                                                            throw new IllegalArgumentException(("property \"types\" is of type \"java.util.Set<es.berry.restyle.specification.generated.Type>\", but got "+ value.getClass().toString()));
                                                         }
                                                         return true;
                                                     } else {
@@ -457,7 +457,7 @@ public class Spec {
                                                             if (value instanceof Set) {
                                                                 setResources(((Set<Resource> ) value));
                                                             } else {
-                                                                throw new IllegalArgumentException(("property \"resources\" is of type \"java.util.Set<es.berry.restyle.specification.Resource>\", but got "+ value.getClass().toString()));
+                                                                throw new IllegalArgumentException(("property \"resources\" is of type \"java.util.Set<es.berry.restyle.specification.generated.Resource>\", but got "+ value.getClass().toString()));
                                                             }
                                                             return true;
                                                         } else {

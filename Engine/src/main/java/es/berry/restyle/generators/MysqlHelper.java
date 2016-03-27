@@ -1,13 +1,19 @@
 package es.berry.restyle.generators;
 
-import es.berry.restyle.core.SpecTypes;
-import es.berry.restyle.specification.Field;
+import es.berry.restyle.specification.Types;
+import es.berry.restyle.specification.generated.Field;
 import es.berry.restyle.utils.Strings;
 
 import java.math.BigInteger;
 import java.util.*;
 
 public class MysqlHelper {
+
+    public final static class InheritanceStrategies {
+        public final static String SINGLE_TABLE = "singleTable";
+        public final static String TABLE_PER_CONCRETE = "tablePerConcreteClass";
+        public final static String TABLE_PER_CLASS = "tablePerClass";
+    }
 
     // NOTE: to list the available character sets and their default collations with the SHOW CHARACTER SET statement.
     // NOTE: UTF-8 likely collations: utf8mb4_general_ci, utf8mb4_unicode_ci
@@ -36,15 +42,14 @@ public class MysqlHelper {
 
         if (field.getDefault() != null) {
             final String defStr = field.getDefault().toString();
-            final boolean needsQuotes = field.getType().equals(SpecTypes.STRING)
+            final boolean needsQuotes = field.getType().equals(Types.STRING)
                     && !defStr.startsWith(SINGLE_QUOTE)
                     && !defStr.endsWith(SINGLE_QUOTE);
             modifiers.add("DEFAULT " + (needsQuotes ? Strings.surround(defStr, SINGLE_QUOTE) : field.getDefault()));
         }
 
-        // TODO: include in the spec.
-//        if (field.getAutoIncrement())
-//            modifiers.add("AUTO_INCREMENT");
+        if (field.getAutoIncrement())
+            modifiers.add("AUTO_INCREMENT");
 
         if (field.getUnique())
             modifiers.add("UNIQUE");
@@ -73,7 +78,6 @@ public class MysqlHelper {
         final int U_SMALL_MAX = 65535;
         final int U_MEDIUM_MAX = 16777215;
         final long U_INT_MAX = 4294967295L;
-        // FIXME: the automatic tool that produces the specification Java classes accepts Integers and Longs, nothing bigger
         final BigInteger U_BIG_MAX = new BigInteger("18446744073709551615");
 
         // Blobs and texts. Reference: http://dev.mysql.com/doc/refman/5.7/en/storage-requirements.html
@@ -90,7 +94,7 @@ public class MysqlHelper {
 
         String fieldType = field.getType();
 
-        if (fieldType.equals(SpecTypes.INT)) {
+        if (fieldType.equals(Types.INT)) {
             if (field.getMin() == null && field.getMax() == null)
                 return "INT";
 
@@ -136,27 +140,43 @@ public class MysqlHelper {
 
                 return mysqlType + " UNSIGNED";
             }
-        } else if (fieldType.equals(SpecTypes.FLOAT)
-                || fieldType.equals(SpecTypes.DECIMAL)) {
-            String mysqlType = fieldType.equals(SpecTypes.FLOAT) ? "FLOAT" : "DECIMAL";
+        } else if (fieldType.equals(Types.FLOAT)
+                || fieldType.equals(Types.DECIMAL)) {
+            String mysqlType = fieldType.equals(Types.FLOAT) ? "FLOAT" : "DECIMAL";
 
-            // IDEA: use min and max values to determine the precision!
+            // IDEA: use min and max values to determine the precision! (either that or check the consistency of both)
 
-            // TODO: "The maximum number of digits (M) for DECIMAL is 65. The maximum number of supported decimals (D)
-            // is 30. If D is omitted, the default is 0. If M is omitted, the default is 10."
-
-            // MySQL automatically uses FLOAT for precisions between 0 and 23, and DOUBLE if it is between 24 and 53
+            // NOTE: MySQL automatically uses FLOAT for precisions between 0 and 23, and DOUBLE if it is between 24 and 53
             if (field.getPrecision() != null) {
                 assert field.getPrecision().size() == 2;
 
+                if (fieldType.equals(Types.DECIMAL)) {
+                    final int MAX_DECIMAL_DIGITS = 65;
+                    final int MAX_DECIMAL_DECIMALS = 30;
+
+                    if (field.getPrecision().get(0) > MAX_DECIMAL_DIGITS)
+                        throw new IllegalArgumentException("MySQL does not allow decimal precisions bigger than "
+                                + MAX_DECIMAL_DIGITS);
+
+                    if (field.getPrecision().get(1) > MAX_DECIMAL_DECIMALS)
+                        throw new IllegalArgumentException("MySQL does not allow decimals to have more than "
+                                + MAX_DECIMAL_DECIMALS + " digits to the right of the decimal point.");
+
+                    if (field.getPrecision().get(1) > field.getPrecision().get(0))
+                        throw new IllegalArgumentException("The number of decimal digits cannot be bigger than the total "
+                                + "number of them.");
+                }
+
                 mysqlType += " (" + field.getPrecision().get(0) + ", " + field.getPrecision().get(1) + ")";
             }
+
+
 
             if (field.getMin() >= 0)
                 mysqlType += " UNSIGNED";
 
             return mysqlType;
-        } else if (fieldType.equals(SpecTypes.STRING)) {
+        } else if (fieldType.equals(Types.STRING)) {
             if (field.getEnum() != null) {
                 String mysqlType = "ENUM(";
 
@@ -200,16 +220,16 @@ public class MysqlHelper {
                         + LONG_MAX + ". Given: " + field.getMax() + ", as number of characters, where each one takes "
                         + CHAR_SIZE + " bytes (" + field.getMax() + " * " + CHAR_SIZE + " = "
                         + field.getMax() * CHAR_SIZE + ").");
-        } else if (fieldType.equals(SpecTypes.BOOL))
+        } else if (fieldType.equals(Types.BOOL))
             return "BIT(1)";
-        else if (fieldType.equals(SpecTypes.DATETIME))
+        else if (fieldType.equals(Types.DATETIME))
             return "DATETIME"; // Reference: http://dev.mysql.com/doc/refman/5.7/en/datetime.html
-        else if (fieldType.equals(SpecTypes.DATE))
+        else if (fieldType.equals(Types.DATE))
             return "DATE";
-        else if (fieldType.equals(SpecTypes.TIME))
+        else if (fieldType.equals(Types.TIME))
             return "TIME";
-        else if (fieldType.equals(SpecTypes.FILE)) {
-            // TODO: normalize spec. to include always bytes (accept different units)
+        else if (fieldType.equals(Types.FILE)) {
+            // IDEA: accept different units, not only bytes
             if (field.getMax() < TINY_MAX)
                 return "TINYBLOB";
             else if (field.getMax() < TEXT_MAX)
@@ -222,6 +242,6 @@ public class MysqlHelper {
                 throw new RuntimeException("...");
         } else
             throw new RuntimeException("The type provided for the field " + field.getName() + " is not valid. Given: " +
-                    fieldType + ". Valid primitive types are: " + Strings.join(SpecTypes.ALL, ", "));
+                    fieldType + ". Valid primitive types are: " + Strings.join(Types.ALL, ", "));
     }
 }

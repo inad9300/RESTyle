@@ -12,6 +12,6 @@ public class ConsoleLogger extends Logger {
         System.out.println(message);
 
         if (!Strings.isEmpty(devMessage))
-            System.out.println("\t-> More info: " + devMessage);
+            System.out.println("\n-> More info: " + devMessage);
     }
 }

@@ -5,13 +5,24 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>es.berry.restyle</groupId>
-    <artifactId>Engine</artifactId>
+    <artifactId>restyle</artifactId>
     <version>1.0</version>
 
     <properties>
-        <jackson-version>2.7.0</jackson-version>
+        <jackson-version>2.7.3</jackson-version>
         <handlebars-version>4.0.5</handlebars-version>
     </properties>
+
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>bintray-adjohnson916-maven</id>
+            <name>bintray-adjohnson916-maven</name>
+            <url>https://dl.bintray.com/adjohnson916/maven</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <!-- Testing stuff (JUnit, Hamcrest) -->
@@ -34,7 +45,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Jackson dependencies. More in: https://github.com/FasterXML/jackson-docs/wiki/Using-Jackson2-with-Maven -->
+        <!-- Jackson. More in: https://github.com/FasterXML/jackson-docs/wiki/Using-Jackson2-with-Maven -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
@@ -43,6 +54,11 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
+            <version>${jackson-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
             <version>${jackson-version}</version>
         </dependency>
         <dependency>
@@ -57,6 +73,18 @@
             <artifactId>json-schema-validator</artifactId>
             <version>2.2.6</version>
         </dependency>
+
+        <dependency>
+            <groupId>me.andrz.jackson</groupId>
+            <artifactId>jackson-json-reference-core</artifactId>
+            <version>0.2.0</version>
+        </dependency>
+
+        <!-- <dependency>
+            <groupId>org.jsonschema2pojo</groupId>
+            <artifactId>jsonschema2pojo-core</artifactId>
+            <version>0.4.22</version>
+        </dependency> -->
 
         <!-- Apache Commons CLI: http://commons.apache.org/proper/commons-cli -->
         <dependency>

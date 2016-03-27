@@ -1,10 +1,10 @@
-package es.berry.restyle.core;
+package es.berry.restyle.specification;
 
 import es.berry.restyle.exceptions.SpecException;
-import es.berry.restyle.specification.Field;
-import es.berry.restyle.specification.Resource;
-import es.berry.restyle.specification.Spec;
-import es.berry.restyle.specification.Type;
+import es.berry.restyle.specification.generated.Field;
+import es.berry.restyle.specification.generated.Resource;
+import es.berry.restyle.specification.generated.Spec;
+import es.berry.restyle.specification.generated.Type;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -40,7 +40,7 @@ public class FieldsTypeResolver {
     }
 
     private Field resolveOne(Field field) {
-        if (SpecTypes.ALL.contains(field.getType()))
+        if (Types.ALL.contains(field.getType()))
             return field;
         else {
             Type parentType = findType(field.getType());

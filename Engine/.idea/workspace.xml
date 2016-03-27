@@ -7,25 +7,57 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4cf767bb-1ffb-45b1-b1c2-8f02fa3f90c2" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_github_jknack_handlebars_4_0_5.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_github_jknack_handlebars_jackson2_4_0_5.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_antlr_antlr4_runtime_4_5_1_1.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_apache_commons_commons_lang3_3_1.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_slf4j_slf4j_simple_1_7_19.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/TemplateGen.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_github_zafarkhaja_java_semver_0_9_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Maven__ro_fortsoft_pf4j_pf4j_0_12_0.xml" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_slf4j_slf4j_api_1_6_1.xml" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_slf4j_slf4j_api_1_7_19.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__commons_io_commons_io_2_4.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__me_andrz_jackson_jackson_json_reference_core_0_2_0.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/restyle.log" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/logging/Log.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/AdvanceValidator.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/resources/examples/spec.desc.json" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/es/berry/restyle/utils/StringsTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/examples/spec.desc.json" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/surefire-reports/TEST-es.berry.restyle.utils.StringsTest.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/surefire-reports/es.berry.restyle.utils.StringsTest.txt" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/InheritanceStrategies.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/SpecAdvanceValidator.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/java/es/berry/restyle/core/FieldsTypeResolverTest.java" afterPath="" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_fasterxml_jackson_core_jackson_annotations_2_7_0.xml" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_fasterxml_jackson_core_jackson_annotations_2_7_3.xml" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_fasterxml_jackson_core_jackson_core_2_7_0.xml" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_fasterxml_jackson_core_jackson_core_2_7_3.xml" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_fasterxml_jackson_core_jackson_databind_2_7_0.xml" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_fasterxml_jackson_core_jackson_databind_2_7_3.xml" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_fasterxml_jackson_dataformat_jackson_dataformat_yaml_2_7_0.xml" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_fasterxml_jackson_dataformat_jackson_dataformat_yaml_2_7_3.xml" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/FieldsTypeResolver.java" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/FieldsTypeResolver.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/SpecCompletor.java" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/Completor.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/SpecTypes.java" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/Types.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/SqlStatements.java" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/generators/SqlStatements.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/Admin.java" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/generated/Admin.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/Database.java" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/generated/Database.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/Field.java" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/generated/Field.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/RateLimit.java" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/generated/RateLimit.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/Relation.java" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/generated/Relation.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/Resource.java" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/generated/Resource.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/Role.java" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/generated/Role.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/Spec.java" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/generated/Spec.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/Type.java" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/generated/Type.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Engine.iml" afterPath="$PROJECT_DIR$/Engine.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/generate_database.sql" afterPath="$PROJECT_DIR$/generate_database.sql" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/CommandOptions.java" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/CommandOptions.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/Generator.java" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/Generator.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/Main.java" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/Main.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/SpecCompletor.java" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/SpecCompletor.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/TemplateGen.java" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/TemplateGen.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/generators/MysqlCreationScript.java" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/generators/MysqlCreationScript.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/logging/Logger.java" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/logging/Logger.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/generators/MysqlHelper.java" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/generators/MysqlHelper.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/generators/MysqlResetScript.java" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/generators/MysqlResetScript.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/logging/ConsoleLogger.java" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/logging/ConsoleLogger.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/utils/Json.java" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/utils/Json.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/es/berry/restyle/utils/Strings.java" afterPath="$PROJECT_DIR$/src/main/java/es/berry/restyle/utils/Strings.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/resources/examples/spec.json" afterPath="$PROJECT_DIR$/src/main/resources/examples/spec.json" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/resources/specification/schema.json" afterPath="$PROJECT_DIR$/src/main/resources/specification/schema.json" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/examples/spec.json" afterPath="$PROJECT_DIR$/target/classes/examples/spec.json" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/specification/schema.json" afterPath="$PROJECT_DIR$/target/classes/specification/schema.json" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-es.berry.restyle.core.FieldsTypeResolverTest.xml" afterPath="$PROJECT_DIR$/target/surefire-reports/TEST-es.berry.restyle.core.FieldsTypeResolverTest.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/surefire-reports/es.berry.restyle.core.FieldsTypeResolverTest.txt" afterPath="$PROJECT_DIR$/target/surefire-reports/es.berry.restyle.core.FieldsTypeResolverTest.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../scripts/json-to-pojo" afterPath="$PROJECT_DIR$/../scripts/json-to-pojo" />
     </list>
     <ignored path="Engine.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -47,69 +79,16 @@
     <favorites_list name="Engine" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="MysqlCreationScript.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/generators/MysqlCreationScript.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="41" column="42" selection-start-line="41" selection-start-column="42" selection-end-line="41" selection-end-column="42" />
-              <folding>
-                <element signature="e#2709#2717#0" expanded="true" />
-                <element signature="e#3631#3639#0" expanded="true" />
-                <element signature="e#4373#4381#0" expanded="true" />
-                <element signature="e#4737#4738#0" expanded="true" />
-                <element signature="e#4764#4765#0" expanded="true" />
-                <element signature="e#5272#5273#0" expanded="true" />
-                <element signature="e#5299#5300#0" expanded="true" />
-                <element signature="e#5350#5351#0" expanded="true" />
-                <element signature="e#5385#5386#0" expanded="true" />
-                <element signature="e#5684#5692#0" expanded="true" />
-                <element signature="e#6060#6068#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Generator.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/Generator.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="7" column="37" selection-start-line="7" selection-start-column="37" selection-end-line="7" selection-end-column="37" />
-              <folding>
-                <element signature="e#298#299#0" expanded="true" />
-                <element signature="e#330#331#0" expanded="true" />
-                <element signature="e#378#379#0" expanded="true" />
-                <element signature="e#410#411#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TemplateGen.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/TemplateGen.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.538206">
-              <caret line="30" column="46" selection-start-line="30" selection-start-column="46" selection-end-line="30" selection-end-column="46" />
-              <folding>
-                <element signature="e#1316#1317#0" expanded="true" />
-                <element signature="e#1383#1384#0" expanded="true" />
-                <element signature="e#1430#1431#0" expanded="true" />
-                <element signature="e#1496#1497#0" expanded="true" />
-                <element signature="e#1534#1535#0" expanded="true" />
-                <element signature="e#1576#1577#0" expanded="true" />
-                <element signature="e#1626#1627#0" expanded="true" />
-                <element signature="e#1667#1668#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Main.java" pinned="false" current-in-tab="false">
+    <leaf>
+      <file leaf-file-name="Main.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="162" column="68" selection-start-line="162" selection-start-column="68" selection-end-line="162" selection-end-column="68" />
-              <folding />
+            <state vertical-scroll-proportion="0.49667773">
+              <caret line="73" column="58" selection-start-line="73" selection-start-column="58" selection-end-line="73" selection-end-column="58" />
+              <folding>
+                <element signature="method#printHelp#0;class#Main#0" expanded="false" />
+                <element signature="e#2959#2967#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -137,22 +116,8 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/generators/MysqlCreationScriptCore.java" />
-        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/main/Main.java" />
-        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/CodeGenerator.java" />
-        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/TypeResolver.java" />
-        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/ResourcesTypeResolver.java" />
-        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/CommandOptions.java" />
-        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/Spec.java" />
-        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/SpecificationException.java" />
-        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/ResourcesTypeResolver.java" />
-        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/InheritanceStrategies.java" />
-        <option value="$PROJECT_DIR$/src/tests/java/es/berry/restyle/core/MainTest.java" />
-        <option value="$PROJECT_DIR$/.idea/workspace.xml" />
-        <option value="$PROJECT_DIR$/src/tests/java/es/berry/restyle/core/FieldsTypeResolverTest.java" />
         <option value="$PROJECT_DIR$/src/test/java/es/berry/restyle/core/FieldsTypeResolverTestTest.java" />
         <option value="$PROJECT_DIR$/src/test/java/es/berry/restyle/core/MainTest.java" />
-        <option value="$PROJECT_DIR$/src/test/java/es/berry/restyle/core/FieldsTypeResolverTest.java" />
         <option value="$PROJECT_DIR$/src/plugins/mysql_ddl_gen/MysqlDdlGen.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/generators/Generation.java" />
         <option value="$PROJECT_DIR$/src/plugins/mysql_ddl_gen/classes/META-INF/MANIFEST.MF" />
@@ -160,13 +125,10 @@
         <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/generators/Generator.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/generators/MysqlCreationTest.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/SqlStatements.java" />
-        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/generators/MysqlResetScript.java" />
-        <option value="$PROJECT_DIR$/src/main/resources/specification/schema.json" />
         <option value="$PROJECT_DIR$/src/main/resources/specification/predefined-types.json" />
         <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/logging/FileLogger.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/logging/LogRequest.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/utils/Config.java" />
-        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/Config.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/logging/EmailLogger.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/SpecTypes.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/FieldsTypeResolver.java" />
@@ -174,20 +136,37 @@
         <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/PluginException.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/exceptions/SpecException.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/exceptions/PluginException.java" />
-        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/SpecAdvanceValidator.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/Relation.java" />
-        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/logging/ConsoleLogger.java" />
-        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/logging/Logger.java" />
-        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/generators/MysqlHelper.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/SpecCompletor.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/HandleBars.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/BarsHandler.java" />
-        <option value="$PROJECT_DIR$/pom.xml" />
-        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/Main.java" />
-        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/utils/Strings.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/GenTemplate.java" />
+        <option value="$PROJECT_DIR$/src/test/java/es/berry/restyle/core/FieldsTypeResolverTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/es/berry/restyle/core/StringsTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/es/berry/restyle/utils/StringsTest.java" />
+        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/SpecAdvanceValidator.java" />
+        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/logging/Logger.java" />
+        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/Log.java" />
+        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/generated/Database.java" />
+        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/utils/Strings.java" />
+        <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/src/main/resources/examples/spec.desc.json" />
+        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/logging/ConsoleLogger.java" />
+        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/utils/Json.java" />
+        <option value="$PROJECT_DIR$/src/main/resources/examples/spec.json" />
+        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/Completor.java" />
+        <option value="$PROJECT_DIR$/src/main/resources/specification/schema.json" />
+        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/logging/Log.java" />
+        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/generators/SqlStatements.java" />
+        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/Config.java" />
+        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/generators/MysqlResetScript.java" />
+        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/CommandOptions.java" />
+        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/TemplateGen.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/Generator.java" />
+        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/AdvanceValidator.java" />
+        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/generators/MysqlHelper.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/generators/MysqlCreationScript.java" />
+        <option value="$PROJECT_DIR$/src/main/java/es/berry/restyle/core/Main.java" />
       </list>
     </option>
   </component>
@@ -329,18 +308,6 @@
               <option name="myItemId" value="src" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="test" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="java" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="core" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
           </PATH>
           <PATH>
             <PATH_ELEMENT>
@@ -415,10 +382,6 @@
               <option name="myItemId" value="restyle" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="utils" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
           </PATH>
           <PATH>
             <PATH_ELEMENT>
@@ -443,6 +406,10 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="restyle" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="specification" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -559,9 +526,11 @@
       <recent name="" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/src/main/java/es/berry/restyle/exceptions" />
+      <recent name="$PROJECT_DIR$/src/main/java/es/berry/restyle/generators" />
+      <recent name="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification" />
+      <recent name="$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/generated" />
+      <recent name="$PROJECT_DIR$/src/main/java/es/berry/restyle/logging" />
       <recent name="$PROJECT_DIR$/src/main/java/es/berry/restyle/core" />
-      <recent name="$PROJECT_DIR$/src/plugins/mysql_ddl_gen/classes" />
     </key>
   </component>
   <component name="RunManager" selected="Application.Main">
@@ -898,56 +867,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/generators/MysqlResetScript.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="8" column="66" selection-start-line="8" selection-start-column="66" selection-end-line="8" selection-end-column="66" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/Main.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="67" column="61" selection-start-line="67" selection-start-column="61" selection-end-line="67" selection-end-column="61" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/Main.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/Main.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/Main.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="3" column="14" selection-start-line="3" selection-start-column="14" selection-end-line="3" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/Main.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/Main.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -969,24 +888,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/Admin.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.46238533">
-          <caret line="14" column="13" selection-start-line="14" selection-start-column="13" selection-end-line="14" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/resources/META-INF/MANIFEST.MF">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.09908257">
           <caret line="3" column="0" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/Database.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.29508197">
-          <caret line="18" column="13" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
         </state>
       </provider>
     </entry>
@@ -1011,40 +916,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/Spec.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="8.599315">
-          <caret line="329" column="26" selection-start-line="329" selection-start-column="26" selection-end-line="329" selection-end-column="26" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/SqlStatements.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.12328767">
-          <caret line="4" column="90" selection-start-line="4" selection-start-column="90" selection-end-line="4" selection-end-column="90" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/es/berry/restyle/core/FieldsTypeResolverTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.15737705">
-          <caret line="10" column="5" selection-start-line="10" selection-start-column="5" selection-end-line="10" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar:///usr/lib/jvm/java-8-oracle/src.zip!/java/io/File.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.6284153">
           <caret line="1005" column="19" selection-start-line="1005" selection-start-column="19" selection-end-line="1005" selection-end-column="19" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/generators/MysqlResetScript.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="13" column="0" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -1066,7 +942,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.2557377">
           <caret line="20" column="30" selection-start-line="20" selection-start-column="30" selection-end-line="20" selection-end-column="30" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1081,26 +956,163 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.7836065">
           <caret line="52" column="34" selection-start-line="52" selection-start-column="14" selection-end-line="52" selection-end-column="34" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/Field.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/exceptions/PluginException.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="5.6262293">
-          <caret line="393" column="14" selection-start-line="393" selection-start-column="14" selection-end-line="393" selection-end-column="14" />
-          <folding>
-            <element signature="e#1435#1441#0" expanded="false" />
-          </folding>
+        <state vertical-scroll-proportion="0.11803278">
+          <caret line="10" column="5" selection-start-line="10" selection-start-column="5" selection-end-line="10" selection-end-column="5" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/InheritanceStrategies.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/exceptions/SpecException.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.039344262">
-          <caret line="2" column="42" selection-start-line="2" selection-start-column="42" selection-end-line="5" selection-end-column="65" />
+          <caret line="2" column="53" selection-start-line="2" selection-start-column="53" selection-end-line="2" selection-end-column="53" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/Types.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.23606557">
+          <caret line="14" column="53" selection-start-line="14" selection-start-column="53" selection-end-line="14" selection-end-column="53" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/com/github/jknack/handlebars/4.0.5/handlebars-4.0.5.jar!/com/github/jknack/handlebars/io/URLTemplateLoader.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.44407895">
+          <caret line="24" column="0" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/es/berry/restyle/utils/StringsTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.078688525">
+          <caret line="11" column="13" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/examples/spec.yaml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/generated/Database.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.50498337">
+          <caret line="25" column="24" selection-start-line="25" selection-start-column="24" selection-end-line="25" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/generated/Resource.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/generated/RateLimit.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/generated/Role.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/generated/Field.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.9401993">
+          <caret line="393" column="14" selection-start-line="393" selection-start-column="14" selection-end-line="393" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/generated/Relation.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/generated/Type.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.17774086">
+          <caret line="17" column="18" selection-start-line="17" selection-start-column="18" selection-end-line="17" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/generated/Spec.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.9401993">
+          <caret line="329" column="26" selection-start-line="329" selection-start-column="26" selection-end-line="329" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/me/andrz/jackson/jackson-json-reference-core/0.2.0/jackson-json-reference-core-0.2.0.jar!/me/andrz/jackson/JsonReferenceProcessor.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.34843206">
+          <caret line="210" column="0" selection-start-line="210" selection-start-column="0" selection-end-line="210" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/logging/Logger.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.32890365">
+          <caret line="6" column="22" selection-start-line="6" selection-start-column="22" selection-end-line="6" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/examples/spec.desc.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.03130435">
+          <caret line="1" column="44" selection-start-line="1" selection-start-column="44" selection-end-line="1" selection-end-column="44" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/me/andrz/jackson/jackson-json-reference-core/0.2.0/jackson-json-reference-core-0.2.0.jar!/me/andrz/jackson/ObjectMapperFactory.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.2195122">
+          <caret line="11" column="17" selection-start-line="11" selection-start-column="17" selection-end-line="11" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.40869564">
+          <caret line="47" column="20" selection-start-line="47" selection-start-column="20" selection-end-line="47" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/logging/ConsoleLogger.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.358804">
+          <caret line="14" column="34" selection-start-line="14" selection-start-column="34" selection-end-line="14" selection-end-column="34" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/examples/spec.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="1.106087">
+          <caret line="51" column="24" selection-start-line="51" selection-start-column="24" selection-end-line="51" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/logging/Log.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.179402">
+          <caret line="6" column="35" selection-start-line="6" selection-start-column="35" selection-end-line="6" selection-end-column="35" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1112,202 +1124,122 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/CommandOptions.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/generators/SqlStatements.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.27540985">
-          <caret line="15" column="10" selection-start-line="15" selection-start-column="10" selection-end-line="15" selection-end-column="10" />
+        <state vertical-scroll-proportion="0.078688525">
+          <caret line="4" column="90" selection-start-line="4" selection-start-column="90" selection-end-line="4" selection-end-column="90" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/FieldsTypeResolver.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/generators/MysqlResetScript.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.039344262">
-          <caret line="30" column="40" selection-start-line="30" selection-start-column="40" selection-end-line="30" selection-end-column="40" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="5" column="38" selection-start-line="5" selection-start-column="38" selection-end-line="5" selection-end-column="38" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/utils/Json.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="14" column="30" selection-start-line="14" selection-start-column="30" selection-end-line="14" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/exceptions/PluginException.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.11803278">
-          <caret line="10" column="5" selection-start-line="10" selection-start-column="5" selection-end-line="10" selection-end-column="5" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/exceptions/SpecException.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.039344262">
-          <caret line="2" column="53" selection-start-line="2" selection-start-column="53" selection-end-line="2" selection-end-column="53" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/resources/specification/schema.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-16.703703">
-          <caret line="230" column="33" selection-start-line="230" selection-start-column="33" selection-end-line="230" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/SpecTypes.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.23606557">
-          <caret line="14" column="53" selection-start-line="14" selection-start-column="53" selection-end-line="14" selection-end-column="53" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/SpecAdvanceValidator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.59016395">
-          <caret line="30" column="51" selection-start-line="30" selection-start-column="51" selection-end-line="30" selection-end-column="51" />
-          <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#430#431#0" expanded="false" />
-            <element signature="e#462#463#0" expanded="false" />
-            <element signature="e#660#668#0" expanded="false" />
-            <element signature="e#1258#1266#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/Type.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.17704917">
-          <caret line="17" column="18" selection-start-line="17" selection-start-column="18" selection-end-line="17" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/Relation.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/logging/ConsoleLogger.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.27739727">
-          <caret line="11" column="34" selection-start-line="11" selection-start-column="34" selection-end-line="11" selection-end-column="34" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/logging/Logger.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.58047944">
-          <caret line="68" column="66" selection-start-line="68" selection-start-column="66" selection-end-line="68" selection-end-column="66" />
-          <folding>
-            <element signature="e#1186#1187#0" expanded="false" />
-            <element signature="e#1250#1251#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/com/github/jknack/handlebars/4.0.5/handlebars-4.0.5.jar!/com/github/jknack/handlebars/io/URLTemplateLoader.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.44407895">
-          <caret line="24" column="0" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/SpecCompletor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.7475083">
-          <caret line="48" column="0" selection-start-line="48" selection-start-column="0" selection-end-line="48" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/generators/MysqlHelper.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.86710966">
-          <caret line="29" column="0" selection-start-line="29" selection-start-column="0" selection-end-line="29" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.5114754">
+          <caret line="30" column="12" selection-start-line="30" selection-start-column="12" selection-end-line="30" selection-end-column="19" />
           <folding>
             <element signature="imports" expanded="false" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="2.7826087">
-          <caret line="117" column="21" selection-start-line="113" selection-start-column="0" selection-end-line="118" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/utils/Strings.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.013289036">
-          <caret line="62" column="138" selection-start-line="62" selection-start-column="138" selection-end-line="62" selection-end-column="138" />
+        <state vertical-scroll-proportion="0.5814208">
+          <caret line="69" column="5" selection-start-line="69" selection-start-column="5" selection-end-line="69" selection-end-column="5" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/Main.java">
+    <entry file="file://$PROJECT_DIR$/src/main/resources/specification/schema.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="162" column="68" selection-start-line="162" selection-start-column="68" selection-end-line="162" selection-end-column="68" />
+        <state vertical-scroll-proportion="-11.666667">
+          <caret line="68" column="33" selection-start-line="68" selection-start-column="30" selection-end-line="68" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/CommandOptions.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.12131148">
+          <caret line="15" column="51" selection-start-line="15" selection-start-column="51" selection-end-line="15" selection-end-column="51" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/FieldsTypeResolver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.5681063">
+          <caret line="30" column="0" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/TemplateGen.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.95681065">
+          <caret line="52" column="0" selection-start-line="52" selection-start-column="0" selection-end-line="52" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/Generator.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="7" column="37" selection-start-line="7" selection-start-column="37" selection-end-line="7" selection-end-column="37" />
+        <state vertical-scroll-proportion="0.44850498">
+          <caret line="19" column="25" selection-start-line="19" selection-start-column="25" selection-end-line="19" selection-end-column="25" />
           <folding>
-            <element signature="e#298#299#0" expanded="true" />
-            <element signature="e#330#331#0" expanded="true" />
-            <element signature="e#378#379#0" expanded="true" />
-            <element signature="e#410#411#0" expanded="true" />
+            <element signature="method#Generator#0;class#Generator#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/Completor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-1.0332226">
+          <caret line="53" column="25" selection-start-line="53" selection-start-column="21" selection-end-line="53" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/specification/AdvanceValidator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="23" column="37" selection-start-line="23" selection-start-column="37" selection-end-line="23" selection-end-column="37" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/generators/MysqlHelper.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.49169436">
+          <caret line="146" column="117" selection-start-line="146" selection-start-column="117" selection-end-line="146" selection-end-column="117" />
+          <folding>
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/generators/MysqlCreationScript.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="41" column="42" selection-start-line="41" selection-start-column="42" selection-end-line="41" selection-end-column="42" />
-          <folding>
-            <element signature="e#2709#2717#0" expanded="true" />
-            <element signature="e#3631#3639#0" expanded="true" />
-            <element signature="e#4373#4381#0" expanded="true" />
-            <element signature="e#4737#4738#0" expanded="true" />
-            <element signature="e#4764#4765#0" expanded="true" />
-            <element signature="e#5272#5273#0" expanded="true" />
-            <element signature="e#5299#5300#0" expanded="true" />
-            <element signature="e#5350#5351#0" expanded="true" />
-            <element signature="e#5385#5386#0" expanded="true" />
-            <element signature="e#5684#5692#0" expanded="true" />
-            <element signature="e#6060#6068#0" expanded="true" />
-          </folding>
+        <state vertical-scroll-proportion="1.0166113">
+          <caret line="49" column="39" selection-start-line="49" selection-start-column="39" selection-end-line="49" selection-end-column="39" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/TemplateGen.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/berry/restyle/core/Main.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.538206">
-          <caret line="30" column="46" selection-start-line="30" selection-start-column="46" selection-end-line="30" selection-end-column="46" />
+        <state vertical-scroll-proportion="0.49667773">
+          <caret line="73" column="58" selection-start-line="73" selection-start-column="58" selection-end-line="73" selection-end-column="58" />
           <folding>
-            <element signature="e#1316#1317#0" expanded="true" />
-            <element signature="e#1383#1384#0" expanded="true" />
-            <element signature="e#1430#1431#0" expanded="true" />
-            <element signature="e#1496#1497#0" expanded="true" />
-            <element signature="e#1534#1535#0" expanded="true" />
-            <element signature="e#1576#1577#0" expanded="true" />
-            <element signature="e#1626#1627#0" expanded="true" />
-            <element signature="e#1667#1668#0" expanded="true" />
+            <element signature="method#printHelp#0;class#Main#0" expanded="false" />
+            <element signature="e#2959#2967#0" expanded="true" />
           </folding>
         </state>
       </provider>

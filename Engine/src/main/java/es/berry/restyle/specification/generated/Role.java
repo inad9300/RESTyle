@@ -1,5 +1,5 @@
 
-package es.berry.restyle.specification;
+package es.berry.restyle.specification.generated;
 
 import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -178,7 +178,7 @@ public class Role {
                             if (value instanceof RateLimit) {
                                 setRateLimit(((RateLimit) value));
                             } else {
-                                throw new IllegalArgumentException(("property \"rateLimit\" is of type \"es.berry.restyle.specification.RateLimit\", but got "+ value.getClass().toString()));
+                                throw new IllegalArgumentException(("property \"rateLimit\" is of type \"es.berry.restyle.specification.generated.RateLimit\", but got "+ value.getClass().toString()));
                             }
                             return true;
                         } else {

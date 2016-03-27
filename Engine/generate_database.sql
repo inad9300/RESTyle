@@ -7,10 +7,10 @@ CREATE DATABASE IF NOT EXISTS `test_db`
 USE `test_db`;
 
 CREATE TABLE `book` (
-	`title`ENUM()NOT NULL,
-	`author`ENUM()NOT NULL DEFAULT 'Anon.'
-	INDEX (
-	CHECK (title <= 300 AND title >= 1 AND author <= 300 AND author >= 1 AND ([]))
+	`author`ENUM()NOT NULL DEFAULT 'Anon.',
+	`title`ENUM()NOT NULL
+	INDEX (title ASC
+	CHECK (author <= 300 AND author >= 1 AND title <= 300 AND title >= 1 AND ([]))
 );
 COMMENT 'Bunch of pages glued together.'
 

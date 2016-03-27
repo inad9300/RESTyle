@@ -1,6 +1,6 @@
 {
     "title": "Bookstore",
-    "description": "The best bookstore ever",
+    "description": { "$ref": "spec.desc.json#/description" },
     "version": "v1",
     "baseUrl": "https://api.bookstore.example.org/{version}/",
     "dataFormats": ["application/json", "text/xml"],
@@ -48,7 +48,8 @@
             "min": 1,
             "max": 300,
             "default": "Anon."
-        }]
+        }],
+        "index": ["title"]
     }, {
         "name": "author",
         "fields": [{

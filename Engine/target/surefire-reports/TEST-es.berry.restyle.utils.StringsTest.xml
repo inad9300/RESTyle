@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite tests="1" failures="0" name="es.berry.restyle.core.FieldsTypeResolverTest" time="0" errors="0" skipped="0">
+<testsuite tests="5" failures="0" name="es.berry.restyle.utils.StringsTest" time="0.111" errors="0" skipped="0">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="sun.boot.library.path" value="/usr/lib/jvm/java-8-oracle/jre/lib/amd64"/>
@@ -59,5 +59,9 @@
     <property name="sun.desktop" value="gnome"/>
     <property name="sun.cpu.isalist" value=""/>
   </properties>
-  <testcase classname="es.berry.restyle.core.FieldsTypeResolverTest" name="testExample" time="0"/>
+  <testcase classname="es.berry.restyle.utils.StringsTest" name="surround" time="0.002"/>
+  <testcase classname="es.berry.restyle.utils.StringsTest" name="cut" time="0"/>
+  <testcase classname="es.berry.restyle.utils.StringsTest" name="join" time="0"/>
+  <testcase classname="es.berry.restyle.utils.StringsTest" name="list" time="0"/>
+  <testcase classname="es.berry.restyle.utils.StringsTest" name="isEmpty" time="0"/>
 </testsuite>

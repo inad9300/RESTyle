@@ -1,27 +1,41 @@
 package es.berry.restyle.utils;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import es.berry.restyle.logging.Log;
+import es.berry.restyle.logging.Logger;
+import me.andrz.jackson.JsonReferenceException;
+import me.andrz.jackson.JsonReferenceProcessor;
+import me.andrz.jackson.ObjectMapperFactory;
+
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.net.URL;
 
-public class Json {
+final public class Json {
 
-    private String json;
+    private static final Logger log = Log.getChain();
 
-    public Json(String jsonFilename) throws IOException {
-        this.json = new String(Files.readAllBytes(Paths.get(jsonFilename)), "UTF-8");
+    public static JsonNode resolveReferences(File json, final ObjectMapper mapper) throws IOException {
+        JsonReferenceProcessor processor = new JsonReferenceProcessor();
+        processor.setStopOnCircular(true);
+        processor.setMaxDepth(8);
+        if (mapper != null)
+            processor.setMapperFactory(new ObjectMapperFactory() {
+                public ObjectMapper create(URL url) {
+                    return mapper;
+                }
+            });
+
+        try {
+            return processor.process(json);
+        } catch (JsonReferenceException e) {
+            log.error("Error resolving some JSON reference", e);
+            return null;
+        }
     }
 
-    public boolean isValid() {
-        return false;
+    public static JsonNode resolveReferences(File json) throws IOException {
+        return resolveReferences(json, null);
     }
-
-    public boolean isValidAgainstSchema(String schemaFilename) {
-        return false;
-    }
-
-    // public String toYaml() {}
-
-    // public String fromYaml() {}
-
 }

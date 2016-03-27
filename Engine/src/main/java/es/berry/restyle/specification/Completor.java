@@ -1,11 +1,14 @@
-package es.berry.restyle.core;
+package es.berry.restyle.specification;
 
-import es.berry.restyle.specification.*;
+import es.berry.restyle.specification.generated.*;
 import es.berry.restyle.utils.Strings;
 import org.atteo.evo.inflector.English;
 
+import java.util.HashSet;
+import java.util.Set;
+
 // IDEA: apply decorator pattern: SpecWithDefaults, SpecWithResolvedTypes
-final public class SpecCompletor {
+final public class Completor {
     // Global
     private final static String DEF_ENCODING = "UTF-8";
     private final static String DEF_TIME_ZONE = "UTC";
@@ -22,6 +25,7 @@ final public class SpecCompletor {
     // Fields
     private final static int DEF_MIN = 0;
     private final static int DEF_MAX = 0;
+    private static final boolean DEF_AUTO_INCREMENT = false;
     private static final boolean DEF_REQUIRED = false;
     private static final boolean DEF_UNIQUE = false;
     private final static boolean DEF_FILTERABLE = true;
@@ -32,7 +36,7 @@ final public class SpecCompletor {
 
     final private Spec spec;
 
-    public SpecCompletor(Spec spec) {
+    public Completor(Spec spec) {
         this.spec = spec;
     }
 
@@ -46,6 +50,11 @@ final public class SpecCompletor {
 
         if (field.getMax() == null)
             field.setMax((long) DEF_MAX);
+
+        if (field.getAutoIncrement() == null)
+            field.setAutoIncrement(DEF_AUTO_INCREMENT);
+        else if (field.getAutoIncrement())
+            field.setType(Types.INT);
 
         if (field.getRequired() == null)
             field.setRequired(DEF_REQUIRED);
@@ -69,7 +78,7 @@ final public class SpecCompletor {
             field.setEncrypted(DEF_ENCRYPTED);
     }
 
-    public SpecCompletor addDefaultValues() {
+    public Completor addDefaultValues() {
         if (Strings.isEmpty(spec.getEncoding()))
             spec.setEncoding(DEF_ENCODING);
 
@@ -106,11 +115,11 @@ final public class SpecCompletor {
             for (Field field : resource.getFields())
                 addFieldDefaultValues(field);
 
+            Set<String> newIndex = new HashSet<String>();
             for (String idx : resource.getIndex())
-                if (!idx.startsWith("-") || !idx.startsWith("+"))
-                    // FIXME: enough for modifying the real idx in the resource?
-                    // TODO: Java test for the sentence right above
-                    idx = "+" + idx; // Ascending order by default
+                newIndex.add(idx.startsWith("-") || idx.startsWith("+") ? idx : "+" + idx); // Ascending order by default
+
+            resource.setIndex(newIndex);
 
             // TODO: acl
 

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.github.fge.jackson.JsonLoader;
@@ -13,15 +12,15 @@ import com.github.fge.jsonschema.core.report.ProcessingMessage;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
-import com.github.jknack.handlebars.Handlebars;
-import com.github.jknack.handlebars.Template;
 import es.berry.restyle.exceptions.PluginException;
 import es.berry.restyle.exceptions.SpecException;
-import es.berry.restyle.logging.ConsoleLogger;
-import es.berry.restyle.logging.EmailLogger;
-import es.berry.restyle.logging.FileLogger;
+import es.berry.restyle.logging.Log;
 import es.berry.restyle.logging.Logger;
-import es.berry.restyle.specification.Spec;
+import es.berry.restyle.specification.AdvanceValidator;
+import es.berry.restyle.specification.Completor;
+import es.berry.restyle.specification.FieldsTypeResolver;
+import es.berry.restyle.specification.generated.Spec;
+import es.berry.restyle.utils.Json;
 import es.berry.restyle.utils.Strings;
 import org.apache.commons.cli.*;
 import org.reflections.Reflections;
@@ -29,7 +28,6 @@ import org.reflections.Reflections;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -37,22 +35,11 @@ import java.util.Set;
 
 final public class Main {
     private final static Options OPTS = CommandOptions.get();
-    private final static Logger log = getLoggersChain();
+    private final static Logger log = Log.getChain();
 
     private static void printHelp() {
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp(Config.APP_NAME, OPTS);
-    }
-
-    private static Logger getLoggersChain() {
-        Logger consoleLogger = new ConsoleLogger(Logger.INFO);
-        Logger fileLogger = new FileLogger(Logger.ERROR, Config.LOG_FILE);
-        Logger emailLogger = new EmailLogger(Logger.CRITICAL, "logging-test@berry.es", Config.DEV_EMAILS); // FIXME
-
-        consoleLogger.setNext(fileLogger);
-        fileLogger.setNext(emailLogger);
-
-        return consoleLogger; // Return the one everyone else is linked to
     }
 
     public static void main(String[] args) {
@@ -60,7 +47,7 @@ final public class Main {
             final String[] mockArgs = {
                     "-" + CommandOptions.SPEC_S, "/home/daniel/Code/RESTyle/Engine/src/main/resources/examples/spec.json",
                     "-" + CommandOptions.PLUGINS_S, "MysqlCreationScript",
-                    "-" + CommandOptions.OUT_S, ""
+                    "-" + CommandOptions.OUT_S, "/home/daniel/Code/RESTyle_output"
             };
 
             // Set up command-line
@@ -70,9 +57,26 @@ final public class Main {
             try {
                 cmd = parser.parse(OPTS, mockArgs);
             } catch (ParseException e) {
-                log.error("Error parsing the command-line options:\n" + e.getMessage());
+                log.error("Error parsing the command-line options", e);
             }
             assert cmd != null;
+
+
+            // Check presence of "privileged" commands
+            // ---------------------------------------
+
+            // Get available plugins (it will be needed later anyway)
+            Reflections reflections = new Reflections("es.berry.restyle.generators");
+            Set<Class<? extends Generator>> concreteGenerators = reflections.getSubTypesOf(Generator.class);
+
+            List<String> availablePlugins = new ArrayList<String>();
+            for (Class<? extends Generator> gen : concreteGenerators)
+                availablePlugins.add(gen.getSimpleName());
+
+            if (cmd.hasOption(CommandOptions.SPEC_S)) {
+                Strings.list(availablePlugins);
+                System.exit(0);
+            }
 
 
             // Validate arguments
@@ -84,6 +88,17 @@ final public class Main {
             final File specFile = new File(specPath);
             if (!specFile.exists() || !specFile.isFile())
                 log.error("The specification file does not exist.");
+
+            final String outputPath = cmd.getOptionValue(CommandOptions.OUT_S);
+            if (Strings.isEmpty(outputPath))
+                log.error("A value must be specified for option " + CommandOptions.OUT_L + ".");
+
+            final File outputDir = new File(outputPath);
+            if (outputDir.exists()) {
+                if (outputDir.isFile())
+                    log.error("Only a directory can be specified as output.");
+            } else if (!outputDir.mkdirs())
+                log.error("The output directory does not exist and could not be created.");
 
 
             // Configure mapper depending on the format
@@ -104,19 +119,21 @@ final public class Main {
             assert mapper != null;
 
 
-            // Validate JSON, and prepare the baseUrl
-            // --------------------------------------
+            // Validate JSON and resolve references ($ref)
+            // -------------------------------------------
             JsonNode specNode = null;
             try {
-                specNode = mapper.readTree(specFile);
+                // specNode = mapper.readTree(specFile);
+                specNode = Json.resolveReferences(specFile, mapper);
             } catch (JsonProcessingException e) {
                 // Will inform about JSON validation errors
-                log.error("Error processing the specification file: " + e.getMessage());
+                log.error("Error processing the specification file", e);
             } catch (IOException e) {
-                log.error("Error reading the specification file: " + e.getMessage());
+                log.error("Error reading the specification file (or a file referenced by it)", e);
             }
             assert specNode != null;
 
+            // Resolve baseUrl
             specNode = ((ObjectNode) specNode).put(
                     "baseUrl",
                     specNode.get("baseUrl").asText()
@@ -134,18 +151,17 @@ final public class Main {
 
                 ProcessingReport report = schema.validate(specNode);
                 if (!report.isSuccess()) {
-                    System.out.println("The specification provided does not conform the meta-specification defined for it:"
-                            + "\n--- BEGIN REPORT ---");
+                    System.out.println("The specification provided does not conform the meta-specification defined for it:");
 
                     for (ProcessingMessage msg : report)
                         System.out.print(msg);
 
-                    System.out.println("--- END REPORT ---");
+                    System.exit(1);
                 }
             } catch (IOException e) {
-                log.error("The JSON schema file could not be read.");
+                log.error("The JSON schema file could not be read", e);
             } catch (ProcessingException e) {
-                log.error("An error happened when processing the JSON schema file.");
+                log.error("An error happened when processing the JSON schema file", e);
             }
 
 
@@ -157,21 +173,15 @@ final public class Main {
             } catch (JsonProcessingException e) {
                 log.error("Error processing the file:\n" + e.getOriginalMessage());
             }
-            new SpecAdvanceValidator(spec).validate();
-            spec = new SpecCompletor(spec).addDefaultValues().getSpec();
+            spec = new Completor(spec).addDefaultValues().getSpec();
             spec = new FieldsTypeResolver(spec).resolve().getSpec();
-//            System.out.println( mapper.writeValueAsString(spec) );
+            new AdvanceValidator(spec).validate();
+
+//            System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(spec));
 
 
             // Load and execute plugins
             // ------------------------
-            Reflections reflections = new Reflections("es.berry.restyle.generators");
-            Set<Class<? extends Generator>> concreteGenerators = reflections.getSubTypesOf(Generator.class);
-
-            List<String> availablePlugins = new ArrayList<String>();
-            for (Class<? extends Generator> gen : concreteGenerators)
-                availablePlugins.add(gen.getSimpleName());
-
             List<String> selectedPlugins = Arrays.asList(cmd.getOptionValues(CommandOptions.PLUGINS_S));
             for (String selectedPlugin : selectedPlugins)
                 if (!availablePlugins.contains(selectedPlugin))
@@ -181,7 +191,7 @@ final public class Main {
             for (Class<? extends Generator> gen : concreteGenerators)
                 if (selectedPlugins.contains(gen.getSimpleName()))
                     try {
-                        gen.getConstructor(Spec.class).newInstance(spec).generate();
+                        gen.getConstructor(Spec.class, File.class).newInstance(spec, outputDir).generate();
                     } catch (InstantiationException e) {
                         log.broke("Impossible to instantiate plugin class " + gen.getSimpleName(), e);
                     } catch (IllegalAccessException e) {

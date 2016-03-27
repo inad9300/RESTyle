@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
-Test set: es.berry.restyle.core.FieldsTypeResolverTest
+Test set: es.berry.restyle.utils.StringsTest
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 sec
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.112 sec

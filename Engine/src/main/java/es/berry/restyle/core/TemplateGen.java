@@ -11,6 +11,8 @@ import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.context.MethodValueResolver;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
+import es.berry.restyle.logging.Log;
+import es.berry.restyle.logging.Logger;
 import es.berry.restyle.utils.Strings;
 
 import java.io.File;
@@ -21,6 +23,8 @@ public class TemplateGen {
     public static String TMPL_DIR = "./src/main/resources/templates/";
 
     private Handlebars handlebars;
+
+    private static final Logger log = Log.getChain();
 
     private void commonConstruct(String dir, String ext) {
         final TemplateLoader loader = new FileTemplateLoader(dir, tuneExtension(ext));
@@ -51,7 +55,7 @@ public class TemplateGen {
         commonConstruct(dir, ext);
     }
 
-    /* Example of JsonNode (ObjectNode) creation:
+    /* Example of ObjectNode (extends JsonNode) creation:
         ObjectNode root = new ObjectMapper().createObjectNode();
         root.put("tableName", "test_table_name");
      */
@@ -69,8 +73,8 @@ public class TemplateGen {
 
             return template.apply(context);
         } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error handling Handlebars templates: " + e.getMessage()); // FIXME: use logging system
+            log.error("Error handling Handlebars templates", e);
+            return null;
         }
     }
 
@@ -78,8 +82,8 @@ public class TemplateGen {
         try {
             return compile(tmplName, new ObjectMapper().readValue(jsonStr, JsonNode.class));
         } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error parsing JSON template: " + e.getMessage()); // FIXME
+            log.error("Error parsing JSON template", e);
+            return null;
         }
     }
 
@@ -87,7 +91,8 @@ public class TemplateGen {
         try {
             return compile(tmplName, Strings.fromFile(jsonFile));
         } catch (IOException e) {
-            throw new RuntimeException("Error reading template file: " + e.getMessage()); // FIXME
+            log.error("Error reading template file", e);
+            return null;
         }
     }
 }

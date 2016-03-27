@@ -1,5 +1,5 @@
 
-package es.berry.restyle.specification;
+package es.berry.restyle.specification.generated;
 
 import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonInclude;

@@ -1,10 +1,10 @@
-package es.berry.restyle.core;
+package es.berry.restyle.specification;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SpecTypes {
+public class Types {
     public final static String INT = "int";
     public final static String FLOAT = "float";
     public final static String DECIMAL = "decimal";

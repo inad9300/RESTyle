@@ -1,21 +1,31 @@
 #!/bin/bash
 
-# USE:
-# ./json-to-pojo <source-file> <target-directory>
-
 TMP_FILE="Spec.json" # => "Spec" will be the name of the main Java class
+INPUT="../Engine/src/main/resources/specification/schema.json"
+TMP_OUTPUT="output.tmp"
+OUTPUT="../Engine/src/main/java/es/berry/restyle/specification/generated"
 
-nodejs json-deref.js $1 false $TMP_FILE
+nodejs json-deref.js $INPUT false $TMP_FILE
 
 ./jsonschema2pojo-0.4.21/jsonschema2pojo \
     --annotation-style JACKSON2 \
     --omit-hashcode-and-equals \
     --omit-tostring \
     --long-integers \
-    --package es.berry.restyle.specification \
+    --package es.berry.restyle.specification.generated \
     --remove-old-output \
     --source $TMP_FILE \
-    --target $2 \
+    --target $TMP_OUTPUT \
     --include-dynamic-accessors
 
 rm -f $TMP_FILE
+
+# The Field class is duplicated since it appears both in the resource and
+# relationship fields. This extra step should fix that behavour.
+perl -p -i -e 's/Field_/Field/g' `find ./ -name *.java`
+find . -type f -name "Field_.java" -exec rm -f {} \;
+
+rm -f $OUTPUT/*.java
+mv $TMP_OUTPUT/es/berry/restyle/specification/generated/* $OUTPUT
+
+rm -rf $TMP_OUTPUT

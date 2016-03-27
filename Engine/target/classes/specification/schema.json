@@ -207,6 +207,9 @@
                 "type": {
                     "type": "string"
                 },
+                "autoIncrement": {
+                    "type": "boolean"
+                },
                 "required": {
                     "type": "boolean"
                 },

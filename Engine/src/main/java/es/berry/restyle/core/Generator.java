@@ -1,19 +1,23 @@
 package es.berry.restyle.core;
 
-import es.berry.restyle.specification.Spec;
+import es.berry.restyle.specification.generated.Spec;
+
+import java.io.File;
 
 public abstract class Generator {
 
-    protected Spec spec;
-    protected TemplateGen tmpl = null;
+    final protected Spec spec;
+    final protected File out;
+    protected TemplateGen tmpl;
 
-    // TODO: either add "output directory" to the spec., or include it as an argument
-    protected Generator(Spec spec) {
-        this.spec = spec;
+    protected Generator() {
+        throw new RuntimeException("The Generator default constructor is not expected to be called.");
     }
 
-    protected void setTmpl(TemplateGen tmpl) {
-        this.tmpl = tmpl;
+    protected Generator(Spec spec, File outputDir) {
+        this.spec = spec;
+        this.out = outputDir;
+        this.tmpl = null;
     }
 
     public abstract void generate();

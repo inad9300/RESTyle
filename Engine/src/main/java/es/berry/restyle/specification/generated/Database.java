@@ -1,5 +1,5 @@
 
-package es.berry.restyle.specification;
+package es.berry.restyle.specification.generated;
 
 import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -200,7 +200,7 @@ public class Database {
                                 if (value instanceof Admin) {
                                     setAdmin(((Admin) value));
                                 } else {
-                                    throw new IllegalArgumentException(("property \"admin\" is of type \"es.berry.restyle.specification.Admin\", but got "+ value.getClass().toString()));
+                                    throw new IllegalArgumentException(("property \"admin\" is of type \"es.berry.restyle.specification.generated.Admin\", but got "+ value.getClass().toString()));
                                 }
                                 return true;
                             } else {

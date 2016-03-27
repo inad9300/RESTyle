@@ -1,22 +1,19 @@
 package es.berry.restyle.generators;
 
-// NOTE: should require the following command options: --output-file
-// IDEA: templates vs. pure Java-based solution? A bit of both
-
-// TODO: add plugin defaults, such as { "onDelete": "cascade" },
-// or { "embed"_ true } when { "type": "hasOne" }
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import es.berry.restyle.core.TemplateGen;
 import es.berry.restyle.core.Generator;
+import es.berry.restyle.core.TemplateGen;
 import es.berry.restyle.exceptions.PluginException;
-import es.berry.restyle.specification.Field;
-import es.berry.restyle.specification.Relation;
-import es.berry.restyle.specification.Resource;
-import es.berry.restyle.specification.Spec;
+import es.berry.restyle.logging.Log;
+import es.berry.restyle.logging.Logger;
+import es.berry.restyle.specification.generated.Field;
+import es.berry.restyle.specification.generated.Relation;
+import es.berry.restyle.specification.generated.Resource;
+import es.berry.restyle.specification.generated.Spec;
 import es.berry.restyle.utils.Strings;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -29,9 +26,11 @@ public class MysqlCreationScript extends Generator {
     private static final String HAS_MANY = "hasMany";
     private static final String KEY_MODIFIERS = "INT UNSIGNED NOT NULL"; // FIXME: NOT NULL??
 
-    public MysqlCreationScript(Spec spec) {
-        super(spec);
-        this.setTmpl( new TemplateGen(MysqlCreationScript.class, "sql") );
+    private static final Logger log = Log.getChain();
+
+    public MysqlCreationScript(Spec spec, File out) {
+        super(spec, out);
+        this.tmpl = new TemplateGen(MysqlCreationScript.class, "sql");
     }
 
     @Override
@@ -44,14 +43,11 @@ public class MysqlCreationScript extends Generator {
         try {
             Strings.toFile(result, "generate_database.sql");
         } catch (IOException e) {
-            // FIXME: use logging system
-            e.printStackTrace();
-            System.out.println("Error creating file in plugin " + this.getClass().getSimpleName()
-                    + ": " + e.getMessage());
+            log.error("Error creating file in plugin " + this.getClass().getSimpleName(), e);
         }
     }
 
-    private String getInitialConfig() { // IDEA: include collation in spec
+    private String getInitialConfig() {
         final String charset = MysqlHelper.adaptStandardName(spec.getEncoding());
 
         ObjectNode node = new ObjectMapper().createObjectNode();

@@ -5,7 +5,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.util.Collection;
 import java.util.List;
 
-public class Strings {
+final public class Strings {
 
     public static String surround(String str, String wrapper) {
         return wrapper + (str == null ? "" : str) + wrapper;

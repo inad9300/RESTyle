@@ -1,5 +1,5 @@
 
-package es.berry.restyle.specification;
+package es.berry.restyle.specification.generated;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -42,7 +42,7 @@ public class Relation {
      * 
      */
     @JsonProperty("type")
-    private String type;
+    private Relation.Type type;
     @JsonProperty("min")
     private Long min;
     @JsonProperty("max")
@@ -96,7 +96,7 @@ public class Relation {
      *     The type
      */
     @JsonProperty("type")
-    public String getType() {
+    public Relation.Type getType() {
         return type;
     }
 
@@ -108,7 +108,7 @@ public class Relation {
      *     The type
      */
     @JsonProperty("type")
-    public void setType(String type) {
+    public void setType(Relation.Type type) {
         this.type = type;
     }
 
@@ -282,10 +282,10 @@ public class Relation {
             return true;
         } else {
             if ("type".equals(name)) {
-                if (value instanceof String) {
-                    setType(((String) value));
+                if (value instanceof Relation.Type) {
+                    setType(((Relation.Type) value));
                 } else {
-                    throw new IllegalArgumentException(("property \"type\" is of type \"java.lang.String\", but got "+ value.getClass().toString()));
+                    throw new IllegalArgumentException(("property \"type\" is of type \"es.berry.restyle.specification.generated.Relation.Type\", but got "+ value.getClass().toString()));
                 }
                 return true;
             } else {
@@ -333,7 +333,7 @@ public class Relation {
                                         if (value instanceof Set) {
                                             setFields(((Set<Field> ) value));
                                         } else {
-                                            throw new IllegalArgumentException(("property \"fields\" is of type \"java.util.Set<es.berry.restyle.specification.Field>\", but got "+ value.getClass().toString()));
+                                            throw new IllegalArgumentException(("property \"fields\" is of type \"java.util.Set<es.berry.restyle.specification.generated.Field>\", but got "+ value.getClass().toString()));
                                         }
                                         return true;
                                     } else {

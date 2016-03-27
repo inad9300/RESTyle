@@ -13,6 +13,9 @@ final public class CommandOptions {
     public final static String OUT_S = "o";
     public final static String OUT_L = "output";
 
+    public final static String LIST_PLUGINS_S = "lp";
+    public final static String LIST_PLUGINS_L = "list-plugins";
+
     public static Options get() {
         Options opts = new Options();
 
@@ -31,10 +34,19 @@ final public class CommandOptions {
                 Option
                         .builder(CommandOptions.PLUGINS_S)
                         .longOpt(CommandOptions.PLUGINS_L)
-                        .desc("names of the classes of the plugins to be applied to the specification, space-separated")
+                        .desc("names of the plugins to be applied to the specification, space-separated")
                         .required()
                         .hasArgs()
                         .type(String.class)
+                        .build()
+        );
+
+        opts.addOption(
+                Option
+                        .builder(CommandOptions.LIST_PLUGINS_S)
+                        .longOpt(CommandOptions.LIST_PLUGINS_L)
+                        .desc("list all available plugins")
+                        .type(Boolean.class)
                         .build()
         );
 
