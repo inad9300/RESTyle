@@ -18,3 +18,11 @@ node_modules
 /Engine/bin
 /Engine/target
 /Engine/assembly
+
+# IntelliJ
+.idea
+
+# Eclipse
+.project
+.classpath
+.settings
