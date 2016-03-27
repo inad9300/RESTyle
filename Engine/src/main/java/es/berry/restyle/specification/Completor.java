@@ -22,6 +22,7 @@ final public class Completor {
     private static final boolean DEF_ID_INJECTION = false;
     private final static int DEF_MIN_INSTANCES = 0;
     private final static int DEF_MAX_INSTANCES = 0;
+    private final static boolean DEF_EXTRA_FIELDS = true;
     // Fields
     private final static int DEF_MIN = 0;
     private final static int DEF_MAX = 0;
@@ -111,6 +112,9 @@ final public class Completor {
 
             if (resource.getIdInjection() == null)
                 resource.setIdInjection(DEF_ID_INJECTION);
+
+            if (resource.getAcceptExtraFields() == null)
+                resource.setAcceptExtraFields(DEF_EXTRA_FIELDS);
 
             for (Field field : resource.getFields())
                 addFieldDefaultValues(field);
