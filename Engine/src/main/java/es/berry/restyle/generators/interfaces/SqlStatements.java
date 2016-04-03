@@ -1,4 +1,4 @@
-package es.berry.restyle.generators;
+package es.berry.restyle.generators.interfaces;
 
 public interface SqlStatements {
 

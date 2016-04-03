@@ -1,8 +1,10 @@
-SET NAMES {{charset}} COLLATE utf8_unicode_ci;
+SET NAMES {{charset}}{{#if collation}} COLLATE {{collation}}{{/if}};
 
 CREATE DATABASE IF NOT EXISTS `{{dbName}}`
 	DEFAULT CHARACTER SET {{charset}}
-	DEFAULT COLLATE utf8_unicode_ci;
+	{{#if collation}}DEFAULT COLLATE {{collation}}{{/if}}
+;
 
 USE `{{dbName}}`;
 
+GRANT ALL ON `{{dbName}}`.* TO '{{dbAdminName}}'@'{{dbHost}}' IDENTIFIED BY '{{dbAdminPass}}' WITH GRANT OPTION;

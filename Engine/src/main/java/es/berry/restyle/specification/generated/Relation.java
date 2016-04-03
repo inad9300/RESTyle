@@ -57,8 +57,7 @@ public class Relation {
     @JsonDeserialize(as = java.util.LinkedHashSet.class)
     private Set<Field> fields = new LinkedHashSet<Field>();
     @JsonProperty("check")
-    @JsonDeserialize(as = java.util.LinkedHashSet.class)
-    private Set<String> check = new LinkedHashSet<String>();
+    private String check;
     @JsonProperty("index")
     @JsonDeserialize(as = java.util.LinkedHashSet.class)
     private Set<String> index = new LinkedHashSet<String>();
@@ -238,7 +237,7 @@ public class Relation {
      *     The check
      */
     @JsonProperty("check")
-    public Set<String> getCheck() {
+    public String getCheck() {
         return check;
     }
 
@@ -248,7 +247,7 @@ public class Relation {
      *     The check
      */
     @JsonProperty("check")
-    public void setCheck(Set<String> check) {
+    public void setCheck(String check) {
         this.check = check;
     }
 
@@ -338,10 +337,10 @@ public class Relation {
                                         return true;
                                     } else {
                                         if ("check".equals(name)) {
-                                            if (value instanceof Set) {
-                                                setCheck(((Set<String> ) value));
+                                            if (value instanceof String) {
+                                                setCheck(((String) value));
                                             } else {
-                                                throw new IllegalArgumentException(("property \"check\" is of type \"java.util.Set<java.lang.String>\", but got "+ value.getClass().toString()));
+                                                throw new IllegalArgumentException(("property \"check\" is of type \"java.lang.String\", but got "+ value.getClass().toString()));
                                             }
                                             return true;
                                         } else {

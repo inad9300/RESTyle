@@ -126,12 +126,7 @@
         },
 
         "check": {
-            "type": "array",
-            "items": {
-                "type": "string"
-            },
-            "uniqueItems": true,
-            "minItems": 0
+            "type": "string"
         },
 
         "index": {
@@ -214,10 +209,16 @@
                     "type": "boolean"
                 },
                 "min": {
-                    "type": "integer"
+                    "oneOf": [
+                        { "type": "integer" },
+                        { "type": "string" }
+                    ]
                 },
                 "max": {
-                    "type": "integer"
+                    "oneOf": [
+                        { "type": "integer" },
+                        { "type": "string" }
+                    ]
                 },
                 "enum": {
                     "type": "array",

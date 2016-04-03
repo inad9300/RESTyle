@@ -9,6 +9,10 @@ import java.util.*;
 
 public class MysqlHelper {
 
+    public final static String ISO_8601_UTC_TIME = "'%TZ'";
+    public final static String ISO_8601_UTC_DATE = "'%Y-%m-%d'";
+    public final static String ISO_8601_UTC_FULL = "'%Y-%m-%dT%TZ'";
+
     public final static class InheritanceStrategies {
         public final static String SINGLE_TABLE = "singleTable";
         public final static String TABLE_PER_CONCRETE = "tablePerConcreteClass";
@@ -30,17 +34,25 @@ public class MysqlHelper {
                 + Strings.join(validCharsets, ", ").toUpperCase());
     }
 
+    public static String getCollation(String charset) {
+        if ("utf8".equals(charset) || "utf8mb4".equals(charset))
+            return charset + "_unicode_ci";
+
+        return null;
+    }
+
     public static String getTypeModifier(Field field) {
         List<String> modifiers = new ArrayList<String>();
 
         if (field.getRequired())
             modifiers.add("NOT NULL");
         else
-            modifiers.add("NULL");
+            modifiers.add("DEFAULT NULL");
 
         final String SINGLE_QUOTE = "'";
 
         if (field.getDefault() != null) {
+            // FIXME: does this work for times and dates?
             final String defStr = field.getDefault().toString();
             final boolean needsQuotes = field.getType().equals(Types.STRING)
                     && !defStr.startsWith(SINGLE_QUOTE)
@@ -54,7 +66,7 @@ public class MysqlHelper {
         if (field.getUnique())
             modifiers.add("UNIQUE");
 
-        if (Strings.isEmpty(field.getDescription()))
+        if (!Strings.isEmpty(field.getDescription()))
             modifiers.add("COMMENT " + Strings.surround(field.getDescription(), SINGLE_QUOTE));
 
         return Strings.join(modifiers, " ");
@@ -95,25 +107,22 @@ public class MysqlHelper {
         String fieldType = field.getType();
 
         if (fieldType.equals(Types.INT)) {
-            if (field.getMin() == null && field.getMax() == null)
-                return "INT";
-
-            if (field.getMin() == null)
-                field.setMin((long) S_INT_MIN);
-
             if (field.getMax() == null)
-                field.setMax(U_INT_MAX);
+                field.setMax((long) S_INT_MAX);
 
-            if (field.getMin() < 0) { // Signed
-                if (field.getMin() >= S_TINY_MIN && field.getMax() <= S_TINY_MAX)
+            final long min = (long) field.getMin();
+            final long max = (long) field.getMax();
+
+            if (min < 0) { // Signed
+                if (min >= S_TINY_MIN && max <= S_TINY_MAX)
                     return "TINYINT";
-                else if (field.getMin() >= S_SMALL_MIN && field.getMax() <= S_SMALL_MAX)
+                else if (min >= S_SMALL_MIN && max <= S_SMALL_MAX)
                     return "SMALLINT";
-                else if (field.getMin() >= S_MEDIUM_MIN && field.getMax() <= S_MEDIUM_MAX)
+                else if (min >= S_MEDIUM_MIN && max <= S_MEDIUM_MAX)
                     return "MEDIUMINT";
-                else if (field.getMin() >= S_INT_MIN && field.getMax() <= S_INT_MAX)
+                else if (min >= S_INT_MIN && max <= S_INT_MAX)
                     return "INT";
-                else if (field.getMin() >= S_BIG_MIN && field.getMax() <= S_BIG_MAX)
+                else if (min >= S_BIG_MIN && max <= S_BIG_MAX)
                     return "BIGINT";
                 else
                     throw new IllegalArgumentException(
@@ -122,15 +131,13 @@ public class MysqlHelper {
             } else { // Unsigned
                 String mysqlType;
 
-                if (field.getMax() == null)
-                    mysqlType = "INT";
-                else if (field.getMax() <= U_TINY_MAX)
+                if (max <= U_TINY_MAX)
                     mysqlType = "TINYINT";
-                else if (field.getMax() <= U_SMALL_MAX)
+                else if (max <= U_SMALL_MAX)
                     mysqlType = "SMALLINT";
-                else if (field.getMax() <= U_MEDIUM_MAX)
+                else if (max <= U_MEDIUM_MAX)
                     mysqlType = "MEDIUMINT";
-                else if (field.getMax() <= U_INT_MAX)
+                else if (max <= U_INT_MAX)
                     mysqlType = "INT";
                 else if (U_BIG_MAX.compareTo(new BigInteger(field.getMax().toString())) <= 0)
                     mysqlType = "BIGINT";
@@ -171,19 +178,18 @@ public class MysqlHelper {
             }
 
 
-
-            if (field.getMin() >= 0)
+            if ((double) field.getMin() >= 0)
                 mysqlType += " UNSIGNED";
 
             return mysqlType;
         } else if (fieldType.equals(Types.STRING)) {
-            if (field.getEnum() != null) {
+            if (field.getEnum() != null && field.getEnum().size() > 0) {
                 String mysqlType = "ENUM(";
 
-                List<String> enumValues = new ArrayList<String>();
+                List<String> enumValues = new ArrayList<>();
                 for (Object val : field.getEnum())
                     if (val instanceof String)
-                        enumValues.add((String) val);
+                        enumValues.add(Strings.surround((String) val, "'"));
 
                 // NOTE: from http://dev.mysql.com/doc/refman/5.7/en/enum.html: "To prevent unexpected results when
                 // using the ORDER BY clause on an ENUM column, (...) Specify the ENUM list in alphabetic order"
@@ -195,31 +201,40 @@ public class MysqlHelper {
                 return mysqlType;
             }
 
-            if (field.getMax() == field.getMin() && field.getMin() <= CHAR_MAX_CHARS)
+            if (field.getMin() == null)
+                field.setMin((long) 0);
+
+            if (field.getMax() == null)
+                field.setMax((long) VARCHAR_MAX_BYTES);
+
+            if (field.getMax().equals(field.getMin()) && (int) field.getMin() <= CHAR_MAX_CHARS)
                 return "CHAR (" + field.getMin() + ")";
 
             // NOTE: "BLOB and TEXT columns cannot have DEFAULT values"
 
-            final long CHAR_SIZE = MAX_BYTES_UTF8MB4;
-            long minLen = field.getMin() * CHAR_SIZE;
-            long maxLen = field.getMax() * CHAR_SIZE;
+            final int CHAR_SIZE = MAX_BYTES_UTF8MB4;
+
+            if (field.getMax() instanceof Integer)
+                field.setMax(((Integer) field.getMax()).longValue());
+
+            final long maxBytes = (long) field.getMax() * CHAR_SIZE;
 
             // NOTE: by now, TEXT_MAX = VARCHAR_MAX_BYTES = 65535 bytes, so TINYTEXT and TEXT will not be chosen
-            if (maxLen <= VARCHAR_MAX_BYTES)
-                return "VARCHAR (" + minLen + ")";
-            else if (maxLen < TINY_MAX)
+            if (maxBytes <= VARCHAR_MAX_BYTES)
+                return "VARCHAR(" + field.getMax() + ")";
+            else if (maxBytes < TINY_MAX)
                 return "TINYTEXT";
-            else if (maxLen < TEXT_MAX)
+            else if (maxBytes < TEXT_MAX)
                 return "TEXT";
-            else if (maxLen < MEDIUM_MAX)
+            else if (maxBytes < MEDIUM_MAX)
                 return "MEDIUMTEXT";
-            else if (maxLen < LONG_MAX)
+            else if (maxBytes < LONG_MAX)
                 return "LONGTEXT";
             else
                 throw new IllegalArgumentException("The maximum number of bytes that strings can hold is "
                         + LONG_MAX + ". Given: " + field.getMax() + ", as number of characters, where each one takes "
                         + CHAR_SIZE + " bytes (" + field.getMax() + " * " + CHAR_SIZE + " = "
-                        + field.getMax() * CHAR_SIZE + ").");
+                        + maxBytes + ").");
         } else if (fieldType.equals(Types.BOOL))
             return "BIT(1)";
         else if (fieldType.equals(Types.DATETIME))
@@ -229,14 +244,16 @@ public class MysqlHelper {
         else if (fieldType.equals(Types.TIME))
             return "TIME";
         else if (fieldType.equals(Types.FILE)) {
+            final long max = (long) field.getMax();
+
             // IDEA: accept different units, not only bytes
-            if (field.getMax() < TINY_MAX)
+            if (max < TINY_MAX)
                 return "TINYBLOB";
-            else if (field.getMax() < TEXT_MAX)
+            else if (max < TEXT_MAX)
                 return "BLOB";
-            else if (field.getMax() < MEDIUM_MAX)
+            else if (max < MEDIUM_MAX)
                 return "MEDIUMBLOB";
-            else if (field.getMax() < LONG_MAX)
+            else if (max < LONG_MAX)
                 return "LONGBLOB";
             else
                 throw new RuntimeException("...");

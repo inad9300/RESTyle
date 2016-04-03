@@ -45,7 +45,7 @@ public class FieldsTypeResolver {
         else {
             Type parentType = findType(field.getType());
 
-            if (parentType.getName() == parentType.getType())
+            if (parentType.getName().equals(parentType.getType()))
                 throw new SpecException("A circular dependency exists in type \"" + parentType.getName() + "\".");
 
             // Override the type to allow recursion
@@ -75,7 +75,7 @@ public class FieldsTypeResolver {
 
     public FieldsTypeResolver resolve() {
         for (Resource resource : spec.getResources()) {
-            Set<Field> resolvedFields = new HashSet<Field>();
+            Set<Field> resolvedFields = new HashSet<>();
             for (Field field : resource.getFields())
                 resolvedFields.add(resolveOne(field));
 

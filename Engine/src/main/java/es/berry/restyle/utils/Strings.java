@@ -2,6 +2,7 @@ package es.berry.restyle.utils;
 
 import java.io.*;
 import java.nio.file.FileAlreadyExistsException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -26,6 +27,24 @@ final public class Strings {
             result += (i++ != lastElem) ? str + separator : str;
 
         return result;
+    }
+
+    public static String join(Collection<String> strings, String separator, boolean ignoreEmpties) {
+        if (ignoreEmpties)
+            strings = Strings.removeEmpty(strings);
+
+        return join(strings, separator);
+    }
+
+
+    public static Collection<String> removeEmpty(Collection<String> strings) {
+        Collection<String> cleanStrings = new ArrayList<>();
+
+        for (String str : strings)
+            if (!Strings.isEmpty(str))
+                cleanStrings.add(str);
+
+        return cleanStrings;
     }
 
 

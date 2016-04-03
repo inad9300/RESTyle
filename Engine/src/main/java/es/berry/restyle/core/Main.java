@@ -150,7 +150,7 @@ final public class Main {
                 final JsonSchema schema = JsonSchemaFactory.byDefault().getJsonSchema(schemaNode);
 
                 ProcessingReport report = schema.validate(specNode);
-                if (!report.isSuccess()) {
+                if (!report.isSuccess()) { // FIXME: type resolution happens later, so this will fail if it was needed
                     System.out.println("The specification provided does not conform the meta-specification defined for it:");
 
                     for (ProcessingMessage msg : report)
@@ -191,7 +191,7 @@ final public class Main {
             for (Class<? extends Generator> gen : concreteGenerators)
                 if (selectedPlugins.contains(gen.getSimpleName()))
                     try {
-                        gen.getConstructor(Spec.class, File.class).newInstance(spec, outputDir).generate();
+                        gen.getConstructor(Spec.class, File.class).newInstance(spec, outputDir).doGenerate();
                     } catch (InstantiationException e) {
                         log.broke("Impossible to instantiate plugin class " + gen.getSimpleName(), e);
                     } catch (IllegalAccessException e) {

@@ -56,9 +56,9 @@ public class Type {
     @JsonProperty("required")
     private Boolean required;
     @JsonProperty("min")
-    private Long min;
+    private Object min;
     @JsonProperty("max")
-    private Long max;
+    private Object max;
     @JsonProperty("enum")
     @JsonDeserialize(as = java.util.LinkedHashSet.class)
     private Set<Object> _enum = new LinkedHashSet<Object>();
@@ -198,7 +198,7 @@ public class Type {
      *     The min
      */
     @JsonProperty("min")
-    public Long getMin() {
+    public Object getMin() {
         return min;
     }
 
@@ -208,7 +208,7 @@ public class Type {
      *     The min
      */
     @JsonProperty("min")
-    public void setMin(Long min) {
+    public void setMin(Object min) {
         this.min = min;
     }
 
@@ -218,7 +218,7 @@ public class Type {
      *     The max
      */
     @JsonProperty("max")
-    public Long getMax() {
+    public Object getMax() {
         return max;
     }
 
@@ -228,7 +228,7 @@ public class Type {
      *     The max
      */
     @JsonProperty("max")
-    public void setMax(Long max) {
+    public void setMax(Object max) {
         this.max = max;
     }
 
@@ -494,18 +494,18 @@ public class Type {
                             return true;
                         } else {
                             if ("min".equals(name)) {
-                                if (value instanceof Long) {
-                                    setMin(((Long) value));
+                                if (value instanceof Object) {
+                                    setMin(((Object) value));
                                 } else {
-                                    throw new IllegalArgumentException(("property \"min\" is of type \"java.lang.Long\", but got "+ value.getClass().toString()));
+                                    throw new IllegalArgumentException(("property \"min\" is of type \"java.lang.Object\", but got "+ value.getClass().toString()));
                                 }
                                 return true;
                             } else {
                                 if ("max".equals(name)) {
-                                    if (value instanceof Long) {
-                                        setMax(((Long) value));
+                                    if (value instanceof Object) {
+                                        setMax(((Object) value));
                                     } else {
-                                        throw new IllegalArgumentException(("property \"max\" is of type \"java.lang.Long\", but got "+ value.getClass().toString()));
+                                        throw new IllegalArgumentException(("property \"max\" is of type \"java.lang.Object\", but got "+ value.getClass().toString()));
                                     }
                                     return true;
                                 } else {

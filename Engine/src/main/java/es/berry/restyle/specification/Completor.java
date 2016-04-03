@@ -19,13 +19,13 @@ final public class Completor {
     // Resources
     private final static boolean DEF_ABSTRACT = false;
     private final static boolean DEF_PAGINABLE = true;
-    private static final boolean DEF_ID_INJECTION = false;
+    private static final boolean DEF_ID_INJECTION = true;
     private final static int DEF_MIN_INSTANCES = 0;
     private final static int DEF_MAX_INSTANCES = 0;
     private final static boolean DEF_EXTRA_FIELDS = true;
     // Fields
-    private final static int DEF_MIN = 0;
-    private final static int DEF_MAX = 0;
+    private final static long DEF_MIN = 0;
+    private final static int SPECIAL_MAX = 0;
     private static final boolean DEF_AUTO_INCREMENT = false;
     private static final boolean DEF_REQUIRED = false;
     private static final boolean DEF_UNIQUE = false;
@@ -46,11 +46,11 @@ final public class Completor {
     }
 
     private static void addFieldDefaultValues(Field field) {
-        if (field.getMin() == null)
-            field.setMin((long) DEF_MIN);
+        if (field.getMin() == null && Types.MIN_MAX_INT.contains(field.getType()))
+            field.setMin(DEF_MIN);
 
-        if (field.getMax() == null)
-            field.setMax((long) DEF_MAX);
+        if (field.getMax() != null && field.getMax().equals(SPECIAL_MAX))
+            field.setMax(null);
 
         if (field.getAutoIncrement() == null)
             field.setAutoIncrement(DEF_AUTO_INCREMENT);
@@ -119,7 +119,7 @@ final public class Completor {
             for (Field field : resource.getFields())
                 addFieldDefaultValues(field);
 
-            Set<String> newIndex = new HashSet<String>();
+            Set<String> newIndex = new HashSet<>();
             for (String idx : resource.getIndex())
                 newIndex.add(idx.startsWith("-") || idx.startsWith("+") ? idx : "+" + idx); // Ascending order by default
 
