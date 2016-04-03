@@ -47,6 +47,7 @@ final public class Main {
             final String[] mockArgs = {
                     "-" + CommandOptions.SPEC_S, "/home/daniel/Code/RESTyle/Engine/src/main/resources/examples/spec.json",
                     "-" + CommandOptions.PLUGINS_S, "MysqlCreationScript",
+                    "-" + CommandOptions.PLUGINS_S, "PhpSlim",
                     "-" + CommandOptions.OUT_S, "/home/daniel/Code/RESTyle_output"
             };
 
@@ -69,7 +70,7 @@ final public class Main {
             Reflections reflections = new Reflections("es.berry.restyle.generators");
             Set<Class<? extends Generator>> concreteGenerators = reflections.getSubTypesOf(Generator.class);
 
-            List<String> availablePlugins = new ArrayList<String>();
+            List<String> availablePlugins = new ArrayList<>();
             for (Class<? extends Generator> gen : concreteGenerators)
                 availablePlugins.add(gen.getSimpleName());
 
@@ -188,12 +189,24 @@ final public class Main {
                     log.error("The plugin " + Strings.surround(selectedPlugin, "\"") + " is not in the list of available plugins. "
                             + "Please, select one of the following:\n" + Strings.list(availablePlugins));
 
-            for (Class<? extends Generator> gen : concreteGenerators)
-                if (selectedPlugins.contains(gen.getSimpleName()))
+            // IDEA: resolve dependencies first, so that the user can forget about the plugins' order
+            Generator prevGen = null;
+
+            for (Class<? extends Generator> genClass : concreteGenerators)
+                if (selectedPlugins.contains(genClass.getSimpleName()))
                     try {
-                        gen.getConstructor(Spec.class, File.class).newInstance(spec, outputDir).doGenerate();
+                        Generator gen = genClass.getConstructor(Spec.class, File.class).newInstance(spec, outputDir);
+
+                        if (prevGen != null && gen.getPrevGeneratorInterface() != null &&
+                                !gen.getPrevGeneratorInterface().isAssignableFrom(prevGen.getClass()))
+                            log.error("The plugin " + genClass.getSimpleName() + ", which depends on the plugin "
+                                    + prevGen.getClass().getSimpleName() + ", needs it to implement the interface "
+                                    + gen.getPrevGeneratorInterface().getSimpleName() + ", which it's not happening");
+
+                        gen.generate();
+                        prevGen = gen;
                     } catch (InstantiationException e) {
-                        log.broke("Impossible to instantiate plugin class " + gen.getSimpleName(), e);
+                        log.broke("Impossible to instantiate plugin class " + genClass.getSimpleName(), e);
                     } catch (IllegalAccessException e) {
                         log.broke("Impossible to access generate method", e);
                     } catch (InvocationTargetException e) {

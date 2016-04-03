@@ -10,15 +10,12 @@ public abstract class Generator {
 
     final private Spec spec;
     final private File out;
-    private TemplateGen templateGen;
-    private Generator prevGenerator;
-    // private List<Class<Generator>> prevGeneratorInterfaces;
+    private TemplateGen templateGen = null;
+    private Class prevGeneratorInterface = null;
 
     protected Generator(Spec spec, File outputDir) {
         this.spec = spec;
         this.out = outputDir;
-        this.templateGen = null;
-        this.prevGenerator = null;
     }
 
     public Spec getSpec() {
@@ -37,19 +34,17 @@ public abstract class Generator {
         this.templateGen = template;
     }
 
-//    protected void doSetPrevGenerator(Generator gen) {
-//        this.prevGenerator = gen;
-//    }
+    protected void prevGeneratorMustImplement(Class c) {
+        this.prevGeneratorInterface = c;
+    }
 
-    // Way for the plugins to specify the interface their previous generator must implement
-//    protected void setPrevGenerator(Class<? extends Generator> gen) {
-//        // this.prevGeneratorInterfaces = Arrays.asList(gen);
-//    }
+    // Method synonym, for consistency
+    protected void setPrevGeneratorInterface(Class c) {
+        this.prevGeneratorMustImplement(c);
+    }
 
-
-    /* package-private */ Generator doGenerate() {
-        generate();
-        return this;
+    protected Class getPrevGeneratorInterface() {
+        return this.prevGeneratorInterface;
     }
 
     /**

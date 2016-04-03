@@ -9,14 +9,14 @@ import java.io.File;
 
 public class PhpSlim extends Generator {
 
-    protected PhpSlim(Spec spec, File outputDir) {
+    public PhpSlim(Spec spec, File outputDir) {
         super(spec, outputDir);
-        this.setTemplateGen( new TemplateGen(PhpSlim.class, "php") );
-        // this.setPrevGenerator(SqlCarrier.class);
+        this.setTemplateGen(new TemplateGen(PhpSlim.class, "php"));
+        this.prevGeneratorMustImplement(SqlCarrier.class);
     }
 
     @Override
     public void generate() {
-
+        System.out.println("Generating PHP stuff...");
     }
 }
