@@ -144,9 +144,6 @@
                 "name": {
                     "type": "string"
                 },
-                "displayName": {
-                    "type": "string"
-                },
                 "plural": {
                     "type": "string"
                 },
@@ -155,6 +152,9 @@
                 },
                 "base": {
                     "type": "string"
+                },
+                "isUser": {
+                    "type": "boolean"
                 },
                 "abstract": {
                     "type": "boolean"

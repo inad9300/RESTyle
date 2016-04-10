@@ -36,6 +36,16 @@ final public class Strings {
         return join(strings, separator);
     }
 
+    public static String join(String separator, Collection<Object> objects) {
+        Collection<String> strings = new ArrayList<>();
+
+        for (Object o : objects)
+            if (o instanceof String)
+                strings.add((String) o);
+
+        return join(strings, separator);
+    }
+
 
     public static Collection<String> removeEmpty(Collection<String> strings) {
         Collection<String> cleanStrings = new ArrayList<>();
@@ -104,5 +114,19 @@ final public class Strings {
         final StringWriter errors = new StringWriter();
         e.printStackTrace(new PrintWriter(errors));
         return errors.toString();
+    }
+
+
+    public static String ucFirst(String str) {
+        return ucFirst(str, false);
+    }
+
+    public static String ucFirst(String str, boolean lowerCaseRest) {
+        final String firstChar = str.substring(0, 1).toUpperCase();
+        String rest = str.substring(1);
+        if (lowerCaseRest)
+            rest = rest.toLowerCase();
+
+        return firstChar + rest;
     }
 }

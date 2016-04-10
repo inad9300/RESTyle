@@ -4,7 +4,10 @@ import es.berry.restyle.specification.generated.*;
 import es.berry.restyle.utils.Strings;
 import org.atteo.evo.inflector.English;
 
+import javax.print.attribute.SetOfIntegerSyntax;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 // IDEA: apply decorator pattern: SpecWithDefaults, SpecWithResolvedTypes
@@ -17,6 +20,7 @@ final public class Completor {
     private final static boolean DEF_IS_GUEST = false;
     private final static int DEF_RATE_LIMIT_REQ_NUM = 0;
     // Resources
+    private final static boolean DEF_IS_USER = false;
     private final static boolean DEF_ABSTRACT = false;
     private final static boolean DEF_PAGINABLE = true;
     private static final boolean DEF_ID_INJECTION = true;
@@ -43,6 +47,75 @@ final public class Completor {
 
     public Spec getSpec() {
         return this.spec;
+    }
+
+    private Set<Object> getUserRoleNames() {
+        Set<Object> names = new HashSet<>();
+
+        for (Role role : spec.getRoles())
+            names.add(role.getName());
+
+        return names;
+    }
+
+    private String getGuestRole() {
+        for (Role role : spec.getRoles())
+            if (role.getIsGuest() != null && role.getIsGuest())
+                return role.getName();
+
+        return null;
+    }
+
+    private void addUserFields(Resource res) {
+        final List<String> userReservedFieldNames = Arrays.asList("name", "role", "password", "isAdmin");
+
+        Field name = new Field();
+        Field role = new Field();
+        Field pass = new Field();
+        Field isAdmin = new Field();
+
+        name.setName("name");
+        name.setDescription("Name of the user");
+        name.setType(Types.STRING);
+        name.setRequired(true);
+        name.setMin(2);
+        name.setMax(64);
+        name.setDefault("");
+        name.setUnique(true);
+
+        role.setName("role");
+        role.setDescription("Role of the user");
+        role.setType(Types.STRING);
+        role.setRequired(true);
+        role.setMin(2);
+        role.setMax(64);
+        role.setEnum(getUserRoleNames());
+        if (getGuestRole() != null)
+            role.setDefault(getGuestRole());
+
+        pass.setName("password");
+        pass.setDescription("Password the user must use for authentication");
+        pass.setType(Types.STRING);
+        pass.setRequired(true);
+        pass.setMin(8);
+        pass.setMax(512);
+        pass.setFilterable(false);
+        pass.setSortable(false);
+        pass.setWriteOnly(true);
+        pass.setEncrypted(true);
+
+        isAdmin.setName("isAdmin");
+        isAdmin.setDescription("Determines whether the user is a super administrator or not");
+        isAdmin.setType(Types.BOOL);
+        isAdmin.setRequired(true);
+        isAdmin.setDefault(0);
+
+        Set<Field> fields = res.getFields();
+
+        fields.removeIf(f -> userReservedFieldNames.contains(f.getName()));
+
+        fields.addAll(Arrays.asList(name, role, pass, isAdmin));
+        res.setFields(fields);
     }
 
     private static void addFieldDefaultValues(Field field) {
@@ -101,8 +174,13 @@ final public class Completor {
         }
 
         for (Resource resource : spec.getResources()) {
-            if (Strings.isEmpty(resource.getPlural()) && !Strings.isEmpty(resource.getDisplayName()))
-                resource.setPlural(English.plural(resource.getDisplayName()));
+            if (resource.getIsUser() == null)
+                resource.setIsUser(DEF_IS_USER);
+            else if (resource.getIsUser())
+                addUserFields(resource);
+
+            if (Strings.isEmpty(resource.getPlural()))
+                resource.setPlural(English.plural(resource.getName()));
 
             if (resource.getAbstract() == null)
                 resource.setAbstract(DEF_ABSTRACT);

@@ -8,6 +8,8 @@ import java.util.*;
 
 public class AdvanceValidator {
 
+    // IDEA: reduce all loops over resources to one
+
     private final Spec spec;
 
     public AdvanceValidator(Spec spec) {
@@ -19,7 +21,20 @@ public class AdvanceValidator {
         indexesValidation();
         rolesValidation();
         minMaxValidation();
-        checkIdGenerationConflicts();
+        isUserDuplicatesValidation();
+        idGenerationValidation();
+    }
+
+    private void isUserDuplicatesValidation() {
+        List<String> resourceNamesWithAsUser = new LinkedList<>();
+
+        for (Resource res : spec.getResources())
+            if (res.getIsUser())
+                resourceNamesWithAsUser.add(res.getName());
+
+        if (resourceNamesWithAsUser.size() > 1)
+            throw new SpecException("Only one resource can be the \"isUser\" attribute set to true. These resources "
+                    + "are currently marked that way: " + Strings.join(resourceNamesWithAsUser, ", "));
     }
 
     private boolean isNumber(Object o) {
@@ -85,7 +100,7 @@ public class AdvanceValidator {
             }
     }
 
-    private void checkIdGenerationConflicts() {
+    private void idGenerationValidation() {
         Set<String> autoIncrementalFieldNames = new HashSet<>();
 
         for (Resource res : spec.getResources())

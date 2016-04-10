@@ -41,4 +41,11 @@ public class StringsTest {
         assertTrue(Strings.isEmpty(null));
         assertFalse(Strings.isEmpty("abc"));
     }
+
+    @Test
+    public void ucFirst() {
+        assertEquals(Strings.ucFirst("abc"), "Abc");
+        assertEquals(Strings.ucFirst("Abc"), "Abc");
+        assertEquals(Strings.ucFirst("aBC"), "ABC");
+    }
 }

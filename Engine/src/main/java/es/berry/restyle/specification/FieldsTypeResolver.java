@@ -68,6 +68,7 @@ public class FieldsTypeResolver {
             if (field.getWriteOnly() == null) field.setWriteOnly(parentType.getWriteOnly());
             if (field.getOnUpdate() == null) field.setOnUpdate(parentType.getOnUpdate());
             if (field.getEncrypted() == null) field.setEncrypted(parentType.getEncrypted());
+            if (field.getAutoIncrement() == null) field.setAutoIncrement(parentType.getAutoIncrement());
 
             return resolveOne(field);
         }

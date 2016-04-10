@@ -28,14 +28,15 @@ import org.reflections.Reflections;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
+import static java.lang.Integer.compare;
 
 final public class Main {
-    private final static Options OPTS = CommandOptions.get();
-    private final static Logger log = Log.getChain();
+    private static final Options OPTS = CommandOptions.get();
+    private static final Logger log = Log.getChain();
+
+    private static final String VALUES_SEP = ",";
 
     private static void printHelp() {
         HelpFormatter formatter = new HelpFormatter();
@@ -46,8 +47,7 @@ final public class Main {
         try {
             final String[] mockArgs = {
                     "-" + CommandOptions.SPEC_S, "/home/daniel/Code/RESTyle/Engine/src/main/resources/examples/spec.json",
-                    "-" + CommandOptions.PLUGINS_S, "MysqlCreationScript",
-                    "-" + CommandOptions.PLUGINS_S, "PhpSlim",
+                    "-" + CommandOptions.PLUGINS_S, "MysqlCreationScript" + VALUES_SEP + "PhpLumen",
                     "-" + CommandOptions.OUT_S, "/home/daniel/Code/RESTyle_output"
             };
 
@@ -68,14 +68,14 @@ final public class Main {
 
             // Get available plugins (it will be needed later anyway)
             Reflections reflections = new Reflections("es.berry.restyle.generators");
-            Set<Class<? extends Generator>> concreteGenerators = reflections.getSubTypesOf(Generator.class);
+            final Set<Class<? extends Generator>> concreteGeneratorsSet = reflections.getSubTypesOf(Generator.class);
 
             List<String> availablePlugins = new ArrayList<>();
-            for (Class<? extends Generator> gen : concreteGenerators)
+            for (Class<? extends Generator> gen : concreteGeneratorsSet)
                 availablePlugins.add(gen.getSimpleName());
 
             if (cmd.hasOption(CommandOptions.LIST_PLUGINS_S)) {
-                Strings.list(availablePlugins);
+                System.out.println(Strings.list(availablePlugins));
                 System.exit(0);
             }
 
@@ -183,37 +183,51 @@ final public class Main {
 
             // Load and execute plugins
             // ------------------------
-            List<String> selectedPlugins = Arrays.asList(cmd.getOptionValues(CommandOptions.PLUGINS_S));
+            List<String> selectedPlugins = Arrays.asList(cmd.getOptionValue(CommandOptions.PLUGINS_S).split(VALUES_SEP));
             for (String selectedPlugin : selectedPlugins)
                 if (!availablePlugins.contains(selectedPlugin))
                     log.error("The plugin " + Strings.surround(selectedPlugin, "\"") + " is not in the list of available plugins. "
                             + "Please, select one of the following:\n" + Strings.list(availablePlugins));
 
-            // IDEA: resolve dependencies first, so that the user can forget about the plugins' order
+            List<Class<? extends Generator>> concreteGenerators = new ArrayList<>();
+            for (Class<? extends Generator> c : concreteGeneratorsSet)
+                if (selectedPlugins.contains(c.getSimpleName()))
+                    concreteGenerators.add(c);
+
+            // Sort the plugins according to the exact order they were provided
+            // IDEA: resolve dependencies first, so that the final user can forget about the plugins' order
+            Collections.sort(concreteGenerators, (left, right) -> compare(
+                    selectedPlugins.indexOf(left.getSimpleName()), selectedPlugins.indexOf(right.getSimpleName())
+            ));
+
             Generator prevGen = null;
 
             for (Class<? extends Generator> genClass : concreteGenerators)
-                if (selectedPlugins.contains(genClass.getSimpleName()))
-                    try {
-                        Generator gen = genClass.getConstructor(Spec.class, File.class).newInstance(spec, outputDir);
+                try {
+                    Generator gen = genClass.getConstructor(Spec.class, File.class).newInstance(spec, outputDir);
 
-                        if (prevGen != null && gen.getPrevGeneratorInterface() != null &&
-                                !gen.getPrevGeneratorInterface().isAssignableFrom(prevGen.getClass()))
-                            log.error("The plugin " + genClass.getSimpleName() + ", which depends on the plugin "
-                                    + prevGen.getClass().getSimpleName() + ", needs it to implement the interface "
-                                    + gen.getPrevGeneratorInterface().getSimpleName() + ", which it's not happening");
+                    if (prevGen == null && gen.getPrevGeneratorInterface() != null)
+                        log.error("The plugin " + genClass.getSimpleName() + " depends on a previous plugin, but "
+                                + "none was provided");
 
-                        gen.generate();
-                        prevGen = gen;
-                    } catch (InstantiationException e) {
-                        log.broke("Impossible to instantiate plugin class " + genClass.getSimpleName(), e);
-                    } catch (IllegalAccessException e) {
-                        log.broke("Impossible to access generate method", e);
-                    } catch (InvocationTargetException e) {
-                        log.broke("Impossible to invoke generate method", e);
-                    } catch (NoSuchMethodException e) {
-                        log.broke("Impossible to find generate method", e);
-                    }
+                    if (prevGen != null && gen.getPrevGeneratorInterface() != null &&
+                            !gen.getPrevGeneratorInterface().isAssignableFrom(prevGen.getClass()))
+                        log.error("The plugin " + genClass.getSimpleName() + ", which depends on the plugin "
+                                + prevGen.getClass().getSimpleName() + ", needs it to implement the interface "
+                                + gen.getPrevGeneratorInterface().getSimpleName() + ", which it's not happening");
+
+                    gen.setPrevGenerator(prevGen);
+                    gen.generate();
+                    prevGen = gen;
+                } catch (InstantiationException e) {
+                    log.broke("Impossible to instantiate plugin class " + genClass.getSimpleName(), e);
+                } catch (IllegalAccessException e) {
+                    log.broke("Impossible to access generate method", e);
+                } catch (InvocationTargetException e) {
+                    log.broke("Impossible to invoke generate method", e);
+                } catch (NoSuchMethodException e) {
+                    log.broke("Impossible to find generate method", e);
+                }
         } catch (SpecException e) {
             log.error("There exists an error with the specification", e);
         } catch (PluginException e) {

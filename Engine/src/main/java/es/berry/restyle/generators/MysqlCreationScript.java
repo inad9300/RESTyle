@@ -8,6 +8,7 @@ import es.berry.restyle.exceptions.PluginException;
 import es.berry.restyle.generators.interfaces.SqlCarrier;
 import es.berry.restyle.logging.Log;
 import es.berry.restyle.logging.Logger;
+import es.berry.restyle.specification.SpecHelper;
 import es.berry.restyle.specification.Types;
 import es.berry.restyle.specification.generated.Field;
 import es.berry.restyle.specification.generated.Relation;
@@ -88,12 +89,17 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
         return this.getTemplateGen().compile("initial_config", node);
     }
 
+    @Override
+    public String getTableName(Resource res) {
+        return res.getPlural();
+    }
+
     // TODO: support inheritance, considering "abstract", "inheritanceStrategy", "base" and "acl"
     private String doResourcePart(Resource res) {
         if (res.getAbstract())
             return "";
 
-        final String tableName = res.getName();
+        final String tableName = getTableName(res);
 
         if (tableName.length() > MAX_NAME_LEN)
             throw new PluginException("The resource " + tableName + " has a name bigger than "
@@ -103,7 +109,7 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
         s.add("CREATE TABLE " + Strings.surround(tableName, REVERSE_QUOTE) + " (");
 
         if (res.getIdInjection())
-            s.add("\t`id` " + KEY_MODIFIERS + " AUTO_INCREMENT PRIMARY KEY" + ",");
+            s.add("\t" + Strings.surround(getPrimaryKey(res), REVERSE_QUOTE) + " " + KEY_MODIFIERS + " AUTO_INCREMENT PRIMARY KEY" + ",");
 
         final Set<Field> fields = res.getFields();
         assert fields != null && fields.size() > 0;
@@ -165,15 +171,32 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
         return null;
     }
 
-    public String getForeignKey(String name) {
-        return "id_" + name;
+    @Override
+    public String getPrimaryKey(Resource res) {
+        return "id";
     }
 
-    public String getManyToManyTableName(String resA, String resB) {
-        if (resA.compareTo(resB) < 0)
-            return resA + "_" + resB;
+    @Override
+    public String getForeignKey(Resource res) {
+        return res.getName() + "_id";
+    }
+
+    @Override
+    public String getManyToManyTableName(Resource resA, Resource resB) {
+        if (resA.getPlural().compareTo(resB.getPlural()) < 0)
+            return resA.getPlural() + "_" + resB.getPlural();
         else
-            return resB + "_" + resA;
+            return resB.getPlural() + "_" + resA.getPlural();
+    }
+
+    @Override
+    public String getHasOneStr() {
+        return HAS_ONE;
+    }
+
+    @Override
+    public String getHasManyStr() {
+        return HAS_MANY;
     }
 
     private String doCheckPart(Collection<Field> fields, String checkStr) {
@@ -196,7 +219,7 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
 
         final String quotedName = Strings.surround(field.getName(), REVERSE_QUOTE);
 
-        // TODO: avoid if the maximum is the maximum of the type, or if the minimum is greater or equal to zero for certain types
+        // TODO: avoid if the maximum is the maximum of the type
         switch (field.getType()) {
             case Types.STRING:
                 if (field.getMax() != null)
@@ -258,22 +281,23 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
     }
 
     /* e.g.
-        +----------+        +-------+
-        | users    |--------| prefs |
-        +----------+        +-------+
-        | id       |        | id    |
-        | id_prefs |        +-------+
-        +----------+
+        +----------+        +---------+
+        | users    |--------| phone   |
+        +----------+        +---------+
+        | id       |        | id      |
+        +----------+        | user_id |
+                            +---------+
      */
     private String doOneToOneRelationshipsPart(Resource res) {
         List<String> stmts = new ArrayList<>();
 
         for (Relation rel : res.getRelations())
-            if (rel.getType().toString().equals(HAS_ONE)) {
-                final String newCol = Strings.surround(getForeignKey(rel.getWith()), REVERSE_QUOTE);
-                stmts.add("ALTER TABLE " + Strings.surround(res.getName(), REVERSE_QUOTE)
+            if (HAS_ONE.equals(rel.getType().toString())) {
+                final String newCol = Strings.surround(getForeignKey(res), REVERSE_QUOTE);
+                stmts.add("ALTER TABLE " + Strings.surround(SpecHelper.findResourceByName(this.getSpec(), rel.getWith()).getPlural(), REVERSE_QUOTE)
                         + "\nADD COLUMN " + newCol + " " + KEY_MODIFIERS + ","
-                        + "\nADD FOREIGN KEY (" + newCol + ") REFERENCES " + Strings.surround(rel.getWith(), REVERSE_QUOTE) + "(`id`)"
+                        + "\nADD FOREIGN KEY (" + newCol + ") REFERENCES " + Strings.surround(res.getPlural(), REVERSE_QUOTE)
+                        + "(" + Strings.surround(getPrimaryKey(res), REVERSE_QUOTE) + ")"
                         + addReferenceOptions(rel) + ";");
             }
 
@@ -289,11 +313,12 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
         List<String> stmts = new ArrayList<>();
 
         for (Relation rel : res.getRelations())
-            if (rel.getType().toString().equals(HAS_MANY) && !hasHasManyRelationship(rel, res)) {
-                final String newCol = Strings.surround(getForeignKey(res.getName()), REVERSE_QUOTE);
-                stmts.add("ALTER TABLE " + Strings.surround(rel.getWith(), REVERSE_QUOTE)
+            if (HAS_MANY.equals(rel.getType().toString()) && !hasHasManyRelationship(rel, res)) {
+                final String newCol = Strings.surround(getForeignKey(res), REVERSE_QUOTE);
+                stmts.add("ALTER TABLE " + Strings.surround(SpecHelper.findResourceByName(this.getSpec(), rel.getWith()).getPlural(), REVERSE_QUOTE)
                         + "\nADD COLUMN " + newCol + " " + KEY_MODIFIERS + ","
-                        + "\nADD FOREIGN KEY (" + newCol + ") REFERENCES " + Strings.surround(res.getName(), REVERSE_QUOTE) + "(`id`)"
+                        + "\nADD FOREIGN KEY (" + newCol + ") REFERENCES " + Strings.surround(res.getPlural(), REVERSE_QUOTE)
+                        + "(" + Strings.surround(getPrimaryKey(res), REVERSE_QUOTE) + ")"
                         + addReferenceOptions(rel) + ";");
             }
 
@@ -304,12 +329,12 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
     // To make it easier to understand, variables are named considering that we are looking
     // for a relationship from books back to users.
     private boolean hasHasManyRelationship(Relation booksAsRelation, Resource usersAsResource) {
-        Resource booksAsResource = findResourceByName(booksAsRelation.getWith());
+        Resource booksAsResource = SpecHelper.findResourceByName(this.getSpec(), booksAsRelation.getWith());
 
         if (booksAsResource == null) return false;
 
         for (Relation booksRel : booksAsResource.getRelations())
-            if (booksRel.getWith().equals(usersAsResource.getName()))
+            if (HAS_MANY.equals(booksRel.getType().toString()) && booksRel.getWith().equals(usersAsResource.getName()))
                 return true;
 
         return false;
@@ -323,11 +348,11 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
         List<String> stmts = new ArrayList<>();
 
         for (Relation relA : resA.getRelations())
-            if (relA.getType().toString().equals(HAS_MANY) && hasHasManyRelationship(relA, resA)) {
-                Resource resB = findResourceByName(relA.getWith());
+            if (HAS_MANY.equals(relA.getType().toString()) && hasHasManyRelationship(relA, resA)) {
+                Resource resB = SpecHelper.findResourceByName(this.getSpec(), relA.getWith());
                 assert resB != null;
 
-                Relation relB = findRelationByName(resB, resA.getName());
+                Relation relB = SpecHelper.findRelationByName(resB, resA.getName());
                 assert relB != null;
 
                 resourcesWithManyToManyRelationshipsCreated.add(resA.getName());
@@ -348,7 +373,7 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
                     allChecks.add(Strings.surround(relB.getCheck(), "(", ")"));
 
                 final String newTableQ = Strings.surround(
-                        getManyToManyTableName(resA.getName(), resB.getName()), REVERSE_QUOTE);
+                        getManyToManyTableName(resA, resB), REVERSE_QUOTE);
 
                 final String fieldsPart = doFieldsPart(allFields);
                 final String indexPart = doIndexPart(allIndexes);
@@ -359,35 +384,21 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
                         + Strings.join(Arrays.asList(fieldsPart, indexPart, checkPart), ",\n", true)
                         + "\n);");
 
-                final String newColA = Strings.surround(getForeignKey(resA.getName()), REVERSE_QUOTE);
-                final String newColB = Strings.surround(getForeignKey(resB.getName()), REVERSE_QUOTE);
+                final String newColA = Strings.surround(getForeignKey(resA), REVERSE_QUOTE);
+                final String newColB = Strings.surround(getForeignKey(resB), REVERSE_QUOTE);
 
-                stmts.add("ALTER TABLE " + Strings.surround(relA.getWith(), REVERSE_QUOTE)
+                stmts.add("ALTER TABLE " + Strings.surround(SpecHelper.findResourceByName(this.getSpec(), relA.getWith()).getPlural(), REVERSE_QUOTE)
                         + "\nADD COLUMN " + newColA + " " + KEY_MODIFIERS + ","
                         + "\nADD COLUMN " + newColB + " " + KEY_MODIFIERS + ","
-                        + "\nADD FOREIGN KEY (" + newColA + ") REFERENCES " + Strings.surround(resA.getName(), REVERSE_QUOTE) + "(`id`)"
+                        + "\nADD FOREIGN KEY (" + newColA + ") REFERENCES " + Strings.surround(resA.getPlural(), REVERSE_QUOTE)
+                        + "(" + Strings.surround(getPrimaryKey(resA), REVERSE_QUOTE) + ")"
                         + addReferenceOptions(relA) + ","
-                        + "\nADD FOREIGN KEY (" + newColB + ") REFERENCES " + Strings.surround(resB.getName(), REVERSE_QUOTE) + "(`id`)"
+                        + "\nADD FOREIGN KEY (" + newColB + ") REFERENCES " + Strings.surround(resB.getPlural(), REVERSE_QUOTE)
+                        + "(" + Strings.surround(getPrimaryKey(resB), REVERSE_QUOTE) + ")"
                         + addReferenceOptions(relB)
                         + ";");
             }
 
         return Strings.join(stmts, "\n\n");
-    }
-
-    private Resource findResourceByName(String name) {
-        for (Resource res : this.getSpec().getResources())
-            if (res.getName().equals(name))
-                return res;
-
-        return null;
-    }
-
-    private Relation findRelationByName(Resource res, String relName) {
-        for (Relation rel : res.getRelations())
-            if (rel.getWith().equals(relName))
-                return rel;
-
-        return null;
     }
 }

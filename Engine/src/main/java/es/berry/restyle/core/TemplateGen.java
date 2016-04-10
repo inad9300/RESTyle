@@ -22,6 +22,8 @@ public class TemplateGen {
 
     public static String TMPL_DIR = "./src/main/resources/templates/";
 
+    private Class associatedClass = null;
+
     private Handlebars handlebars;
 
     private static final Logger log = Log.getChain();
@@ -39,12 +41,21 @@ public class TemplateGen {
         return ext.startsWith(".") ? ext : "." + ext;
     }
 
+    public String getDefDir() {
+        if (this.associatedClass == null)
+            return TMPL_DIR;
+
+        return TMPL_DIR + this.associatedClass.getSimpleName() + File.separator;
+    }
+
     public TemplateGen(Class c) {
-        commonConstruct(TMPL_DIR + c.getSimpleName(), null);
+        this.associatedClass = c;
+        commonConstruct(getDefDir(), null);
     }
 
     public TemplateGen(Class c, String ext) {
-        commonConstruct(TMPL_DIR + c.getSimpleName(), ext);
+        this.associatedClass = c;
+        commonConstruct(getDefDir(), ext);
     }
 
     public TemplateGen(String dir) {
