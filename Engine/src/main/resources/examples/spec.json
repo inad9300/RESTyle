@@ -86,6 +86,9 @@
             "min": 1,
             "max": 300,
             "default": "Anon."
+        }, {
+            "name": "cover",
+            "type": "file"
         }],
         "relations": [{
             "with": "bookstore",

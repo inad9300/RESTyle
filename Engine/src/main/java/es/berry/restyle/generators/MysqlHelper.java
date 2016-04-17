@@ -244,19 +244,22 @@ public class MysqlHelper {
         else if (fieldType.equals(Types.TIME))
             return "TIME";
         else if (fieldType.equals(Types.FILE)) {
+            if (field.getMax() == null)
+                field.setMax((long) TEXT_MAX);
+
             final long max = (long) field.getMax();
 
             // IDEA: accept different units, not only bytes
-            if (max < TINY_MAX)
+            if (max <= TINY_MAX)
                 return "TINYBLOB";
-            else if (max < TEXT_MAX)
+            else if (max <= TEXT_MAX)
                 return "BLOB";
-            else if (max < MEDIUM_MAX)
+            else if (max <= MEDIUM_MAX)
                 return "MEDIUMBLOB";
-            else if (max < LONG_MAX)
+            else if (max <= LONG_MAX)
                 return "LONGBLOB";
             else
-                throw new RuntimeException("...");
+                throw new RuntimeException("Sorry, a file that big cannot be stored");
         } else
             throw new RuntimeException("The type provided for the field " + field.getName() + " is not valid. Given: " +
                     fieldType + ". Valid primitive types are: " + Strings.join(Types.ALL, ", "));

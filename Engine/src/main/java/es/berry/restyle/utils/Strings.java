@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 final public class Strings {
@@ -128,5 +129,14 @@ final public class Strings {
             rest = rest.toLowerCase();
 
         return firstChar + rest;
+    }
+
+
+    public static List<String> iteratorToList(Iterator<String> itr) {
+        final List<String> list = new ArrayList<>();
+        while (itr.hasNext())
+                list.add(itr.next());
+
+        return list;
     }
 }

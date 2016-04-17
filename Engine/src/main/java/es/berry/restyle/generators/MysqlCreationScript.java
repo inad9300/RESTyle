@@ -80,6 +80,7 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
 
         ObjectNode node = new ObjectMapper().createObjectNode();
         node.put("charset", charset);
+        node.put("timezone", this.getSpec().getTimeZone());
         node.put("collation", MysqlHelper.getCollation(charset));
         node.put("dbName", this.getSpec().getDatabase().getName());
         node.put("dbHost", this.getSpec().getDatabase().getHost());
@@ -387,7 +388,7 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
                 final String newColA = Strings.surround(getForeignKey(resA), REVERSE_QUOTE);
                 final String newColB = Strings.surround(getForeignKey(resB), REVERSE_QUOTE);
 
-                stmts.add("ALTER TABLE " + Strings.surround(SpecHelper.findResourceByName(this.getSpec(), relA.getWith()).getPlural(), REVERSE_QUOTE)
+                stmts.add("ALTER TABLE " + Strings.surround(getManyToManyTableName(resA, resB), REVERSE_QUOTE)
                         + "\nADD COLUMN " + newColA + " " + KEY_MODIFIERS + ","
                         + "\nADD COLUMN " + newColB + " " + KEY_MODIFIERS + ","
                         + "\nADD FOREIGN KEY (" + newColA + ") REFERENCES " + Strings.surround(resA.getPlural(), REVERSE_QUOTE)

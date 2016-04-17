@@ -1,0 +1,19 @@
+{
+  "title": "Pets",
+  "description": "",
+  "version": "v1",
+  "baseUrl": "http://localhost:5555/",
+  "resources": [
+    {
+      "name": "person",
+      "plural": "people",
+      "fields": [
+        {
+          "name": "type",
+          "type": "string",
+          "enum": ["vegan", "incoherent"]
+        }
+      ]
+    }
+  ]
+}

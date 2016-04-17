@@ -47,7 +47,7 @@ class RestController extends BaseController {
                 } else if ($prop[0] === '+') {
                     $prop = ltrim($prop, '+');
                 }
-
+                
                 if (call_user_func($isPropSortable, $prop)) {
                     $query = $query->orderBy($prop, $order);
                 }

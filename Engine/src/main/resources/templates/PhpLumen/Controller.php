@@ -13,14 +13,18 @@ use App\Models{{resourceClassBack}};
 class {{resourceClass}}Controller extends RestController {
 
     // Resource end-point callbacks
+    // ----------------------------
 
-{{> Controller-resource}}{{! Indentation in partial file }}
+{{> Controller-resource}}{{! Indentation already in partial file }}
 
 
     // Relationship end-points callbacks
+    // ---------------------------------
     {{#each relations}}
     public static function get{{subresourceClassPlural}}($entityId) {
         $entity = {{resourceClass}}::findOrFail($entityId);
+
+        // TODO: add filter capabilities
 
         return response()->json($entity->{{subFn}});
     }

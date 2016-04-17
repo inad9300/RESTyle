@@ -14,14 +14,16 @@ import es.berry.restyle.specification.generated.Relation;
 import es.berry.restyle.specification.generated.Resource;
 import es.berry.restyle.specification.generated.Spec;
 import es.berry.restyle.utils.Strings;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.HashSet;
 import java.util.Set;
+
+// TODO: templates for .env (database details, random key) and bootstrap/app.php (encoding, timezone)!
+// FIXME: /users/1/books work, but /books/1/users didn't got so lucky
 
 /**
  * Plugin created for the framework Lumen, version 5.2
@@ -32,12 +34,11 @@ public class PhpLumen extends Generator {
     private final Path serverOut;
     private final Path modelsOut;
     private final Path controllersOut;
-    private final Path utilsOut;
 
     private static String HAS_ONE = null;
     private static String HAS_MANY = null;
 
-    // TODO/IDEA: replace all \n\n\n\n by \n\n\n recursively, to avoid giant vertical spacing
+    // TODO/IDEA: replace all \n\n\n\n by \n\n\n recursively, to avoid giant vertical spacing difficult to handle otherwise
 
     // It is used to prepend to different values and thus fix Handlebars escaping bug:
     // "\{{x}}" compiles to "{{x}}"; whereas "\\{{x}}" compiles to "\{{x}}", as oppose to "\valueOfX"
@@ -50,11 +51,15 @@ public class PhpLumen extends Generator {
         this.setTemplateGen(new TemplateGen(PhpLumen.class, "php"));
         this.prevGeneratorMustImplement(SqlCarrier.class);
 
-        // Creating a simple folder structure to store the outcome
-        this.serverOut = Files.createDirectories(new File(this.getOut().getAbsolutePath() + "/lumen-5.2-server").toPath());
-        this.utilsOut = Files.createDirectories(new File(this.serverOut + "/Utils").toPath());
-        this.modelsOut = Files.createDirectories(new File(this.serverOut + "/Models").toPath());
-        this.controllersOut = Files.createDirectories(new File(this.serverOut + "/Http/Controllers").toPath());
+        final File finalDir = new File(this.getOut().getAbsolutePath() + "/lumen-5.2-server");
+
+        // Remove previously generated output
+        FileUtils.deleteDirectory(finalDir);
+
+        // Store references to helpful paths
+        this.serverOut = finalDir.toPath();
+        this.modelsOut = new File(this.serverOut + "/app/Models").toPath();
+        this.controllersOut = new File(this.serverOut + "/app/Http/Controllers").toPath();
     }
 
     private void init() {
@@ -77,40 +82,22 @@ public class PhpLumen extends Generator {
 
             String routesPhp = PhpLumenHelper.FILE_PREFIX;
 
-            for (Resource res : this.getSpec().getResources())
-                routesPhp += doRoutesPart(res) + "\n\n";
-
-            Strings.toFile(routesPhp, this.serverOut + "/Http/routes.php");
-
-            for (Resource res : this.getSpec().getResources())
+            for (Resource res : this.getSpec().getResources()) {
                 Strings.toFile(doModelPart(res), this.modelsOut + File.separator + PhpLumenHelper.getClassName(res) + ".php");
-
-            for (Resource res : this.getSpec().getResources())
                 Strings.toFile(doControllersPart(res), this.controllersOut + File.separator + PhpLumenHelper.getClassName(res) + "Controller.php");
+                routesPhp += doRoutesPart(res) + "\n\n";
+            }
+            Strings.toFile(routesPhp, this.serverOut + "/app/Http/routes.php");
         } catch (IOException e) {
             log.error("Error generating some file in plugin " + this.getClass().getSimpleName(), e);
         }
     }
 
     private void getInitialConfig() throws IOException {
-        // Also, uncomment the following lines in bootstrap/app.php:
-        // $app->withFacades();
-        // $app->withEloquent();
-
-        Files.copy(
-                new File(this.getTemplateGen().getDefDir() + "RestModel.php").toPath(),
-                new File(this.modelsOut + "/RestModel.php").toPath(),
-                StandardCopyOption.REPLACE_EXISTING
-        );
-        Files.copy(
-                new File(this.getTemplateGen().getDefDir() + "RestController.php").toPath(),
-                new File(this.controllersOut + "/RestController.php").toPath(),
-                StandardCopyOption.REPLACE_EXISTING
-        );
-        Files.copy(
-                new File(this.getTemplateGen().getDefDir() + "Arrays.php").toPath(),
-                new File(this.utilsOut + "/Arrays.php").toPath(),
-                StandardCopyOption.REPLACE_EXISTING
+        // Copy seed project (slightly modified version of Lumen 5.2)
+        FileUtils.copyDirectory(
+                new File(this.getTemplateGen().getDefDir() + "lumen-seed"),
+                this.serverOut.toFile()
         );
     }
 
@@ -129,7 +116,7 @@ public class PhpLumen extends Generator {
 
             relations.add(mapper.createObjectNode()
                     .put("isManyToMany", HAS_MANY.equals(rel.getType().toString()) && SpecHelper.resourceContainsRelation(relRes, res.getName(), HAS_MANY))
-                    .put("subresourceName", relRes.getName())
+                    .put("subresourceName", relRes.getPlural())
                     .put("subresourceRoute", relRes.getPlural())
                     .put("subresourceClass", PhpLumenHelper.getClassName(relRes))
                     .put("subresourceClassPlural", PhpLumenHelper.getClassNamePlural(relRes)));
@@ -178,7 +165,7 @@ public class PhpLumen extends Generator {
             if (f.getWriteOnly() || f.getEncrypted())
                 hiddenAttributes.add(f.getName());
 
-            if (!f.getWriteOnly()) {
+            if (!f.getReadOnly()) {
                 fillableAttributes.add(f.getName());
 
                 // All fillable attributes need validation
@@ -198,7 +185,7 @@ public class PhpLumen extends Generator {
             final Resource relRes = SpecHelper.findResourceByName(this.getSpec(), rel.getWith());
             final String relResClass = PhpLumenHelper.getClassName(relRes);
             final String relResFk = (String) this.invokePrevMethod("getForeignKey", new Class[]{Resource.class}, res);
-            final String relResPk = (String) this.invokePrevMethod("getPrimaryKey", new Class[]{Resource.class}, relRes);
+            final String resFk = (String) this.invokePrevMethod("getForeignKey", new Class[]{Resource.class}, relRes);
 
             if (HAS_ONE.equals(rel.getType().toString()))
                 hasOneRelations.add(mapper.createObjectNode()
@@ -235,7 +222,7 @@ public class PhpLumen extends Generator {
                             .put("classBack", BACKSLASH + relResClass)
                             .put("middleTable", (String) this.invokePrevMethod("getManyToManyTableName", new Class[]{Resource.class, Resource.class}, res, relRes))
                             .put("fk", relResFk)
-                            .put("id", relResPk));
+                            .put("id", resFk));
                 } else
                     hasManyRelations.add(mapper.createObjectNode()
                             .put("fn", relRes.getPlural())

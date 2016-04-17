@@ -22,11 +22,11 @@ class {{resourceClass}} extends RestModel {
     ];
 
     protected $casts = [
-        {{#each casts}}'{{prop}}' => '{{type}}',{{#unless @last}}{{! remove last new line }}
+        {{#each casts}}'{{prop}}' => '{{type}}',{{#unless @last}}{{! Skips last new line }}
         {{/unless}}{{/each}}
     ];
 
-    private static $validationRules = [
+    protected static $validationRules = [
         {{#each validationRules}}'{{prop}}' => '{{rule}}',{{#unless @last}}
         {{/unless}}{{/each}}
     ];
