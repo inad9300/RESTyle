@@ -4,6 +4,9 @@ package es.berry.restyle.logging;
 
 import es.berry.restyle.utils.Strings;
 
+/**
+ * Base class to support logging using the chain of responsibility pattern. Concrete loggers must extend this class.
+ */
 public abstract class Logger {
 
     public static final int INFO = 0;

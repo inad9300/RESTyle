@@ -4,6 +4,11 @@ import es.berry.restyle.specification.generated.Relation;
 import es.berry.restyle.specification.generated.Resource;
 import es.berry.restyle.specification.generated.Spec;
 
+import java.util.ArrayList;
+
+/**
+ * Set of handy methods ready to be used by the plugins.
+ */
 final public class SpecHelper {
 
     public static Resource findResourceByName(Spec spec, String name) {
@@ -37,5 +42,10 @@ final public class SpecHelper {
             }
 
         return false;
+    }
+
+    // NOTE: the ACL list can be either an ArrayList<String> or a LinkedHashMap<String, ArrayList<String>>
+    public static boolean needsAuthentication(Resource res) {
+        return res.getAcl() != null;
     }
 }

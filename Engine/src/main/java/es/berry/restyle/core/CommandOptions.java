@@ -3,6 +3,9 @@ package es.berry.restyle.core;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+/**
+ * Options available at the command line interface.
+ */
 final public class CommandOptions {
     public final static String SPEC_S = "s";
     public final static String SPEC_L = "spec";
@@ -15,6 +18,9 @@ final public class CommandOptions {
 
     public final static String LIST_PLUGINS_S = "lp";
     public final static String LIST_PLUGINS_L = "list-plugins";
+
+    // public final static String SHOW_ERRORS_S = "e";
+    // public final static String SHOW_ERRORS_L = "display-errors";
 
     public static Options get() {
         Options opts = new Options();
@@ -49,6 +55,16 @@ final public class CommandOptions {
                         .type(Boolean.class)
                         .build()
         );
+
+        /* IDEA (to hide exceptions by default):
+        opts.addOption(
+                Option
+                        .builder(CommandOptions.SHOW_ERRORS_S)
+                        .longOpt(CommandOptions.SHOW_ERRORS_L)
+                        .desc("when an error happens, display a detailed, technical message describing the issue")
+                        .type(Boolean.class)
+                        .build()
+        ); */
 
         opts.addOption(
                 Option

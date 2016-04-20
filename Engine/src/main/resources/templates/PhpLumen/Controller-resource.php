@@ -1,4 +1,9 @@
     public static function getMany(Request $req) {
+        if (Gate::denies('read', new {{resourceClass}}())) {
+            // ...
+            // abort(403);
+        }
+
         $query = DB::table('{{resourceTable}}');
 
         $query = self::addFieldsToQuery($query, $req);

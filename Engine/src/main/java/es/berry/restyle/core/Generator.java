@@ -6,6 +6,10 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+/**
+ * Class to inherit from when implementing a plugin. Provides direct access to the specification, the output directory,
+ * an instance of the TemplateGen class, and some logic to handle the dependency with another plugin.
+ */
 public abstract class Generator {
 
     final private Spec spec;

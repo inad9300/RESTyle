@@ -32,6 +32,9 @@ import java.util.*;
 
 import static java.lang.Integer.compare;
 
+/**
+ * Main class. Sets up the command line tool and load the specification and the plugins.
+ */
 final public class Main {
     private static final Options OPTS = CommandOptions.get();
     private static final Logger log = Log.getChain();
@@ -75,7 +78,7 @@ final public class Main {
                 availablePlugins.add(gen.getSimpleName());
 
             if (cmd.hasOption(CommandOptions.LIST_PLUGINS_S)) {
-                System.out.println(Strings.list(availablePlugins));
+                log.info(Strings.list(availablePlugins));
                 System.exit(0);
             }
 
@@ -152,11 +155,12 @@ final public class Main {
 
                 ProcessingReport report = schema.validate(specNode);
                 if (!report.isSuccess()) { // FIXME: type resolution happens later, so this will fail if it was needed
-                    System.out.println("The specification provided does not conform the meta-specification defined for it:");
+                    String msg = "The specification provided does not conform the meta-specification defined for it:\n";
 
-                    for (ProcessingMessage msg : report)
-                        System.out.print(msg);
+                    for (ProcessingMessage r : report)
+                        msg += r;
 
+                    log.error(msg);
                     System.exit(1);
                 }
             } catch (IOException e) {
@@ -178,7 +182,7 @@ final public class Main {
             spec = new FieldsTypeResolver(spec).resolve().getSpec();
             new AdvanceValidator(spec).validate();
 
-//            System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(spec));
+//            log.info(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(spec));
 
 
             // Load and execute plugins
@@ -204,12 +208,14 @@ final public class Main {
 
             for (Class<? extends Generator> genClass : concreteGenerators)
                 try {
+                    log.info("Executing plugin " + genClass.getSimpleName() + "...");
                     Generator gen = genClass.getConstructor(Spec.class, File.class).newInstance(spec, outputDir);
 
                     if (prevGen == null && gen.getPrevGeneratorInterface() != null)
                         log.error("The plugin " + genClass.getSimpleName() + " depends on a previous plugin, but "
                                 + "none was provided");
 
+                    // Checking if the interface is being actually implemented by the predecessor
                     if (prevGen != null && gen.getPrevGeneratorInterface() != null &&
                             !gen.getPrevGeneratorInterface().isAssignableFrom(prevGen.getClass()))
                         log.error("The plugin " + genClass.getSimpleName() + ", which depends on the plugin "

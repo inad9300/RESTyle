@@ -9,7 +9,7 @@
     "dateFormat": "ISO-8601",
     "roles": [
         { "name": "admin", "isAdmin": true },
-        { "name": "user" },
+        { "name": "user", "isA": "guest" },
         { "name": "vip_user", "isA": "user" },
         { "name": "guest", "isGuest": true }
     ],
@@ -59,7 +59,13 @@
         }, {
             "with": "preference",
             "type": "hasOne"
-        }]
+        }],
+        "acl": {
+            "read": ["user"],
+            "create": ["guest"],
+            "update": ["user"],
+            "delete": ["admin"]
+        }
     }, {
         "name": "preference",
         "description": "Properties tied to an user",
@@ -67,7 +73,8 @@
             "name": "language",
             "type": "string",
             "enum": ["es", "pt", "fr", "it"]
-        }]
+        }],
+        "acl": ["user"]
     }, {
         "name": "book",
         "description": "Bunch of pages glued together.",
@@ -96,7 +103,8 @@
             "onDelete": "restrict",
             "onUpdate": "cascade"
         }],
-        "index": ["title"]
+        "index": ["title"],
+        "acl": ["user"]
     }, {
         "name": "bookstore",
         "fields": [{
@@ -130,6 +138,7 @@
                 "required": true,
                 "default": 0
             }]
-        }]
+        }],
+        "acl": ["user_vip"]
     }]
 }

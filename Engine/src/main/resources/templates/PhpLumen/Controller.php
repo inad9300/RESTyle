@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use DB;
+use Gate;
 use App\Utils\Arrays;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -21,12 +22,28 @@ class {{resourceClass}}Controller extends RestController {
     // Relationship end-points callbacks
     // ---------------------------------
     {{#each relations}}
-    public static function get{{subresourceClassPlural}}($entityId) {
+    public static function get{{subresourceClassPlural}}(Request $req, $entityId) {
         $entity = {{resourceClass}}::findOrFail($entityId);
 
-        // TODO: add filter capabilities
+        $query = $entity->{{subFn}}();
 
-        return response()->json($entity->{{subFn}});
+        $query = self::addFieldsToQuery($query, $req);
+
+        $query = self::addOrderByToQuery($query, $req, function ($prop) {
+            return {{subresourceClass}}::isSortable($prop);
+        });
+
+        $query = self::addLimitToQuery($query, $req);
+
+        $query = self::addPageToQuery($query, $req);
+
+        $query = self::addFilterToQuery($query, $req, function ($prop) {
+            return {{subresourceClass}}::isFilterable($prop);
+        });
+
+        $entities = $query->get();
+
+        return response()->json($entities);
     }
 
     public static function create{{subresourceClassPlural}}(Request $req, $entityId) {
@@ -35,14 +52,13 @@ class {{resourceClass}}Controller extends RestController {
         if (Arrays::isAssoc($input)) {
             $this->validate($req, {{subresourceClass}}::getValidationRules());
         } else if (is_array($input)) {
-            {{#if isOneToOne}}if (count($input) > 1) {
+            {{#if isOneToX}}if (count($input) > 1) {
                 // ...
             }
             $validator = Validator::make($input[0], {{subresourceClass}}::getValidationRules());
             if ($validator->fails()) {
                 return self::error($validator->messages());
-            }
-            {{else}}foreach ($input as $relatedEntity) {
+            }{{else}}foreach ($input as $relatedEntity) {
                 $validator = Validator::make($relatedEntity, {{subresourceClass}}::getValidationRules());
                 if ($validator->fails()) {
                     return self::error($validator->messages());
@@ -104,9 +120,8 @@ class {{resourceClass}}Controller extends RestController {
     public static function delete{{subresourceClassPlural}}(Request $req, $entityId) {
         $entity = {{resourceClass}}::findOrFail($entityId);
 
-        {{#if isOneToOne}}$related = $entity->{{subFn}};
-        $entity->{{subFn}}()->delete();
-        {{else}}if (!$req->getContent()) {
+        {{#if isOneToX}}$related = $entity->{{subFn}};
+        $entity->{{subFn}}()->delete();{{else}}if (!$req->getContent()) {
             $related = $entity->{{subFn}};
             $entity->{{subFn}}()->delete();
         } else if (is_array($req->all())) {

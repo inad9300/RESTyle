@@ -2,6 +2,9 @@ package es.berry.restyle.logging;
 
 import es.berry.restyle.core.Config;
 
+/**
+ * Simple wrapper to get the default log chain quickly.
+ */
 final public class Log {
 
     private static Logger chain = _getChain();

@@ -6,6 +6,10 @@ import es.berry.restyle.utils.Strings;
 
 import java.util.*;
 
+/**
+ * Performs some extra validations beyond the JSON Schema, specially those involving values of one property invalidating
+ * values of others.
+ */
 public class AdvanceValidator {
 
     // IDEA: reduce all loops over resources to one

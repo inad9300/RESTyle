@@ -9,6 +9,10 @@ import es.berry.restyle.specification.generated.Type;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Responsible of resolving the types of the resources' fields, when they are defined based on another one written in
+ * the top-level "types" property.
+ */
 public class FieldsTypeResolver {
 
     final private Spec spec;

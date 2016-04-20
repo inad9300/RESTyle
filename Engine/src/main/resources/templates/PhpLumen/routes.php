@@ -1,3 +1,7 @@
-$app->group(['prefix' => {{prefix}}, 'namespace' => {{namespace}}, 'middleware' => [{{middleware}}]], function () use ($app) {
-    {{routes}}
+<?php
+{{unauthRoutes}}
+
+$app->group(['prefix' => '{{prefix}}', 'middleware' => ['auth'], function () use ($app) {
+
+{{{authRoutes}}}
 });

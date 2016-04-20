@@ -4,10 +4,10 @@
 header_remove('X-Powered-By');
 
 // Set the character encoding
-mb_internal_encoding('UTF-8');
+mb_internal_encoding('{{charset}}');
 
 // Set the default time zone
-date_default_timezone_set('UTC');
+date_default_timezone_set('{{timezone}}');
 
 
 require_once __DIR__.'/../vendor/autoload.php';
@@ -73,9 +73,9 @@ $app->singleton(
 //    App\Http\Middleware\ExampleMiddleware::class
 // ]);
 
- $app->routeMiddleware([
-     'auth' => App\Http\Middleware\Authenticate::class,
- ]);
+// $app->routeMiddleware([
+//     'auth' => App\Http\Middleware\Authenticate::class,
+// ]);
 
 /*
 |--------------------------------------------------------------------------

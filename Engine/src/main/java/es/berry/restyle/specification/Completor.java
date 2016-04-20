@@ -11,6 +11,11 @@ import java.util.List;
 import java.util.Set;
 
 // IDEA: apply decorator pattern: SpecWithDefaults, SpecWithResolvedTypes
+
+/**
+ * Completes the specification with default values. A class is created for this specific purpose because the
+ * implementations of JSON Schema may disregard the "default" keyword.
+ */
 final public class Completor {
     // Global
     private final static String DEF_ENCODING = "UTF-8";
@@ -67,19 +72,20 @@ final public class Completor {
     }
 
     private void addUserFields(Resource res) {
-        final List<String> userReservedFieldNames = Arrays.asList("name", "role", "password", "isAdmin");
+        final List<String> userReservedFieldNames = Arrays.asList("username", "role", "password", "isAdmin");
 
         Field name = new Field();
         Field role = new Field();
         Field pass = new Field();
         Field isAdmin = new Field();
 
-        name.setName("name");
-        name.setDescription("Name of the user");
+        name.setName("username");
+        name.setDescription("Name that uniquely identifies the user in the system");
         name.setType(Types.STRING);
         name.setRequired(true);
-        name.setMin(2);
-        name.setMax(64);
+        name.setPattern("^[a-zA-z0-9_]{4,32}$");
+        name.setMin(4);
+        name.setMax(32);
         name.setDefault("");
         name.setUnique(true);
 

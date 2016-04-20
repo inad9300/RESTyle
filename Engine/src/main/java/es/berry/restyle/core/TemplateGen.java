@@ -1,7 +1,5 @@
 package es.berry.restyle.core;
 
-// Helper class for Handlebars functions
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.jknack.handlebars.*;
@@ -18,6 +16,11 @@ import es.berry.restyle.utils.Strings;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * Wrapper class for the Handlebars.java library.
+ * <p>
+ * Documentation at https://jknack.github.io/handlebars.java and https://github.com/jknack/handlebars.java
+ */
 public class TemplateGen {
 
     public static String TMPL_DIR = "./src/main/resources/templates/";

@@ -2,6 +2,9 @@ package es.berry.restyle.specification;
 
 import es.berry.restyle.specification.generated.Resource;
 
+/**
+ * Resolves resource inheritance.
+ */
 public class ResourceResolver {
 
     public static void extend(Resource child, Resource parent) {

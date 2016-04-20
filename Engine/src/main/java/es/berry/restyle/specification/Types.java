@@ -4,6 +4,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Set of primitive types allowed in the specification.
+ */
 public class Types {
     public final static String INT = "int";
     public final static String FLOAT = "float";

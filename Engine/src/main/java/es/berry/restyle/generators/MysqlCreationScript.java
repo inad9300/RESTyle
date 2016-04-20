@@ -20,6 +20,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * Plugin to generate a MySQL DDL file for the creation of a database.
+ */
 public class MysqlCreationScript extends Generator implements SqlCarrier {
     private static final String SINGLE_QUOTE = "'";
     private static final String REVERSE_QUOTE = "`";
@@ -44,17 +47,17 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
 
     @Override
     public void generate() {
+        log.info("· Getting initial configuration...");
         String result = getInitialConfig() + "\n\n";
 
-        final int numOfResources = this.getSpec().getResources().size();
-
-        // Generate main tables first
+        log.info("· Creating resources tables...");
         for (Resource res : this.getSpec().getResources())
             result += doResourcePart(res) + "\n\n";
 
+        final int numOfResources = this.getSpec().getResources().size();
         int count = 0;
 
-        // Create some extra tables and alter the previous ones
+        log.info("· Creating relationships-related tables and altering the previous ones...");
         for (Resource res : this.getSpec().getResources()) {
             List<String> parts = new ArrayList<>();
 
