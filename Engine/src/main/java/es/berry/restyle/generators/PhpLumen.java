@@ -113,7 +113,7 @@ public class PhpLumen extends Generator {
     private void getInitialConfig() throws IOException {
         // Copy seed project (slightly modified version of Lumen 5.2)
         FileUtils.copyDirectory(
-                new File(this.getTemplateGen().getDefDir() + "lumen-seed"),
+                new File(this.getTemplateGen().getDefaultDir() + "lumen-seed"),
                 this.serverOut.toFile()
         );
 

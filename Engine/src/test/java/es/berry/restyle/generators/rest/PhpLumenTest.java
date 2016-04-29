@@ -27,7 +27,7 @@ import static junit.framework.TestCase.assertTrue;
  * NOTE: a server is expected to be up and running before the tests are run, for instance via
  * php -S localhost:5555 -t public/
  */
-@RunWith(HttpJUnitRunner.class)
+/* @RunWith(HttpJUnitRunner.class)
 public class PhpLumenTest {
     @Rule
     public Destination destination = getDestination();
@@ -77,4 +77,4 @@ public class PhpLumenTest {
         assertTrue(fieldNames.contains("breed"));
         assertTrue(fieldNames.contains("owner_id"));
     }
-}
+} */

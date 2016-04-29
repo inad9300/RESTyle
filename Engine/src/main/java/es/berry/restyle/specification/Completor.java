@@ -4,13 +4,10 @@ import es.berry.restyle.specification.generated.*;
 import es.berry.restyle.utils.Strings;
 import org.atteo.evo.inflector.English;
 
-import javax.print.attribute.SetOfIntegerSyntax;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-// IDEA: apply decorator pattern: SpecWithDefaults, SpecWithResolvedTypes
 
 /**
  * Completes the specification with default values. A class is created for this specific purpose because the

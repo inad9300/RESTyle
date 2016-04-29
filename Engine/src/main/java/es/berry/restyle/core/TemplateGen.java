@@ -32,6 +32,10 @@ public class TemplateGen {
     private static final Logger log = Log.getChain();
 
     private void commonConstruct(String dir, String ext) {
+        final File d = new File(dir);
+        if (!d.mkdirs() && !d.exists())
+            log.warn("Could not to create templates' directory " + d.getAbsolutePath());
+
         final TemplateLoader loader = new FileTemplateLoader(dir, tuneExtension(ext));
         this.handlebars = new Handlebars(loader);
         handlebars.registerHelper("json", Jackson2Helper.INSTANCE);
@@ -44,7 +48,7 @@ public class TemplateGen {
         return ext.startsWith(".") ? ext : "." + ext;
     }
 
-    public String getDefDir() {
+    public String getDefaultDir() {
         if (this.associatedClass == null)
             return TMPL_DIR;
 
@@ -53,12 +57,12 @@ public class TemplateGen {
 
     public TemplateGen(Class c) {
         this.associatedClass = c;
-        commonConstruct(getDefDir(), null);
+        commonConstruct(getDefaultDir(), null);
     }
 
     public TemplateGen(Class c, String ext) {
         this.associatedClass = c;
-        commonConstruct(getDefDir(), ext);
+        commonConstruct(getDefaultDir(), ext);
     }
 
     public TemplateGen(String dir) {

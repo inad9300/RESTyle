@@ -44,7 +44,9 @@ public class FieldsTypeResolver {
     }
 
     private Field resolveOne(Field field) {
-        if (Types.ALL.contains(field.getType()))
+        if (field.getType() == null)
+            throw new NullPointerException("No field can exist without a type");
+        else if (Types.ALL.contains(field.getType()))
             return field;
         else {
             Type parentType = findType(field.getType());
@@ -65,6 +67,7 @@ public class FieldsTypeResolver {
             if (field.getPrecision() == null) field.setPrecision(parentType.getPrecision());
             if (field.getEnum() == null) field.setEnum(parentType.getEnum());
             if (field.getPattern() == null) field.setPattern(parentType.getPattern());
+            if (field.getPatternOptions() == null) field.setPatternOptions(parentType.getPatternOptions());
             if (field.getUnique() == null) field.setUnique(parentType.getUnique());
             if (field.getFilterable() == null) field.setFilterable(parentType.getFilterable());
             if (field.getSortable() == null) field.setSortable(parentType.getSortable());

@@ -1,10 +1,12 @@
 package es.berry.restyle.core;
 
+import es.berry.restyle.logging.Log;
+import es.berry.restyle.logging.Logger;
 import es.berry.restyle.specification.generated.Spec;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * Class to inherit from when implementing a plugin. Provides direct access to the specification, the output directory,
@@ -17,6 +19,13 @@ public abstract class Generator {
     private TemplateGen templateGen = null;
     private Class prevGeneratorInterface = null;
     private Generator prevGenerator = null;
+
+    private static Logger log = Log.getChain();
+
+    /**
+     * Interface method to be implemented by any class claiming to be a Generator.
+     */
+    public abstract void generate();
 
     protected Generator(Spec spec, File outputDir) {
         this.spec = spec;
@@ -60,7 +69,7 @@ public abstract class Generator {
         this.prevGenerator = gen;
     }
 
-    // Since the dependencies are set dynamically, we need a way to execute methods dynamically too
+    // Since the dependencies are set dynamically via Reflections, we need a way to execute methods dynamically too
     protected Object invokePrevMethod(String methodName, Class[] paramTypes, Object... paramValues) {
         if (this.getPrevGenerator() == null)
             throw new RuntimeException("Trying to invoke a method on the previous generator, but there is no previous generator");
@@ -85,8 +94,40 @@ public abstract class Generator {
         return invokePrevMethod(methodName, null);
     }
 
-    /**
-     * Interface method to be implemented by any class claiming to be a Generator.
-     */
-    public abstract void generate();
+    public static void runAll(List<Class<? extends Generator>> concreteGenerators, Spec spec, File outputDir) {
+        Generator prevGen = null;
+
+        for (Class<? extends Generator> genClass : concreteGenerators)
+            try {
+                log.info("Executing plugin " + genClass.getSimpleName() + "...");
+                Generator gen = genClass.getConstructor(Spec.class, File.class).newInstance(spec, outputDir);
+
+                if (prevGen == null && gen.getPrevGeneratorInterface() != null)
+                    throw new RuntimeException("The plugin " + genClass.getSimpleName()
+                            + " depends on a previous plugin, but none was provided");
+
+//                System.out.println("CURR. CLASS: " + genClass.getSimpleName());
+//                System.out.println("PREV. CLASS: " + gen.getPrevGeneratorInterface());
+
+                // Checking if the interface is being actually implemented by the predecessor
+                if (prevGen != null && gen.getPrevGeneratorInterface() != null &&
+                        !gen.getPrevGeneratorInterface().isAssignableFrom(prevGen.getClass()))
+                    throw new RuntimeException(
+                            "The plugin " + genClass.getSimpleName() + ", which depends on the plugin "
+                                    + prevGen.getClass().getSimpleName() + ", needs it to implement the interface "
+                                    + gen.getPrevGeneratorInterface().getSimpleName() + ", which it's not happening");
+
+                gen.setPrevGenerator(prevGen);
+                gen.generate();
+                prevGen = gen;
+            } catch (InstantiationException e) {
+                log.broke("Impossible to instantiate plugin class " + genClass.getSimpleName(), e);
+            } catch (IllegalAccessException e) {
+                log.broke("Impossible to access method", e);
+            } catch (InvocationTargetException e) {
+                log.broke("Impossible to invoke method", e);
+            } catch (NoSuchMethodException e) {
+                log.broke("Impossible to find method", e);
+            }
+    }
 }

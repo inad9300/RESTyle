@@ -21,11 +21,7 @@ final public class Json {
         processor.setStopOnCircular(true);
         processor.setMaxDepth(8);
         if (mapper != null)
-            processor.setMapperFactory(new ObjectMapperFactory() {
-                public ObjectMapper create(URL url) {
-                    return mapper;
-                }
-            });
+            processor.setMapperFactory(url -> mapper);
 
         try {
             return processor.process(json);

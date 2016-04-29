@@ -33,7 +33,7 @@ public abstract class Logger {
         if (this.next != null)
             this.next.handleRequest(req);
         // If an error occurred and there are no more handlers, exit informing the OS
-        else if (req.getSeverity() == Logger.ERROR)
+        else if (req.getSeverity() >= Logger.ERROR)
             System.exit(1);
     }
 

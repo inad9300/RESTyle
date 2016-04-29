@@ -83,7 +83,7 @@ final public class Strings {
     }
 
 
-    public static void toFile(String str, String filename, boolean override) throws IOException {
+    public static void toFile(String content, String filename, boolean override) throws IOException {
         File file = new File(filename);
 
         boolean result = file.createNewFile();
@@ -91,12 +91,12 @@ final public class Strings {
             throw new FileAlreadyExistsException(filename);
 
         PrintWriter writer = new PrintWriter(new FileWriter(file, !override)); // Negate "override" to find the corresponding meaning for "append"
-        writer.append(str);
+        writer.append(content);
         writer.close();
     }
 
-    public static void toFile(String str, String filename) throws IOException {
-        toFile(str, filename, true);
+    public static void toFile(String content, String filename) throws IOException {
+        toFile(content, filename, true);
     }
 
 

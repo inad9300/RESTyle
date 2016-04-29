@@ -73,7 +73,7 @@ public class PhpLumenHelper {
         }
 
         if (field.getPattern() != null)
-            rules.add("regex:" + field.getPattern()); // FIXME (review)
+            rules.add("regex:" + field.getPattern());
 
         if (field.getEnum() != null && field.getEnum().size() > 0)
             rules.add("in:" + Strings.join(",", field.getEnum()));
@@ -89,9 +89,7 @@ public class PhpLumenHelper {
                 rules.add("max:" + field.getMax());
         }
 
-        // TODO: mime; url, email, ip?
-
-        // IDEA: separate pattern and patternOptions??? /pattern/options
+        // IDEA: mime; url, email, ip?
 
         return Strings.join(rules, "|");
     }

@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @Generated("org.jsonschema2pojo")
 @JsonPropertyOrder({
     "name",
-    "displayName",
     "plural",
     "description",
     "base",
@@ -38,8 +37,6 @@ public class Resource {
      */
     @JsonProperty("name")
     private String name;
-    @JsonProperty("displayName")
-    private String displayName;
     @JsonProperty("plural")
     private String plural;
     @JsonProperty("description")
@@ -100,26 +97,6 @@ public class Resource {
     @JsonProperty("name")
     public void setName(String name) {
         this.name = name;
-    }
-
-    /**
-     * 
-     * @return
-     *     The displayName
-     */
-    @JsonProperty("displayName")
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    /**
-     * 
-     * @param displayName
-     *     The displayName
-     */
-    @JsonProperty("displayName")
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
     }
 
     /**
@@ -415,128 +392,119 @@ public class Resource {
             }
             return true;
         } else {
-            if ("displayName".equals(name)) {
+            if ("plural".equals(name)) {
                 if (value instanceof String) {
-                    setDisplayName(((String) value));
+                    setPlural(((String) value));
                 } else {
-                    throw new IllegalArgumentException(("property \"displayName\" is of type \"java.lang.String\", but got "+ value.getClass().toString()));
+                    throw new IllegalArgumentException(("property \"plural\" is of type \"java.lang.String\", but got "+ value.getClass().toString()));
                 }
                 return true;
             } else {
-                if ("plural".equals(name)) {
+                if ("description".equals(name)) {
                     if (value instanceof String) {
-                        setPlural(((String) value));
+                        setDescription(((String) value));
                     } else {
-                        throw new IllegalArgumentException(("property \"plural\" is of type \"java.lang.String\", but got "+ value.getClass().toString()));
+                        throw new IllegalArgumentException(("property \"description\" is of type \"java.lang.String\", but got "+ value.getClass().toString()));
                     }
                     return true;
                 } else {
-                    if ("description".equals(name)) {
+                    if ("base".equals(name)) {
                         if (value instanceof String) {
-                            setDescription(((String) value));
+                            setBase(((String) value));
                         } else {
-                            throw new IllegalArgumentException(("property \"description\" is of type \"java.lang.String\", but got "+ value.getClass().toString()));
+                            throw new IllegalArgumentException(("property \"base\" is of type \"java.lang.String\", but got "+ value.getClass().toString()));
                         }
                         return true;
                     } else {
-                        if ("base".equals(name)) {
-                            if (value instanceof String) {
-                                setBase(((String) value));
+                        if ("isUser".equals(name)) {
+                            if (value instanceof Boolean) {
+                                setIsUser(((Boolean) value));
                             } else {
-                                throw new IllegalArgumentException(("property \"base\" is of type \"java.lang.String\", but got "+ value.getClass().toString()));
+                                throw new IllegalArgumentException(("property \"isUser\" is of type \"java.lang.Boolean\", but got "+ value.getClass().toString()));
                             }
                             return true;
                         } else {
-                            if ("isUser".equals(name)) {
+                            if ("abstract".equals(name)) {
                                 if (value instanceof Boolean) {
-                                    setIsUser(((Boolean) value));
+                                    setAbstract(((Boolean) value));
                                 } else {
-                                    throw new IllegalArgumentException(("property \"isUser\" is of type \"java.lang.Boolean\", but got "+ value.getClass().toString()));
+                                    throw new IllegalArgumentException(("property \"abstract\" is of type \"java.lang.Boolean\", but got "+ value.getClass().toString()));
                                 }
                                 return true;
                             } else {
-                                if ("abstract".equals(name)) {
-                                    if (value instanceof Boolean) {
-                                        setAbstract(((Boolean) value));
+                                if ("inheritanceStrategy".equals(name)) {
+                                    if (value instanceof String) {
+                                        setInheritanceStrategy(((String) value));
                                     } else {
-                                        throw new IllegalArgumentException(("property \"abstract\" is of type \"java.lang.Boolean\", but got "+ value.getClass().toString()));
+                                        throw new IllegalArgumentException(("property \"inheritanceStrategy\" is of type \"java.lang.String\", but got "+ value.getClass().toString()));
                                     }
                                     return true;
                                 } else {
-                                    if ("inheritanceStrategy".equals(name)) {
-                                        if (value instanceof String) {
-                                            setInheritanceStrategy(((String) value));
+                                    if ("paginable".equals(name)) {
+                                        if (value instanceof Boolean) {
+                                            setPaginable(((Boolean) value));
                                         } else {
-                                            throw new IllegalArgumentException(("property \"inheritanceStrategy\" is of type \"java.lang.String\", but got "+ value.getClass().toString()));
+                                            throw new IllegalArgumentException(("property \"paginable\" is of type \"java.lang.Boolean\", but got "+ value.getClass().toString()));
                                         }
                                         return true;
                                     } else {
-                                        if ("paginable".equals(name)) {
+                                        if ("idInjection".equals(name)) {
                                             if (value instanceof Boolean) {
-                                                setPaginable(((Boolean) value));
+                                                setIdInjection(((Boolean) value));
                                             } else {
-                                                throw new IllegalArgumentException(("property \"paginable\" is of type \"java.lang.Boolean\", but got "+ value.getClass().toString()));
+                                                throw new IllegalArgumentException(("property \"idInjection\" is of type \"java.lang.Boolean\", but got "+ value.getClass().toString()));
                                             }
                                             return true;
                                         } else {
-                                            if ("idInjection".equals(name)) {
-                                                if (value instanceof Boolean) {
-                                                    setIdInjection(((Boolean) value));
+                                            if ("fields".equals(name)) {
+                                                if (value instanceof Set) {
+                                                    setFields(((Set<Field> ) value));
                                                 } else {
-                                                    throw new IllegalArgumentException(("property \"idInjection\" is of type \"java.lang.Boolean\", but got "+ value.getClass().toString()));
+                                                    throw new IllegalArgumentException(("property \"fields\" is of type \"java.util.Set<es.berry.restyle.specification.generated.Field>\", but got "+ value.getClass().toString()));
                                                 }
                                                 return true;
                                             } else {
-                                                if ("fields".equals(name)) {
-                                                    if (value instanceof Set) {
-                                                        setFields(((Set<Field> ) value));
+                                                if ("acceptExtraFields".equals(name)) {
+                                                    if (value instanceof Boolean) {
+                                                        setAcceptExtraFields(((Boolean) value));
                                                     } else {
-                                                        throw new IllegalArgumentException(("property \"fields\" is of type \"java.util.Set<es.berry.restyle.specification.generated.Field>\", but got "+ value.getClass().toString()));
+                                                        throw new IllegalArgumentException(("property \"acceptExtraFields\" is of type \"java.lang.Boolean\", but got "+ value.getClass().toString()));
                                                     }
                                                     return true;
                                                 } else {
-                                                    if ("acceptExtraFields".equals(name)) {
-                                                        if (value instanceof Boolean) {
-                                                            setAcceptExtraFields(((Boolean) value));
+                                                    if ("relations".equals(name)) {
+                                                        if (value instanceof Set) {
+                                                            setRelations(((Set<Relation> ) value));
                                                         } else {
-                                                            throw new IllegalArgumentException(("property \"acceptExtraFields\" is of type \"java.lang.Boolean\", but got "+ value.getClass().toString()));
+                                                            throw new IllegalArgumentException(("property \"relations\" is of type \"java.util.Set<es.berry.restyle.specification.generated.Relation>\", but got "+ value.getClass().toString()));
                                                         }
                                                         return true;
                                                     } else {
-                                                        if ("relations".equals(name)) {
-                                                            if (value instanceof Set) {
-                                                                setRelations(((Set<Relation> ) value));
+                                                        if ("check".equals(name)) {
+                                                            if (value instanceof String) {
+                                                                setCheck(((String) value));
                                                             } else {
-                                                                throw new IllegalArgumentException(("property \"relations\" is of type \"java.util.Set<es.berry.restyle.specification.generated.Relation>\", but got "+ value.getClass().toString()));
+                                                                throw new IllegalArgumentException(("property \"check\" is of type \"java.lang.String\", but got "+ value.getClass().toString()));
                                                             }
                                                             return true;
                                                         } else {
-                                                            if ("check".equals(name)) {
-                                                                if (value instanceof String) {
-                                                                    setCheck(((String) value));
+                                                            if ("index".equals(name)) {
+                                                                if (value instanceof Set) {
+                                                                    setIndex(((Set<String> ) value));
                                                                 } else {
-                                                                    throw new IllegalArgumentException(("property \"check\" is of type \"java.lang.String\", but got "+ value.getClass().toString()));
+                                                                    throw new IllegalArgumentException(("property \"index\" is of type \"java.util.Set<java.lang.String>\", but got "+ value.getClass().toString()));
                                                                 }
                                                                 return true;
                                                             } else {
-                                                                if ("index".equals(name)) {
-                                                                    if (value instanceof Set) {
-                                                                        setIndex(((Set<String> ) value));
+                                                                if ("acl".equals(name)) {
+                                                                    if (value instanceof Object) {
+                                                                        setAcl(((Object) value));
                                                                     } else {
-                                                                        throw new IllegalArgumentException(("property \"index\" is of type \"java.util.Set<java.lang.String>\", but got "+ value.getClass().toString()));
+                                                                        throw new IllegalArgumentException(("property \"acl\" is of type \"java.lang.Object\", but got "+ value.getClass().toString()));
                                                                     }
                                                                     return true;
                                                                 } else {
-                                                                    if ("acl".equals(name)) {
-                                                                        if (value instanceof Object) {
-                                                                            setAcl(((Object) value));
-                                                                        } else {
-                                                                            throw new IllegalArgumentException(("property \"acl\" is of type \"java.lang.Object\", but got "+ value.getClass().toString()));
-                                                                        }
-                                                                        return true;
-                                                                    } else {
-                                                                        return false;
-                                                                    }
+                                                                    return false;
                                                                 }
                                                             }
                                                         }
@@ -558,53 +526,49 @@ public class Resource {
         if ("name".equals(name)) {
             return getName();
         } else {
-            if ("displayName".equals(name)) {
-                return getDisplayName();
+            if ("plural".equals(name)) {
+                return getPlural();
             } else {
-                if ("plural".equals(name)) {
-                    return getPlural();
+                if ("description".equals(name)) {
+                    return getDescription();
                 } else {
-                    if ("description".equals(name)) {
-                        return getDescription();
+                    if ("base".equals(name)) {
+                        return getBase();
                     } else {
-                        if ("base".equals(name)) {
-                            return getBase();
+                        if ("isUser".equals(name)) {
+                            return getIsUser();
                         } else {
-                            if ("isUser".equals(name)) {
-                                return getIsUser();
+                            if ("abstract".equals(name)) {
+                                return getAbstract();
                             } else {
-                                if ("abstract".equals(name)) {
-                                    return getAbstract();
+                                if ("inheritanceStrategy".equals(name)) {
+                                    return getInheritanceStrategy();
                                 } else {
-                                    if ("inheritanceStrategy".equals(name)) {
-                                        return getInheritanceStrategy();
+                                    if ("paginable".equals(name)) {
+                                        return getPaginable();
                                     } else {
-                                        if ("paginable".equals(name)) {
-                                            return getPaginable();
+                                        if ("idInjection".equals(name)) {
+                                            return getIdInjection();
                                         } else {
-                                            if ("idInjection".equals(name)) {
-                                                return getIdInjection();
+                                            if ("fields".equals(name)) {
+                                                return getFields();
                                             } else {
-                                                if ("fields".equals(name)) {
-                                                    return getFields();
+                                                if ("acceptExtraFields".equals(name)) {
+                                                    return getAcceptExtraFields();
                                                 } else {
-                                                    if ("acceptExtraFields".equals(name)) {
-                                                        return getAcceptExtraFields();
+                                                    if ("relations".equals(name)) {
+                                                        return getRelations();
                                                     } else {
-                                                        if ("relations".equals(name)) {
-                                                            return getRelations();
+                                                        if ("check".equals(name)) {
+                                                            return getCheck();
                                                         } else {
-                                                            if ("check".equals(name)) {
-                                                                return getCheck();
+                                                            if ("index".equals(name)) {
+                                                                return getIndex();
                                                             } else {
-                                                                if ("index".equals(name)) {
-                                                                    return getIndex();
+                                                                if ("acl".equals(name)) {
+                                                                    return getAcl();
                                                                 } else {
-                                                                    if ("acl".equals(name)) {
-                                                                        return getAcl();
-                                                                    } else {
-                                                                        return notFoundValue;
-                                                                    }
+                                                                    return notFoundValue;
                                                                 }
                                                             }
                                                         }

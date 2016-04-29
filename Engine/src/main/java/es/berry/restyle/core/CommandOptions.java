@@ -19,8 +19,11 @@ final public class CommandOptions {
     public final static String LIST_PLUGINS_S = "lp";
     public final static String LIST_PLUGINS_L = "list-plugins";
 
-    // public final static String SHOW_ERRORS_S = "e";
-    // public final static String SHOW_ERRORS_L = "display-errors";
+    public final static String VERBOSE_S = "vb";
+    public final static String VERBOSE_L = "verbose";
+
+    public final static String HELP_S = "h";
+    public final static String HELP_L = "help";
 
     public static Options get() {
         Options opts = new Options();
@@ -30,7 +33,6 @@ final public class CommandOptions {
                         .builder(CommandOptions.SPEC_S)
                         .longOpt(CommandOptions.SPEC_L)
                         .desc("path to the specification file")
-                        .required()
                         .hasArg()
                         .type(String.class)
                         .build()
@@ -41,7 +43,6 @@ final public class CommandOptions {
                         .builder(CommandOptions.PLUGINS_S)
                         .longOpt(CommandOptions.PLUGINS_L)
                         .desc("names of the plugins to be applied to the specification, space-separated")
-                        .required()
                         .hasArgs()
                         .type(String.class)
                         .build()
@@ -56,24 +57,31 @@ final public class CommandOptions {
                         .build()
         );
 
-        /* IDEA (to hide exceptions by default):
-        opts.addOption(
-                Option
-                        .builder(CommandOptions.SHOW_ERRORS_S)
-                        .longOpt(CommandOptions.SHOW_ERRORS_L)
-                        .desc("when an error happens, display a detailed, technical message describing the issue")
-                        .type(Boolean.class)
-                        .build()
-        ); */
-
         opts.addOption(
                 Option
                         .builder(CommandOptions.OUT_S)
                         .longOpt(CommandOptions.OUT_L)
                         .desc("directory to place the output files in")
-                        .required()
                         .hasArg()
                         .type(String.class)
+                        .build()
+        );
+
+        opts.addOption(
+                Option
+                        .builder(CommandOptions.VERBOSE_S)
+                        .longOpt(CommandOptions.VERBOSE_L)
+                        .desc("be more descriptive while running the program and when errors happen")
+                        .type(Boolean.class)
+                        .build()
+        );
+
+        opts.addOption(
+                Option
+                        .builder(CommandOptions.HELP_S)
+                        .longOpt(CommandOptions.HELP_L)
+                        .desc("print this help message")
+                        .type(Boolean.class)
                         .build()
         );
 

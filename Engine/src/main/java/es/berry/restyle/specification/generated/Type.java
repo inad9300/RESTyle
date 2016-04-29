@@ -1,50 +1,54 @@
 
 package es.berry.restyle.specification.generated;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import javax.annotation.Generated;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("org.jsonschema2pojo")
 @JsonPropertyOrder({
-        "name",
-        "description",
-        "type",
-        "autoIncrement",
-        "required",
-        "min",
-        "max",
-        "enum",
-        "precision",
-        "default",
-        "onUpdate",
-        "unique",
-        "pattern",
-        "filterable",
-        "sortable",
-        "readOnly",
-        "writeOnly",
-        "encrypted"
+    "name",
+    "description",
+    "type",
+    "autoIncrement",
+    "required",
+    "min",
+    "max",
+    "enum",
+    "precision",
+    "default",
+    "onUpdate",
+    "unique",
+    "pattern",
+    "patternOptions",
+    "filterable",
+    "sortable",
+    "readOnly",
+    "writeOnly",
+    "encrypted"
 })
 public class Type {
 
     /**
+     * 
      * (Required)
+     * 
      */
     @JsonProperty("name")
     private String name;
     @JsonProperty("description")
     private String description;
     /**
+     * 
      * (Required)
+     * 
      */
     @JsonProperty("type")
     private String type;
@@ -69,6 +73,8 @@ public class Type {
     private Boolean unique;
     @JsonProperty("pattern")
     private String pattern;
+    @JsonProperty("patternOptions")
+    private String patternOptions;
     @JsonProperty("filterable")
     private Boolean filterable;
     @JsonProperty("sortable")
@@ -82,9 +88,11 @@ public class Type {
     protected final static Object NOT_FOUND_VALUE = new Object();
 
     /**
+     * 
      * (Required)
-     *
-     * @return The name
+     * 
+     * @return
+     *     The name
      */
     @JsonProperty("name")
     public String getName() {
@@ -92,9 +100,11 @@ public class Type {
     }
 
     /**
+     * 
      * (Required)
-     *
-     * @param name The name
+     * 
+     * @param name
+     *     The name
      */
     @JsonProperty("name")
     public void setName(String name) {
@@ -102,7 +112,9 @@ public class Type {
     }
 
     /**
-     * @return The description
+     * 
+     * @return
+     *     The description
      */
     @JsonProperty("description")
     public String getDescription() {
@@ -110,7 +122,9 @@ public class Type {
     }
 
     /**
-     * @param description The description
+     * 
+     * @param description
+     *     The description
      */
     @JsonProperty("description")
     public void setDescription(String description) {
@@ -118,9 +132,11 @@ public class Type {
     }
 
     /**
+     * 
      * (Required)
-     *
-     * @return The type
+     * 
+     * @return
+     *     The type
      */
     @JsonProperty("type")
     public String getType() {
@@ -128,9 +144,11 @@ public class Type {
     }
 
     /**
+     * 
      * (Required)
-     *
-     * @param type The type
+     * 
+     * @param type
+     *     The type
      */
     @JsonProperty("type")
     public void setType(String type) {
@@ -138,7 +156,9 @@ public class Type {
     }
 
     /**
-     * @return The autoIncrement
+     * 
+     * @return
+     *     The autoIncrement
      */
     @JsonProperty("autoIncrement")
     public Boolean getAutoIncrement() {
@@ -146,7 +166,9 @@ public class Type {
     }
 
     /**
-     * @param autoIncrement The autoIncrement
+     * 
+     * @param autoIncrement
+     *     The autoIncrement
      */
     @JsonProperty("autoIncrement")
     public void setAutoIncrement(Boolean autoIncrement) {
@@ -154,7 +176,9 @@ public class Type {
     }
 
     /**
-     * @return The required
+     * 
+     * @return
+     *     The required
      */
     @JsonProperty("required")
     public Boolean getRequired() {
@@ -162,7 +186,9 @@ public class Type {
     }
 
     /**
-     * @param required The required
+     * 
+     * @param required
+     *     The required
      */
     @JsonProperty("required")
     public void setRequired(Boolean required) {
@@ -170,7 +196,9 @@ public class Type {
     }
 
     /**
-     * @return The min
+     * 
+     * @return
+     *     The min
      */
     @JsonProperty("min")
     public Object getMin() {
@@ -178,7 +206,9 @@ public class Type {
     }
 
     /**
-     * @param min The min
+     * 
+     * @param min
+     *     The min
      */
     @JsonProperty("min")
     public void setMin(Object min) {
@@ -186,7 +216,9 @@ public class Type {
     }
 
     /**
-     * @return The max
+     * 
+     * @return
+     *     The max
      */
     @JsonProperty("max")
     public Object getMax() {
@@ -194,7 +226,9 @@ public class Type {
     }
 
     /**
-     * @param max The max
+     * 
+     * @param max
+     *     The max
      */
     @JsonProperty("max")
     public void setMax(Object max) {
@@ -202,7 +236,9 @@ public class Type {
     }
 
     /**
-     * @return The _enum
+     * 
+     * @return
+     *     The _enum
      */
     @JsonProperty("enum")
     public Set<Object> getEnum() {
@@ -210,7 +246,9 @@ public class Type {
     }
 
     /**
-     * @param _enum The enum
+     * 
+     * @param _enum
+     *     The enum
      */
     @JsonProperty("enum")
     public void setEnum(Set<Object> _enum) {
@@ -218,7 +256,9 @@ public class Type {
     }
 
     /**
-     * @return The precision
+     * 
+     * @return
+     *     The precision
      */
     @JsonProperty("precision")
     public List<Long> getPrecision() {
@@ -226,7 +266,9 @@ public class Type {
     }
 
     /**
-     * @param precision The precision
+     * 
+     * @param precision
+     *     The precision
      */
     @JsonProperty("precision")
     public void setPrecision(List<Long> precision) {
@@ -234,7 +276,9 @@ public class Type {
     }
 
     /**
-     * @return The _default
+     * 
+     * @return
+     *     The _default
      */
     @JsonProperty("default")
     public Object getDefault() {
@@ -242,7 +286,9 @@ public class Type {
     }
 
     /**
-     * @param _default The default
+     * 
+     * @param _default
+     *     The default
      */
     @JsonProperty("default")
     public void setDefault(Object _default) {
@@ -250,7 +296,9 @@ public class Type {
     }
 
     /**
-     * @return The onUpdate
+     * 
+     * @return
+     *     The onUpdate
      */
     @JsonProperty("onUpdate")
     public String getOnUpdate() {
@@ -258,7 +306,9 @@ public class Type {
     }
 
     /**
-     * @param onUpdate The onUpdate
+     * 
+     * @param onUpdate
+     *     The onUpdate
      */
     @JsonProperty("onUpdate")
     public void setOnUpdate(String onUpdate) {
@@ -266,7 +316,9 @@ public class Type {
     }
 
     /**
-     * @return The unique
+     * 
+     * @return
+     *     The unique
      */
     @JsonProperty("unique")
     public Boolean getUnique() {
@@ -274,7 +326,9 @@ public class Type {
     }
 
     /**
-     * @param unique The unique
+     * 
+     * @param unique
+     *     The unique
      */
     @JsonProperty("unique")
     public void setUnique(Boolean unique) {
@@ -282,7 +336,9 @@ public class Type {
     }
 
     /**
-     * @return The pattern
+     * 
+     * @return
+     *     The pattern
      */
     @JsonProperty("pattern")
     public String getPattern() {
@@ -290,7 +346,9 @@ public class Type {
     }
 
     /**
-     * @param pattern The pattern
+     * 
+     * @param pattern
+     *     The pattern
      */
     @JsonProperty("pattern")
     public void setPattern(String pattern) {
@@ -298,7 +356,29 @@ public class Type {
     }
 
     /**
-     * @return The filterable
+     * 
+     * @return
+     *     The patternOptions
+     */
+    @JsonProperty("patternOptions")
+    public String getPatternOptions() {
+        return patternOptions;
+    }
+
+    /**
+     * 
+     * @param patternOptions
+     *     The patternOptions
+     */
+    @JsonProperty("patternOptions")
+    public void setPatternOptions(String patternOptions) {
+        this.patternOptions = patternOptions;
+    }
+
+    /**
+     * 
+     * @return
+     *     The filterable
      */
     @JsonProperty("filterable")
     public Boolean getFilterable() {
@@ -306,7 +386,9 @@ public class Type {
     }
 
     /**
-     * @param filterable The filterable
+     * 
+     * @param filterable
+     *     The filterable
      */
     @JsonProperty("filterable")
     public void setFilterable(Boolean filterable) {
@@ -314,7 +396,9 @@ public class Type {
     }
 
     /**
-     * @return The sortable
+     * 
+     * @return
+     *     The sortable
      */
     @JsonProperty("sortable")
     public Boolean getSortable() {
@@ -322,7 +406,9 @@ public class Type {
     }
 
     /**
-     * @param sortable The sortable
+     * 
+     * @param sortable
+     *     The sortable
      */
     @JsonProperty("sortable")
     public void setSortable(Boolean sortable) {
@@ -330,7 +416,9 @@ public class Type {
     }
 
     /**
-     * @return The readOnly
+     * 
+     * @return
+     *     The readOnly
      */
     @JsonProperty("readOnly")
     public Boolean getReadOnly() {
@@ -338,7 +426,9 @@ public class Type {
     }
 
     /**
-     * @param readOnly The readOnly
+     * 
+     * @param readOnly
+     *     The readOnly
      */
     @JsonProperty("readOnly")
     public void setReadOnly(Boolean readOnly) {
@@ -346,7 +436,9 @@ public class Type {
     }
 
     /**
-     * @return The writeOnly
+     * 
+     * @return
+     *     The writeOnly
      */
     @JsonProperty("writeOnly")
     public Boolean getWriteOnly() {
@@ -354,7 +446,9 @@ public class Type {
     }
 
     /**
-     * @param writeOnly The writeOnly
+     * 
+     * @param writeOnly
+     *     The writeOnly
      */
     @JsonProperty("writeOnly")
     public void setWriteOnly(Boolean writeOnly) {
@@ -362,7 +456,9 @@ public class Type {
     }
 
     /**
-     * @return The encrypted
+     * 
+     * @return
+     *     The encrypted
      */
     @JsonProperty("encrypted")
     public Boolean getEncrypted() {
@@ -370,7 +466,9 @@ public class Type {
     }
 
     /**
-     * @param encrypted The encrypted
+     * 
+     * @param encrypted
+     *     The encrypted
      */
     @JsonProperty("encrypted")
     public void setEncrypted(Boolean encrypted) {
@@ -382,7 +480,7 @@ public class Type {
             if (value instanceof String) {
                 setName(((String) value));
             } else {
-                throw new IllegalArgumentException(("property \"name\" is of type \"java.lang.String\", but got " + value.getClass().toString()));
+                throw new IllegalArgumentException(("property \"name\" is of type \"java.lang.String\", but got "+ value.getClass().toString()));
             }
             return true;
         } else {
@@ -390,7 +488,7 @@ public class Type {
                 if (value instanceof String) {
                     setDescription(((String) value));
                 } else {
-                    throw new IllegalArgumentException(("property \"description\" is of type \"java.lang.String\", but got " + value.getClass().toString()));
+                    throw new IllegalArgumentException(("property \"description\" is of type \"java.lang.String\", but got "+ value.getClass().toString()));
                 }
                 return true;
             } else {
@@ -398,7 +496,7 @@ public class Type {
                     if (value instanceof String) {
                         setType(((String) value));
                     } else {
-                        throw new IllegalArgumentException(("property \"type\" is of type \"java.lang.String\", but got " + value.getClass().toString()));
+                        throw new IllegalArgumentException(("property \"type\" is of type \"java.lang.String\", but got "+ value.getClass().toString()));
                     }
                     return true;
                 } else {
@@ -406,7 +504,7 @@ public class Type {
                         if (value instanceof Boolean) {
                             setAutoIncrement(((Boolean) value));
                         } else {
-                            throw new IllegalArgumentException(("property \"autoIncrement\" is of type \"java.lang.Boolean\", but got " + value.getClass().toString()));
+                            throw new IllegalArgumentException(("property \"autoIncrement\" is of type \"java.lang.Boolean\", but got "+ value.getClass().toString()));
                         }
                         return true;
                     } else {
@@ -414,7 +512,7 @@ public class Type {
                             if (value instanceof Boolean) {
                                 setRequired(((Boolean) value));
                             } else {
-                                throw new IllegalArgumentException(("property \"required\" is of type \"java.lang.Boolean\", but got " + value.getClass().toString()));
+                                throw new IllegalArgumentException(("property \"required\" is of type \"java.lang.Boolean\", but got "+ value.getClass().toString()));
                             }
                             return true;
                         } else {
@@ -422,7 +520,7 @@ public class Type {
                                 if (value instanceof Object) {
                                     setMin(((Object) value));
                                 } else {
-                                    throw new IllegalArgumentException(("property \"min\" is of type \"java.lang.Object\", but got " + value.getClass().toString()));
+                                    throw new IllegalArgumentException(("property \"min\" is of type \"java.lang.Object\", but got "+ value.getClass().toString()));
                                 }
                                 return true;
                             } else {
@@ -430,23 +528,23 @@ public class Type {
                                     if (value instanceof Object) {
                                         setMax(((Object) value));
                                     } else {
-                                        throw new IllegalArgumentException(("property \"max\" is of type \"java.lang.Object\", but got " + value.getClass().toString()));
+                                        throw new IllegalArgumentException(("property \"max\" is of type \"java.lang.Object\", but got "+ value.getClass().toString()));
                                     }
                                     return true;
                                 } else {
                                     if ("enum".equals(name)) {
                                         if (value instanceof Set) {
-                                            setEnum(((Set<Object>) value));
+                                            setEnum(((Set<Object> ) value));
                                         } else {
-                                            throw new IllegalArgumentException(("property \"enum\" is of type \"java.util.Set<java.lang.Object>\", but got " + value.getClass().toString()));
+                                            throw new IllegalArgumentException(("property \"enum\" is of type \"java.util.Set<java.lang.Object>\", but got "+ value.getClass().toString()));
                                         }
                                         return true;
                                     } else {
                                         if ("precision".equals(name)) {
                                             if (value instanceof List) {
-                                                setPrecision(((List<Long>) value));
+                                                setPrecision(((List<Long> ) value));
                                             } else {
-                                                throw new IllegalArgumentException(("property \"precision\" is of type \"java.util.List<java.lang.Long>\", but got " + value.getClass().toString()));
+                                                throw new IllegalArgumentException(("property \"precision\" is of type \"java.util.List<java.lang.Long>\", but got "+ value.getClass().toString()));
                                             }
                                             return true;
                                         } else {
@@ -454,7 +552,7 @@ public class Type {
                                                 if (value instanceof Object) {
                                                     setDefault(((Object) value));
                                                 } else {
-                                                    throw new IllegalArgumentException(("property \"default\" is of type \"java.lang.Object\", but got " + value.getClass().toString()));
+                                                    throw new IllegalArgumentException(("property \"default\" is of type \"java.lang.Object\", but got "+ value.getClass().toString()));
                                                 }
                                                 return true;
                                             } else {
@@ -462,7 +560,7 @@ public class Type {
                                                     if (value instanceof String) {
                                                         setOnUpdate(((String) value));
                                                     } else {
-                                                        throw new IllegalArgumentException(("property \"onUpdate\" is of type \"java.lang.String\", but got " + value.getClass().toString()));
+                                                        throw new IllegalArgumentException(("property \"onUpdate\" is of type \"java.lang.String\", but got "+ value.getClass().toString()));
                                                     }
                                                     return true;
                                                 } else {
@@ -470,7 +568,7 @@ public class Type {
                                                         if (value instanceof Boolean) {
                                                             setUnique(((Boolean) value));
                                                         } else {
-                                                            throw new IllegalArgumentException(("property \"unique\" is of type \"java.lang.Boolean\", but got " + value.getClass().toString()));
+                                                            throw new IllegalArgumentException(("property \"unique\" is of type \"java.lang.Boolean\", but got "+ value.getClass().toString()));
                                                         }
                                                         return true;
                                                     } else {
@@ -478,51 +576,60 @@ public class Type {
                                                             if (value instanceof String) {
                                                                 setPattern(((String) value));
                                                             } else {
-                                                                throw new IllegalArgumentException(("property \"pattern\" is of type \"java.lang.String\", but got " + value.getClass().toString()));
+                                                                throw new IllegalArgumentException(("property \"pattern\" is of type \"java.lang.String\", but got "+ value.getClass().toString()));
                                                             }
                                                             return true;
                                                         } else {
-                                                            if ("filterable".equals(name)) {
-                                                                if (value instanceof Boolean) {
-                                                                    setFilterable(((Boolean) value));
+                                                            if ("patternOptions".equals(name)) {
+                                                                if (value instanceof String) {
+                                                                    setPatternOptions(((String) value));
                                                                 } else {
-                                                                    throw new IllegalArgumentException(("property \"filterable\" is of type \"java.lang.Boolean\", but got " + value.getClass().toString()));
+                                                                    throw new IllegalArgumentException(("property \"patternOptions\" is of type \"java.lang.String\", but got "+ value.getClass().toString()));
                                                                 }
                                                                 return true;
                                                             } else {
-                                                                if ("sortable".equals(name)) {
+                                                                if ("filterable".equals(name)) {
                                                                     if (value instanceof Boolean) {
-                                                                        setSortable(((Boolean) value));
+                                                                        setFilterable(((Boolean) value));
                                                                     } else {
-                                                                        throw new IllegalArgumentException(("property \"sortable\" is of type \"java.lang.Boolean\", but got " + value.getClass().toString()));
+                                                                        throw new IllegalArgumentException(("property \"filterable\" is of type \"java.lang.Boolean\", but got "+ value.getClass().toString()));
                                                                     }
                                                                     return true;
                                                                 } else {
-                                                                    if ("readOnly".equals(name)) {
+                                                                    if ("sortable".equals(name)) {
                                                                         if (value instanceof Boolean) {
-                                                                            setReadOnly(((Boolean) value));
+                                                                            setSortable(((Boolean) value));
                                                                         } else {
-                                                                            throw new IllegalArgumentException(("property \"readOnly\" is of type \"java.lang.Boolean\", but got " + value.getClass().toString()));
+                                                                            throw new IllegalArgumentException(("property \"sortable\" is of type \"java.lang.Boolean\", but got "+ value.getClass().toString()));
                                                                         }
                                                                         return true;
                                                                     } else {
-                                                                        if ("writeOnly".equals(name)) {
+                                                                        if ("readOnly".equals(name)) {
                                                                             if (value instanceof Boolean) {
-                                                                                setWriteOnly(((Boolean) value));
+                                                                                setReadOnly(((Boolean) value));
                                                                             } else {
-                                                                                throw new IllegalArgumentException(("property \"writeOnly\" is of type \"java.lang.Boolean\", but got " + value.getClass().toString()));
+                                                                                throw new IllegalArgumentException(("property \"readOnly\" is of type \"java.lang.Boolean\", but got "+ value.getClass().toString()));
                                                                             }
                                                                             return true;
                                                                         } else {
-                                                                            if ("encrypted".equals(name)) {
+                                                                            if ("writeOnly".equals(name)) {
                                                                                 if (value instanceof Boolean) {
-                                                                                    setEncrypted(((Boolean) value));
+                                                                                    setWriteOnly(((Boolean) value));
                                                                                 } else {
-                                                                                    throw new IllegalArgumentException(("property \"encrypted\" is of type \"java.lang.Boolean\", but got " + value.getClass().toString()));
+                                                                                    throw new IllegalArgumentException(("property \"writeOnly\" is of type \"java.lang.Boolean\", but got "+ value.getClass().toString()));
                                                                                 }
                                                                                 return true;
                                                                             } else {
-                                                                                return false;
+                                                                                if ("encrypted".equals(name)) {
+                                                                                    if (value instanceof Boolean) {
+                                                                                        setEncrypted(((Boolean) value));
+                                                                                    } else {
+                                                                                        throw new IllegalArgumentException(("property \"encrypted\" is of type \"java.lang.Boolean\", but got "+ value.getClass().toString()));
+                                                                                    }
+                                                                                    return true;
+                                                                                } else {
+                                                                                    return false;
+                                                                                }
                                                                             }
                                                                         }
                                                                     }
@@ -583,22 +690,26 @@ public class Type {
                                                         if ("pattern".equals(name)) {
                                                             return getPattern();
                                                         } else {
-                                                            if ("filterable".equals(name)) {
-                                                                return getFilterable();
+                                                            if ("patternOptions".equals(name)) {
+                                                                return getPatternOptions();
                                                             } else {
-                                                                if ("sortable".equals(name)) {
-                                                                    return getSortable();
+                                                                if ("filterable".equals(name)) {
+                                                                    return getFilterable();
                                                                 } else {
-                                                                    if ("readOnly".equals(name)) {
-                                                                        return getReadOnly();
+                                                                    if ("sortable".equals(name)) {
+                                                                        return getSortable();
                                                                     } else {
-                                                                        if ("writeOnly".equals(name)) {
-                                                                            return getWriteOnly();
+                                                                        if ("readOnly".equals(name)) {
+                                                                            return getReadOnly();
                                                                         } else {
-                                                                            if ("encrypted".equals(name)) {
-                                                                                return getEncrypted();
+                                                                            if ("writeOnly".equals(name)) {
+                                                                                return getWriteOnly();
                                                                             } else {
-                                                                                return notFoundValue;
+                                                                                if ("encrypted".equals(name)) {
+                                                                                    return getEncrypted();
+                                                                                } else {
+                                                                                    return notFoundValue;
+                                                                                }
                                                                             }
                                                                         }
                                                                     }
@@ -620,20 +731,20 @@ public class Type {
     }
 
     @SuppressWarnings({
-            "unchecked"
+        "unchecked"
     })
-    public <T> T get(String name) {
+    public<T >T get(String name) {
         Object value = declaredPropertyOrNotFound(name, Type.NOT_FOUND_VALUE);
-        if (Type.NOT_FOUND_VALUE != value) {
+        if (Type.NOT_FOUND_VALUE!= value) {
             return ((T) value);
         } else {
-            throw new IllegalArgumentException((("property \"" + name) + "\" is not defined"));
+            throw new IllegalArgumentException((("property \""+ name)+"\" is not defined"));
         }
     }
 
     public void set(String name, Object value) {
         if (!declaredProperty(name, value)) {
-            throw new IllegalArgumentException((("property \"" + name) + "\" is not defined"));
+            throw new IllegalArgumentException((("property \""+ name)+"\" is not defined"));
         }
     }
 

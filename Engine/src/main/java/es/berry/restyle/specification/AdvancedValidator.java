@@ -10,13 +10,13 @@ import java.util.*;
  * Performs some extra validations beyond the JSON Schema, specially those involving values of one property invalidating
  * values of others.
  */
-public class AdvanceValidator {
+public class AdvancedValidator {
 
     // IDEA: reduce all loops over resources to one
 
     private final Spec spec;
 
-    public AdvanceValidator(Spec spec) {
+    public AdvancedValidator(Spec spec) {
         this.spec = spec;
     }
 
@@ -127,12 +127,11 @@ public class AdvanceValidator {
         for (Resource res : spec.getResources())
             resourceNames.add(res.getName());
 
-        for (Resource res : spec.getResources()) {
+        for (Resource res : spec.getResources())
             for (Relation rel : res.getRelations())
                 if (!resourceNames.contains(rel.getWith()))
                     throw new SpecException("Trying to relate the resource " + res.getName()
                             + " with a nonexistent one: " + rel.getWith());
-        }
     }
 
     private void indexesValidation() {
