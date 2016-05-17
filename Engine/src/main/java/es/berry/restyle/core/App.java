@@ -1,17 +1,9 @@
 package es.berry.restyle.core;
 
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.github.fge.jackson.JsonLoader;
-import com.github.fge.jsonschema.core.exceptions.ProcessingException;
-import com.github.fge.jsonschema.core.report.ProcessingMessage;
-import com.github.fge.jsonschema.core.report.ProcessingReport;
-import com.github.fge.jsonschema.main.JsonSchema;
-import com.github.fge.jsonschema.main.JsonSchemaFactory;
 import es.berry.restyle.exceptions.PluginException;
 import es.berry.restyle.exceptions.SpecException;
 import es.berry.restyle.logging.Log;
@@ -19,6 +11,7 @@ import es.berry.restyle.logging.Logger;
 import es.berry.restyle.specification.AdvancedValidator;
 import es.berry.restyle.specification.Completor;
 import es.berry.restyle.specification.FieldsTypeResolver;
+import es.berry.restyle.specification.SpecObjectMapper;
 import es.berry.restyle.specification.generated.Spec;
 import es.berry.restyle.utils.Json;
 import es.berry.restyle.utils.Strings;
@@ -33,18 +26,23 @@ import java.util.stream.Collectors;
 import static java.lang.Integer.compare;
 
 /**
- * Main class. Sets up the command line tool and load the specification and the plugins.
+ * Main class. Sets up the command line tool and loads the specification and the plugins.
  */
 final public class App {
     private static final Options OPTS = CommandOptions.get();
     private static final Logger log = Log.getChain();
 
     private static final String VALUES_SEP = ",";
+    private static final String SPEC_SCHEMA = "./src/main/resources/specification/schema.json";
 
+    /**
+     * Main method. In summary, parses the command line arguments, and executes the plugins passing them the
+     * specification, all based on the given values.
+     */
     public static void main(String[] args) {
         try {
             final String[] mockArgs = {
-                    "-" + CommandOptions.SPEC_S, "/home/daniel/Code/RESTyle/Engine/src/main/resources/examples/spec.json",
+                    "-" + CommandOptions.SPEC_S, "/home/daniel/Code/RESTyle/Engine/src/main/resources/examples/bookstore.json",
                     "-" + CommandOptions.PLUGINS_S, "MysqlCreationScript" + VALUES_SEP + "PhpLumen",
                     "-" + CommandOptions.OUT_S, "/home/daniel/Code/RESTyle_output",
                     "-verbose"
@@ -72,21 +70,32 @@ final public class App {
 
             validateArgValues(specFile, outputDir);
 
-            final ObjectMapper mapper = configureObjectMapper(specPath);
+            SpecObjectMapper.configure(specPath);
 
-            final JsonNode specNode = resolveBaseUrl(validateJson(specFile, mapper));
+            final ObjectMapper mapper = SpecObjectMapper.getInstance();
 
-            validateSpecAgainstSchema(specNode);
+            JsonNode specNode = resolveBaseUrl(validateJson(specFile, mapper));
+
+            // Type resolution must happen first, otherwise the schema validation shall not pass. Plus, it is necessary
+            // to perform it at the JsonNode level, since reversing the conversion from the Spec class level (through
+            // the valueToTree() function) generates values that make the specification not pass (for instance, puts
+            // "enum"s as empty arrays, as oppose to nulls, but they are required to have one element at minimum.
+            new FieldsTypeResolver(specNode).resolve();
+
+            final String report = Json.validateAgainstSchema(specNode, SPEC_SCHEMA);
+            if (!Strings.isEmpty(report)) {
+                log.error(report);
+                System.exit(1);
+            }
 
             Spec spec = loadSpec(specNode, mapper);
 
             spec = new Completor(spec).addDefaultValues().getSpec();
-            spec = new FieldsTypeResolver(spec).resolve().getSpec();
             new AdvancedValidator(spec).validate();
 
             // log.info(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(spec));
 
-            Generator.runAll(loadPlugins(pluginsValue, availablePlugins, allConcreteGenerators), spec, outputDir);
+            Generator.runAll(selectPlugins(pluginsValue, availablePlugins, allConcreteGenerators), spec, specNode, outputDir);
         } catch (SpecException e) {
             log.error("There exists an error with the specification", e);
         } catch (PluginException e) {
@@ -96,12 +105,9 @@ final public class App {
         }
     }
 
-    private static void printHelp() {
-        final HelpFormatter formatter = new HelpFormatter();
-        formatter.setWidth(80);
-        formatter.printHelp(Config.APP_CMD, OPTS);
-    }
-
+    /**
+     * Simple builder for the CommandLine class.
+     */
     private static CommandLine setUpCli(String[] args) {
         final CommandLineParser parser = new DefaultParser();
         try {
@@ -112,6 +118,10 @@ final public class App {
         return null;
     }
 
+    /**
+     * Execute some commands that either (i) if present, should stop the execution of the tool or (ii) other commands
+     * need them to be run first.
+     */
     private static void runHigherPriorityCommands(CommandLine cmd, List<String> availablePlugins) {
         if (cmd.hasOption(CommandOptions.HELP_S)) {
             printHelp();
@@ -127,6 +137,18 @@ final public class App {
             Reflections.log = null;
     }
 
+    /**
+     * Print a nicely formatted help message.
+     */
+    private static void printHelp() {
+        final HelpFormatter formatter = new HelpFormatter();
+        formatter.setWidth(80);
+        formatter.printHelp(Config.APP_CMD, OPTS);
+    }
+
+    /**
+     * Ensure that the mandatory arguments are present in the command line.
+     */
     private static void validateArgKeys(String specPath, String outputPath, String pluginsValue) {
         final String missingMessage = "Missing required option: ";
 
@@ -140,6 +162,9 @@ final public class App {
             throw new IllegalArgumentException(missingMessage + CommandOptions.PLUGINS_L + ".");
     }
 
+    /**
+     * Simple checks for the values passed via the command line.
+     */
     private static void validateArgValues(File specFile, File outputDir) {
         if (!specFile.exists() || !specFile.isFile())
             throw new IllegalArgumentException("The specification file does not exist.");
@@ -151,30 +176,13 @@ final public class App {
             throw new IllegalArgumentException("The output directory does not exist and could not be created.");
     }
 
-    private static ObjectMapper configureObjectMapper(String specPath) {
-        ObjectMapper mapper = null;
-        if (specPath.endsWith(".json")) {
-            mapper = new ObjectMapper();
-
-            // Allows (non-standard) C/C++ style comments in JSON
-            mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
-            // Allows (non-standard) unquoted field names in JSON
-            mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-        } else if (specPath.endsWith(".yaml") || specPath.endsWith(".yml"))
-            mapper = new ObjectMapper(new YAMLFactory());
-        else
-            log.error("The specification file has an unsupported extension. Valid extensions are: .json, .yaml, .yml");
-
-        return mapper;
-    }
-
     /**
      * Validate JSON format and resolve JSON references ($ref).
      */
     private static JsonNode validateJson(File specFile, ObjectMapper mapper) {
         try {
             // NOTE: The original mapper.readTree(specFile) does not resolve JSON references
-            return Json.resolveReferences(specFile, mapper);
+            return Json.resolveReferences(specFile, mapper); // Will complain if JSON is invalid
         } catch (JsonProcessingException e) {
             // Will inform about JSON validation errors
             log.error("Error processing the specification file", e);
@@ -184,6 +192,10 @@ final public class App {
         return null;
     }
 
+    /**
+     * The specification "baseUrl" attribute may contain a special "{version}" substring that needs to be exchanged by
+     * the value of the "version" attribute.
+     */
     private static JsonNode resolveBaseUrl(JsonNode specNode) {
         return ((ObjectNode) specNode).put(
                 "baseUrl",
@@ -193,32 +205,9 @@ final public class App {
     }
 
     /**
-     * Validate specification agains JSON schema.
+     * Given a JsonNode as a direct representation of the JSON specification, returns the same information as POJOs,
+     * taking the Spec class as root.
      */
-    private static void validateSpecAgainstSchema(JsonNode specNode) {
-        final String schemaPath = "./src/main/resources/specification/schema.json";
-        final JsonNode schemaNode;
-        try {
-            schemaNode = JsonLoader.fromFile(new File(schemaPath));
-            final JsonSchema schema = JsonSchemaFactory.byDefault().getJsonSchema(schemaNode);
-
-            ProcessingReport report = schema.validate(specNode);
-            if (!report.isSuccess()) { // FIXME: type resolution happens later, so this will fail if it was needed (?) -- may help: mapper.writeValueAsString(obj);
-                String msg = "The specification provided does not conform the meta-specification defined for it:\n";
-
-                for (ProcessingMessage r : report)
-                    msg += r;
-
-                log.error(msg);
-                System.exit(1);
-            }
-        } catch (IOException e) {
-            log.error("The JSON schema file could not be read", e);
-        } catch (ProcessingException e) {
-            log.error("An error happened when processing the JSON schema file", e);
-        }
-    }
-
     private static Spec loadSpec(JsonNode specNode, ObjectMapper mapper) {
         try {
             return mapper.treeToValue(specNode, Spec.class);
@@ -228,7 +217,11 @@ final public class App {
         return null;
     }
 
-    private static List<Class<? extends Generator>> loadPlugins(
+    /**
+     * Filters the plugins provided by the user in the command line, ensuring that they are available, and that they
+     * end up ordered in the same way (the user decides about the order, taking into account the dependencies).
+     */
+    private static List<Class<? extends Generator>> selectPlugins(
             String pluginsValue,
             List<String> availablePlugins,
             Collection<Class<? extends Generator>> allConcreteGenerators
@@ -245,7 +238,6 @@ final public class App {
                 concreteGenerators.add(c);
 
         // Sort the plugins according to the exact order they were provided
-        // IDEA: resolve dependencies first, so that the final user can forget about the plugins' order
         Collections.sort(concreteGenerators, (left, right) -> compare(
                 selectedPlugins.indexOf(left.getSimpleName()), selectedPlugins.indexOf(right.getSimpleName())
         ));

@@ -1,17 +1,19 @@
 package es.berry.restyle.generators;
 
-import es.berry.restyle.specification.Types;
 import es.berry.restyle.specification.generated.Field;
 import es.berry.restyle.specification.generated.Resource;
 import es.berry.restyle.utils.Strings;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 
+/**
+ * Helper class for the PhpLumen one, containing generic information relative to the Lumen (and Laravel) framework.
+ */
 public class PhpLumenHelper {
 
-    public static final String FILE_PREFIX = "<?php\n\n";
+    // public static final String FILE_PREFIX = "<?php\n\n";
 
-    // IDEA: transform snake_case to CamelCase
     public static String getClassName(Resource res) {
         return Strings.ucFirst(res.getName(), true);
     }
@@ -23,22 +25,24 @@ public class PhpLumenHelper {
     // Check documentation at https://laravel.com/docs/5.2/eloquent-mutators#attribute-casting
     public static String getCastType(Field field) {
         switch (field.getType()) {
-            case Types.BOOL:
+            case BOOL:
                 return "boolean";
-            case Types.DATE:
-                return "date";
-            case Types.DATETIME:
-                return "datetime";
-            case Types.FLOAT:
-            case Types.DECIMAL:
+            case FLOAT:
+            case DECIMAL:
                 return "float";
-            case Types.INT:
+            case INT:
                 return "integer";
-            case Types.STRING:
+            case STRING:
                 return "string";
-            // Don't cast (there is no type to cast to)
-            case Types.FILE:
-            case Types.TIME:
+            // Don't cast (Collection::jsonSerialize() will fail due to zero-valued timestamps). See
+            // https://laracasts.com/discuss/channels/general-discussion/collectionjsonserialize-fails-on-carbon-date-made-from-postgresql-timestamp?page=1
+            case DATE:
+                // return "date";
+            case DATETIME:
+                // return "datetime";
+            case FILE:
+            case TIME:
+                // Don't cast (there is no type to cast to)
         }
         return null;
     }
@@ -50,46 +54,50 @@ public class PhpLumenHelper {
             rules.add("required");
 
         switch (field.getType()) {
-            case Types.BOOL:
+            case BOOL:
                 rules.add("boolean");
                 break;
-            case Types.INT:
+            case INT:
                 rules.add("integer");
                 break;
-            case Types.STRING:
+            case STRING:
                 rules.add("string");
                 break;
-            case Types.DECIMAL:
-            case Types.FLOAT:
+            case DECIMAL:
+            case FLOAT:
                 rules.add("numeric");
                 break;
-            case Types.DATE:
-                // TODO
-                // rules.add("date_format:");
-            case Types.TIME:
-            case Types.DATETIME:
-            case Types.FILE:
+            case DATE:
+            case DATETIME:
+                rules.add("date");
+            case TIME:
+            case FILE:
                 break;
         }
 
         if (field.getPattern() != null)
-            rules.add("regex:" + field.getPattern());
+            rules.add("regex:" + Strings.surround(field.getPattern(), "/") + Strings.join(field.getPatternOptions(), ""));
 
-        if (field.getEnum() != null && field.getEnum().size() > 0)
-            rules.add("in:" + Strings.join(",", field.getEnum()));
+        if (field.getEnum() != null && field.getEnum().size() > 0) {
+            String prefix = "in:";
+
+            if (field.getType().equals(Field.Type.FILE))
+                prefix = "mimetypes:";
+
+            rules.add(prefix + Strings.join(",", field.getEnum()));
+        }
 
         if (field.getUnique())
             rules.add("unique:" + tableName);
 
-        // FIXME: file size must be considered on KB by default!
-        if (Arrays.asList(Types.INT, Types.STRING, Types.FILE).contains(field.getType())) {
-            if (field.getMin() != null)
-                rules.add("min:" + field.getMin());
-            if (field.getMax() != null)
-                rules.add("max:" + field.getMax());
+        if (field.getType().equals(Field.Type.INT) || field.getType().equals(Field.Type.STRING)) {
+            if (field.getMin() != null) rules.add("min:" + field.getMin());
+            if (field.getMax() != null) rules.add("max:" + field.getMax());
+        } else if (field.getType().equals(Field.Type.FILE)) {
+            // The spec. is in bytes, but Lumen assumes KB, reason why we divide by 1024
+            if (field.getMin() != null) rules.add("min:" + ((long) field.getMin()) / 1024);
+            if (field.getMax() != null) rules.add("max:" + ((long) field.getMax()) / 1024);
         }
-
-        // IDEA: mime; url, email, ip?
 
         return Strings.join(rules, "|");
     }

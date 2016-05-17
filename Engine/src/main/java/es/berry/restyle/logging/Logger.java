@@ -1,7 +1,5 @@
 package es.berry.restyle.logging;
 
-// IDEA: consider the environment (dev, test, prod)
-
 import es.berry.restyle.utils.Strings;
 
 /**
@@ -22,20 +20,29 @@ public abstract class Logger {
         this.minimumSeverity = minSeverity;
     }
 
+    /**
+     * Allows to set the loggers in a chain.
+     */
     public void setNext(Logger next) {
         this.next = next;
     }
 
+    /**
+     * Main method for the chain of responsibility pattern to work. It does the logging somehow and, if not the last,
+     * calls the next logger to do some logging as well.
+     */
     protected void handleRequest(LogRequest req) {
         if (req.getSeverity() >= this.minimumSeverity)
             this.log(req.getMessage(), req.getDevMessage());
 
         if (this.next != null)
             this.next.handleRequest(req);
-        // If an error occurred and there are no more handlers, exit informing the OS
         else if (req.getSeverity() >= Logger.ERROR)
+            // If an error occurred and there are no more handlers, exit informing the OS
             System.exit(1);
     }
+
+    // Bellow there are some shorthand methods to make the logging task simpler
 
     public void info(String msg) {
         handleRequest(new LogRequest(Logger.INFO, msg));
@@ -89,5 +96,8 @@ public abstract class Logger {
         handleRequest(new LogRequest(Logger.CRITICAL, msg, devMsg));
     }
 
+    /**
+     * Method to be implemented by the concrete loggers, where the actual logging happens.
+     */
     protected abstract void log(String message, String devMessage);
 }

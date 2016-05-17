@@ -2,13 +2,17 @@
 package es.berry.restyle.specification.generated;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.Generated;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -51,7 +55,7 @@ public class Type {
      * 
      */
     @JsonProperty("type")
-    private String type;
+    private Field.Type type;
     @JsonProperty("autoIncrement")
     private Boolean autoIncrement;
     @JsonProperty("required")
@@ -74,7 +78,8 @@ public class Type {
     @JsonProperty("pattern")
     private String pattern;
     @JsonProperty("patternOptions")
-    private String patternOptions;
+    @JsonDeserialize(as = java.util.LinkedHashSet.class)
+    private Set<String> patternOptions = new LinkedHashSet<String>();
     @JsonProperty("filterable")
     private Boolean filterable;
     @JsonProperty("sortable")
@@ -139,7 +144,7 @@ public class Type {
      *     The type
      */
     @JsonProperty("type")
-    public String getType() {
+    public Field.Type getType() {
         return type;
     }
 
@@ -151,7 +156,7 @@ public class Type {
      *     The type
      */
     @JsonProperty("type")
-    public void setType(String type) {
+    public void setType(Field.Type type) {
         this.type = type;
     }
 
@@ -361,7 +366,7 @@ public class Type {
      *     The patternOptions
      */
     @JsonProperty("patternOptions")
-    public String getPatternOptions() {
+    public Set<String> getPatternOptions() {
         return patternOptions;
     }
 
@@ -371,7 +376,7 @@ public class Type {
      *     The patternOptions
      */
     @JsonProperty("patternOptions")
-    public void setPatternOptions(String patternOptions) {
+    public void setPatternOptions(Set<String> patternOptions) {
         this.patternOptions = patternOptions;
     }
 
@@ -493,10 +498,10 @@ public class Type {
                 return true;
             } else {
                 if ("type".equals(name)) {
-                    if (value instanceof String) {
-                        setType(((String) value));
+                    if (value instanceof Field.Type) {
+                        setType(((Field.Type) value));
                     } else {
-                        throw new IllegalArgumentException(("property \"type\" is of type \"java.lang.String\", but got "+ value.getClass().toString()));
+                        throw new IllegalArgumentException(("property \"type\" is of type \"es.berry.restyle.specification.generated.Field.Type\", but got "+ value.getClass().toString()));
                     }
                     return true;
                 } else {
@@ -581,10 +586,10 @@ public class Type {
                                                             return true;
                                                         } else {
                                                             if ("patternOptions".equals(name)) {
-                                                                if (value instanceof String) {
-                                                                    setPatternOptions(((String) value));
+                                                                if (value instanceof Set) {
+                                                                    setPatternOptions(((Set<String> ) value));
                                                                 } else {
-                                                                    throw new IllegalArgumentException(("property \"patternOptions\" is of type \"java.lang.String\", but got "+ value.getClass().toString()));
+                                                                    throw new IllegalArgumentException(("property \"patternOptions\" is of type \"java.util.Set<java.lang.String>\", but got "+ value.getClass().toString()));
                                                                 }
                                                                 return true;
                                                             } else {
@@ -746,6 +751,49 @@ public class Type {
         if (!declaredProperty(name, value)) {
             throw new IllegalArgumentException((("property \""+ name)+"\" is not defined"));
         }
+    }
+
+    @Generated("org.jsonschema2pojo")
+    public enum __ShouldNotBeUsedTypeEnum__ {
+
+        INT("int"),
+        FLOAT("float"),
+        DECIMAL("decimal"),
+        STRING("string"),
+        BOOL("bool"),
+        DATE("date"),
+        TIME("time"),
+        DATETIME("datetime"),
+        FILE("file");
+        private final String value;
+        private final static Map<String, Field.Type> CONSTANTS = new HashMap<String, Field.Type>();
+
+        static {
+            if (true) {
+                
+            }
+        }
+
+        private __ShouldNotBeUsedTypeEnum__(String value) {
+            this.value = value;
+        }
+
+        @JsonValue
+        @Override
+        public String toString() {
+            return this.value;
+        }
+
+        @JsonCreator
+        public static Field.Type fromValue(String value) {
+            Field.Type constant = CONSTANTS.get(value);
+            if (constant == null) {
+                throw new IllegalArgumentException(value);
+            } else {
+                return constant;
+            }
+        }
+
     }
 
 }

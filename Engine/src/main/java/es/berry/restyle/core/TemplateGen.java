@@ -1,7 +1,6 @@
 package es.berry.restyle.core;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.jknack.handlebars.*;
 import com.github.jknack.handlebars.context.FieldValueResolver;
 import com.github.jknack.handlebars.context.JavaBeanValueResolver;
@@ -11,6 +10,7 @@ import com.github.jknack.handlebars.io.FileTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
 import es.berry.restyle.logging.Log;
 import es.berry.restyle.logging.Logger;
+import es.berry.restyle.specification.SpecObjectMapper;
 import es.berry.restyle.utils.Strings;
 
 import java.io.File;
@@ -31,6 +31,9 @@ public class TemplateGen {
 
     private static final Logger log = Log.getChain();
 
+    /**
+     * Common part of the construction phase, just to avoid some code duplication in the constructor.
+     */
     private void commonConstruct(String dir, String ext) {
         final File d = new File(dir);
         if (!d.mkdirs() && !d.exists())
@@ -41,6 +44,9 @@ public class TemplateGen {
         handlebars.registerHelper("json", Jackson2Helper.INSTANCE);
     }
 
+    /**
+     * Ensure that an extension is valid.
+     */
     private String tuneExtension(String ext) {
         if (Strings.isEmpty(ext))
             return ".hbs"; // Default value for handlebars
@@ -48,6 +54,9 @@ public class TemplateGen {
         return ext.startsWith(".") ? ext : "." + ext;
     }
 
+    /**
+     * Return the directory where the templates are supposed to be by default.
+     */
     public String getDefaultDir() {
         if (this.associatedClass == null)
             return TMPL_DIR;
@@ -73,9 +82,12 @@ public class TemplateGen {
         commonConstruct(dir, ext);
     }
 
-    /* Example of ObjectNode (extends JsonNode) creation:
-        ObjectNode root = new ObjectMapper().createObjectNode();
-        root.put("tableName", "test_table_name");
+    /**
+     * Resolve placeholders in a Handlebars template, replacing them with actual values, given as a JsonNode.
+     * <p>
+     * NOTE: example of ObjectNode (extends JsonNode) creation:
+     * ObjectNode node = new ObjectMapper().createObjectNode();
+     * node.put("key", "value");
      */
     public String compile(String tmplName, JsonNode jsonNode) {
         try {
@@ -96,15 +108,21 @@ public class TemplateGen {
         }
     }
 
+    /**
+     * Overload the compile method to accept a JSON string with the values.
+     */
     public String compile(String tmplName, String jsonStr) {
         try {
-            return compile(tmplName, new ObjectMapper().readValue(jsonStr, JsonNode.class));
+            return compile(tmplName, SpecObjectMapper.getInstance().readValue(jsonStr, JsonNode.class));
         } catch (IOException e) {
             log.error("Error parsing JSON template", e);
             return null;
         }
     }
 
+    /**
+     * Overload the compile method to accept a JSON file with the values.
+     */
     public String compile(String tmplName, File jsonFile) {
         try {
             return compile(tmplName, Strings.fromFile(jsonFile));

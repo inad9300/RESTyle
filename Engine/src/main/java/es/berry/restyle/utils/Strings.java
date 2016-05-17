@@ -2,11 +2,11 @@ package es.berry.restyle.utils;
 
 import java.io.*;
 import java.nio.file.FileAlreadyExistsException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
+/**
+ * Utility class for String-related operations.
+ */
 final public class Strings {
 
     public static String surround(String str, String wrapper) {
@@ -132,10 +132,41 @@ final public class Strings {
     }
 
 
+    /**
+     * Port of the Str::studly() method implemented by Laravel. Original code (see
+     * https://github.com/laravel/framework/blob/5.2/src/Illuminate/Support/Str.php):
+     * <p>
+     * public static function studly($value) {
+     * $key = $value;
+     * <p>
+     * if (isset(static::$studlyCache[$key])) {
+     * return static::$studlyCache[$key];
+     * }
+     * <p>
+     * $value = ucwords(str_replace(['-', '_'], ' ', $value));
+     * <p>
+     * return static::$studlyCache[$key] = str_replace(' ', '', $value);
+     * }
+     */
+    public static String studly(String value) {
+        value = value.replaceAll("-", " ").replaceAll("_", " ");
+
+        // Simplification of ucwords' " \t\r\n\f\v" delimiters. Should be enough for altering method names.
+        List<String> words = Arrays.asList(value.split("\\s+"));
+
+        for (int i = 0; i < words.size(); ++i)
+            words.set(i, Strings.ucFirst(words.get(i), false));
+
+        value = Strings.join(words, "");
+
+        return value.replaceAll(" ", "");
+    }
+
+
     public static List<String> iteratorToList(Iterator<String> itr) {
         final List<String> list = new ArrayList<>();
         while (itr.hasNext())
-                list.add(itr.next());
+            list.add(itr.next());
 
         return list;
     }

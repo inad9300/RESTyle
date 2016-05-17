@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Utils\HttpStatus;
 use Illuminate\Http\Request;
 use Laravel\Lumen\Routing\Controller as BaseController;
 
@@ -11,13 +12,97 @@ class RestController extends BaseController {
     const FIELDS_SEP = ';';
     const VALUES_SEP = ',';
 
+    const DEF_PAGE = 1;
     const DEF_LIMIT = 50;
 
     /**
-     * Generates an error message to be sent to the user.
+     * Produces an HTTP response which should conform to RFC "Problem Details for HTTP APIs":
+     * https://tools.ietf.org/html/rfc7807
+     *
+     * It is presented as an alternative to Laravel's abort(), and to throwing/handling exceptions.
+     * In summary, $data should contain the keys 'type', 'title', 'detail' and 'instance', plus any
+     * extra problem-specific information.
      */
-    protected static function error($message, $code = 422) {
-        return response()->json($message, $code);
+    protected static function abort($code = HttpStatus::BadRequest, $data = []) {
+        /* $data['type'] = $data['type'] ?: '';
+        $data['title'] = $data['title'] ?: 'Something went wrong';
+        $data['detail'] = $data['detail'] ?: 'No more information is known';
+        $data['instance'] = $data['instance'] ?: ''; */
+
+        return response()->json($data, $code);
+    }
+
+    /**
+     * Add a link to an object as in HAL:
+     * http://stateless.co/hal_specification.html,
+     * http://phlyrestfully.readthedocs.io/en/latest/halprimer.html
+     */
+    protected static function addHalLink(&$obj, $key, $val) {
+        if (!property_exists($obj, '_links') || empty($obj->_links)) {
+            $obj->_links = new \stdClass;
+        }
+
+        $obj->_links->{$key} = (object) [
+            'href' => '/' . trim($val, '/')
+        ];
+    }
+
+    /**
+     * Add HAL links related with pagination.
+     */
+    protected static function addHalPageLinks(&$obj, Request $req, $totalItems) {
+        $path = '/' . trim($req->path(), '/');
+        $queryStrObj = $req->query();
+
+        self::addHalLink($obj, 'self', $path . (count($queryStrObj) > 0 ? '?' : '') . http_build_query($queryStrObj));
+
+        $queryStrObj['page'] = 1;
+        self::addHalLink($obj, 'first', $path . (count($queryStrObj) > 0 ? '?' : '') . http_build_query($queryStrObj));
+
+        $lastPage = ceil($totalItems / (!empty($req->query('limit')) ? $req->query('limit') : self::DEF_LIMIT));
+        $lastPage = $lastPage ?: 1;
+        $queryStrObj['page'] = $lastPage;
+        self::addHalLink($obj, 'last', $path . (count($queryStrObj) > 0 ? '?' : '') . http_build_query($queryStrObj));
+
+        $queryStrObj['page'] = $req->query('page') <= 1 ? 1 : $req->query('page') - 1;
+        self::addHalLink($obj, 'previous', $path . (count($queryStrObj) > 0 ? '?' : '') . http_build_query($queryStrObj));
+
+        $queryStrObj['page'] = $req->query('page') >= $lastPage ? $lastPage : $req->query('page') + 1;
+        self::addHalLink($obj, 'next', $path . (count($queryStrObj) > 0 ? '?' : '') . http_build_query($queryStrObj));
+    }
+
+    /**
+     * Add a embedded collection to an object as in HAL:
+     * http://stateless.co/hal_specification.html,
+     * http://phlyrestfully.readthedocs.io/en/latest/halprimer.html
+     */
+    protected static function addHalEmbedded(&$obj, $name, $data) {
+        if (!property_exists($obj, '_embedded') || empty($obj->_embedded)) {
+            $obj->_embedded = new \stdClass;
+        }
+
+        $obj->_embedded->{$name} = $data;
+    }
+
+    /**
+     * Add the query string parameters given by the user, merged with the default ones used,
+     * so that the user knows exactly how the query was performed.
+     */
+    protected static function addQueryMade(&$obj, Request $req) {
+        $queryStrObj = $req->query();
+
+        // Add defaults
+        if (empty($queryStrObj['limit'])) {
+            $queryStrObj['limit'] = self::DEF_LIMIT;
+        }
+        if (empty($queryStrObj['page'])) {
+            $queryStrObj['page'] = self::DEF_PAGE;
+        }
+
+        $queryStrObj['page'] = (int) $queryStrObj['page'];
+        $queryStrObj['limit'] = (int) $queryStrObj['limit'];
+
+        $obj->query = (object) $queryStrObj;
     }
 
     /**

@@ -1,5 +1,6 @@
 package es.berry.restyle.generators;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import es.berry.restyle.specification.Types;
 import es.berry.restyle.specification.generated.Field;
 import es.berry.restyle.utils.Strings;
@@ -7,23 +8,26 @@ import es.berry.restyle.utils.Strings;
 import java.math.BigInteger;
 import java.util.*;
 
+/**
+ * Class to hold some generic information regarding MySQL, that potentially other plugins with similar targets may find
+ * useful.
+ */
 public class MysqlHelper {
 
     public final static String ISO_8601_UTC_TIME = "'%TZ'";
     public final static String ISO_8601_UTC_DATE = "'%Y-%m-%d'";
     public final static String ISO_8601_UTC_FULL = "'%Y-%m-%dT%TZ'";
 
-    public final static class InheritanceStrategies {
-        public final static String SINGLE_TABLE = "singleTable";
-        public final static String TABLE_PER_CONCRETE = "tablePerConcreteClass";
-        public final static String TABLE_PER_CLASS = "tablePerClass";
-    }
+//    public final static class InheritanceStrategies {
+//        public final static String SINGLE_TABLE = "singleTable";
+//        public final static String TABLE_PER_CONCRETE = "tablePerConcreteClass";
+//        public final static String TABLE_PER_CLASS = "tablePerClass";
+//    }
 
-    // NOTE: to list the available character sets and their default collations with the SHOW CHARACTER SET statement.
-    // NOTE: UTF-8 likely collations: utf8mb4_general_ci, utf8mb4_unicode_ci
+    // NOTE: to list the available character sets and their default collations use the "show character set;" statement
     public static String adaptStandardName(String name) {
         final String UTF_8 = "utf-8";
-        final Set<String> validCharsets = new HashSet<String>(Arrays.asList(UTF_8));
+        final Set<String> validCharsets = new HashSet<>(Collections.singletonList(UTF_8));
 
         name = name.toLowerCase();
 
@@ -34,6 +38,8 @@ public class MysqlHelper {
                 + Strings.join(validCharsets, ", ").toUpperCase());
     }
 
+    // NOTE: in general, *_general_ci is more performant, but less accurate, while *_unicode_ci properly implements the
+    // unicode sorting rules, being a bit less efficient
     public static String getCollation(String charset) {
         if ("utf8".equals(charset) || "utf8mb4".equals(charset))
             return charset + "_unicode_ci";
@@ -41,8 +47,47 @@ public class MysqlHelper {
         return null;
     }
 
-    public static String getTypeModifier(Field field) {
-        List<String> modifiers = new ArrayList<String>();
+    public static String transformReferencialActions(String name) {
+        switch (name) {
+            case "restrict":
+                return "RESTRICT";
+            case "noAction":
+                return "NO ACTION";
+            case "cascade":
+                return "CASCADE";
+            case "setNull":
+                return "SET NULL";
+            case "setDefault":
+                return "SET DEFAULT";
+        }
+        return name.toUpperCase();
+    }
+
+    public static boolean typeNeedsQuotesForDefaultValue(Field.Type t, Object defVal) {
+
+
+        switch (t) {
+            case STRING:
+                return true;
+            case DATE:
+            case DATETIME:
+            case TIME:
+                // Quick check to see if the value is an actual date or time. Otherwise, we assume some kind of constant
+                // or function (e.g. "NOW()"). Notice that the value used in the check is one that no constant or
+                // function is allowed to have, and that the values must have if they effectively were dates or times.
+                final String defValStr = (String) defVal;
+                if (t.equals(Field.Type.TIME)) {
+                    if (defValStr.contains(":"))
+                        return true;
+                } else if (defValStr.contains("-"))
+                    return true;
+
+        }
+        return false;
+    }
+
+    public static String getTypeModifier(Field field, ObjectNode rawField) {
+        List<String> modifiers = new ArrayList<>();
 
         if (field.getRequired())
             modifiers.add("NOT NULL");
@@ -52,12 +97,20 @@ public class MysqlHelper {
         final String SINGLE_QUOTE = "'";
 
         if (field.getDefault() != null) {
-            // FIXME: does this work for times and dates?
             final String defStr = field.getDefault().toString();
-            final boolean needsQuotes = field.getType().equals(Types.STRING)
+            final boolean needsQuotes = typeNeedsQuotesForDefaultValue(field.getType(), field.getDefault())
                     && !defStr.startsWith(SINGLE_QUOTE)
                     && !defStr.endsWith(SINGLE_QUOTE);
             modifiers.add("DEFAULT " + (needsQuotes ? Strings.surround(defStr, SINGLE_QUOTE) : field.getDefault()));
+        }
+
+        // We need to check against null because some fields are added to the Spec class, not being present in the
+        // original JSON file, such as those added to the resource marked as user.
+        if (rawField != null && rawField.hasNonNull("x-onUpdate")) {
+            final String onUpdate = rawField.get("x-onUpdate").asText("");
+
+            if (!Strings.isEmpty(onUpdate))
+                modifiers.add("ON UPDATE " + onUpdate);
         }
 
         if (field.getAutoIncrement())
@@ -72,7 +125,7 @@ public class MysqlHelper {
         return Strings.join(modifiers, " ");
     }
 
-    public static String getType(Field field) {
+    public static String getType(Field field, ObjectNode rawField) {
         // Integers. Reference: http://dev.mysql.com/doc/refman/5.7/en/integer-types.html
         // Signed
         final int S_TINY_MIN = -128;
@@ -98,13 +151,13 @@ public class MysqlHelper {
         final int MEDIUM_MAX = 16777215;
         final long LONG_MAX = 4294967295L;
 
-        final int MAX_BYTES_UTF8 = 3;
+        // final int MAX_BYTES_UTF8 = 3;
         final int MAX_BYTES_UTF8MB4 = 4;
 
         final int CHAR_MAX_CHARS = 255;
         final int VARCHAR_MAX_BYTES = 65535;
 
-        String fieldType = field.getType();
+        String fieldType = field.getType().toString();
 
         if (fieldType.equals(Types.INT)) {
             if (field.getMax() == null)
@@ -122,12 +175,19 @@ public class MysqlHelper {
                     return "MEDIUMINT";
                 else if (min >= S_INT_MIN && max <= S_INT_MAX)
                     return "INT";
-                else if (min >= S_BIG_MIN && max <= S_BIG_MAX)
-                    return "BIGINT";
-                else
-                    throw new IllegalArgumentException(
-                            "The int values must be between " + S_BIG_MIN + " and " + S_BIG_MAX
-                                    + ". Given minimum and maximum: " + field.getMin() + " and " + field.getMax() + ".");
+                else {
+                    final BigInteger bigMin = new BigInteger(rawField.get("min").asText());
+                    final BigInteger bigMax = new BigInteger(rawField.get("max").asText());
+
+                    if (bigMin.compareTo(new BigInteger(Long.toString(S_BIG_MIN))) >= 0 &&
+                            bigMax.compareTo(new BigInteger(Long.toString(S_BIG_MAX))) <= 0)
+                        return "BIGINT";
+                    else
+                        throw new IllegalArgumentException(
+                                "The int values must be between " + S_BIG_MIN + " and " + S_BIG_MAX
+                                        + ". Given minimum and maximum: " + field.getMin() + " and " + field.getMax()
+                                        + ".");
+                }
             } else { // Unsigned
                 String mysqlType;
 
@@ -149,36 +209,59 @@ public class MysqlHelper {
             }
         } else if (fieldType.equals(Types.FLOAT)
                 || fieldType.equals(Types.DECIMAL)) {
-            String mysqlType = fieldType.equals(Types.FLOAT) ? "FLOAT" : "DECIMAL";
+            String mysqlType = fieldType.equals(Types.FLOAT) ? "DOUBLE" : "DECIMAL";
 
-            // IDEA: use min and max values to determine the precision! (either that or check the consistency of both)
+            // If not specified, calculate the precision based on the minimum and maximum values
+            if (field.getPrecision() == null) {
+                final String minStr = Double.toString((double) field.getMin());
+                final String maxStr = Double.toString((double) field.getMax());
 
-            // NOTE: MySQL automatically uses FLOAT for precisions between 0 and 23, and DOUBLE if it is between 24 and 53
-            if (field.getPrecision() != null) {
+                final long digitsMin = minStr.length();
+                final long digitsMax = maxStr.length();
+
+                final long decimalsMin = minStr.split("\\.")[1].length();
+                final long decimalsMax = maxStr.split("\\.")[1].length();
+
+                field.setPrecision(Arrays.asList(
+                        Math.max(digitsMin, digitsMax),
+                        Math.max(decimalsMin, decimalsMax)
+                ));
+            }
+
+            // For reference, see http://dev.mysql.com/doc/refman/5.7/en/numeric-type-overview.html
+            if (field.getPrecision() != null && field.getPrecision().size() > 0) {
                 assert field.getPrecision().size() == 2;
 
-                if (fieldType.equals(Types.DECIMAL)) {
-                    final int MAX_DECIMAL_DIGITS = 65;
-                    final int MAX_DECIMAL_DECIMALS = 30;
+                // Decimal maximums
+                int MAX_DIGITS = 65;
+                int MAX_DECIMALS = 30;
+                String typeName = "decimal";
 
-                    if (field.getPrecision().get(0) > MAX_DECIMAL_DIGITS)
-                        throw new IllegalArgumentException("MySQL does not allow decimal precisions bigger than "
-                                + MAX_DECIMAL_DIGITS);
-
-                    if (field.getPrecision().get(1) > MAX_DECIMAL_DECIMALS)
-                        throw new IllegalArgumentException("MySQL does not allow decimals to have more than "
-                                + MAX_DECIMAL_DECIMALS + " digits to the right of the decimal point.");
-
-                    if (field.getPrecision().get(1) > field.getPrecision().get(0))
-                        throw new IllegalArgumentException("The number of decimal digits cannot be bigger than the total "
-                                + "number of them.");
+                if (fieldType.equals(Types.FLOAT)) {
+                    // Double maximums, based on the feedback from the MySQL console when introducing clearly-out-of-
+                    // the-limits values, since the documentation is not clear at all about this topic (theoretically,
+                    // there are 64 bits in total (supposedly 63 if signed), and up to 53 bits for precision)
+                    MAX_DIGITS = 255;
+                    // MAX_DECIMALS = 30; // Same as before
+                    typeName = "float";
                 }
+
+                if (field.getPrecision().get(0) > MAX_DIGITS)
+                    throw new IllegalArgumentException("MySQL does not allow " + typeName + " precisions bigger than "
+                            + MAX_DIGITS);
+
+                if (field.getPrecision().get(1) > MAX_DECIMALS)
+                    throw new IllegalArgumentException("MySQL does not allow " + typeName + "s to have more than "
+                            + MAX_DECIMALS + " digits to the right of the decimal point.");
+
+                if (field.getPrecision().get(1) > field.getPrecision().get(0))
+                    throw new IllegalArgumentException("The number of digits for a " + typeName + " cannot be bigger "
+                            + "than the total number of them.");
 
                 mysqlType += " (" + field.getPrecision().get(0) + ", " + field.getPrecision().get(1) + ")";
             }
 
-
-            if ((double) field.getMin() >= 0)
+            if ((long) field.getMin() >= 0)
                 mysqlType += " UNSIGNED";
 
             return mysqlType;
@@ -249,7 +332,6 @@ public class MysqlHelper {
 
             final long max = (long) field.getMax();
 
-            // IDEA: accept different units, not only bytes
             if (max <= TINY_MAX)
                 return "TINYBLOB";
             else if (max <= TEXT_MAX)
@@ -261,7 +343,7 @@ public class MysqlHelper {
             else
                 throw new RuntimeException("Sorry, a file that big cannot be stored");
         } else
-            throw new RuntimeException("The type provided for the field " + field.getName() + " is not valid. Given: " +
-                    fieldType + ". Valid primitive types are: " + Strings.join(Types.ALL, ", "));
+            throw new RuntimeException("The type provided for the field " + field.getName() + " is not valid. Given: "
+                    + fieldType + ". Valid primitive types are: " + Strings.join(Types.ALL, ", "));
     }
 }

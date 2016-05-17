@@ -1,5 +1,8 @@
 package es.berry.restyle.exceptions;
 
+/**
+ * Exception to represent that a problem was found regarding the semantic of the specification.
+ */
 public class SpecException extends RuntimeException {
 
     public SpecException() {

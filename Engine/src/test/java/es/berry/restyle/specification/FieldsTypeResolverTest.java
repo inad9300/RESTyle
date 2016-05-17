@@ -1,5 +1,8 @@
 package es.berry.restyle.specification;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import es.berry.restyle.specification.generated.Field;
 import es.berry.restyle.specification.generated.Resource;
 import es.berry.restyle.specification.generated.Spec;
@@ -21,6 +24,12 @@ public class FieldsTypeResolverTest {
     private Field field = null;
     private Set<Type> types = null;
 
+    private JsonNode specNode = null;
+    private ObjectNode r = null;
+    private ObjectNode f = null;
+
+    final private ObjectMapper mapper = SpecObjectMapper.getInstance();
+
     @Before
     public void setUp() {
         spec = new Spec();
@@ -35,11 +44,11 @@ public class FieldsTypeResolverTest {
 
         t2.setName("t2");
         t2.setMin(2);
-        t2.setType("string");
+        t2.setType(Field.Type.STRING);
 
         t1.setName("t1");
         t1.setMin(1);
-        t1.setType("t2");
+        t1.setType(Field.Type.STRING);
         t1.setRequired(true);
 
         types.add(t2);
@@ -47,7 +56,6 @@ public class FieldsTypeResolverTest {
 
         field.setName("f");
         field.setMin(3);
-        field.setType("t1");
         fields.add(field);
 
         resource.setName("r");
@@ -56,27 +64,32 @@ public class FieldsTypeResolverTest {
         spec.setTypes(types);
         resource.setFields(fields);
         spec.setResources(resources);
+
+        specNode = mapper.valueToTree(spec);
+
+        r = (ObjectNode) SpecHelper.findResourceByName(specNode, "r");
+        assert r != null;
+
+        f = (ObjectNode) SpecHelper.findFieldByName(r, "f");
+        assert f != null;
+
+        f.put("type", "t1");
     }
 
     @Test
     public void resolve() {
-        new FieldsTypeResolver(spec).resolve();
+        new FieldsTypeResolver(specNode).resolve();
 
-        Field f = (Field) resource.getFields().toArray()[0];
-
-        assertEquals("f", f.getName());
-        assertEquals("string", f.getType());
-        assertEquals(3, f.getMin());
-        assertEquals(true, f.getRequired());
+        assertEquals("f", f.get("name").asText());
+        assertEquals("string", f.get("type").asText());
+        assertEquals(3, f.get("min").asInt());
+        assertEquals(true, f.get("required").asBoolean());
     }
 
     @Test(expected = NullPointerException.class)
     public void resolveEndlessType() {
-        Set<Field> mistakenFields = new HashSet<>();
-        Field fieldWithoutType = new Field();
-        mistakenFields.add(fieldWithoutType);
-        resource.setFields(mistakenFields);
+        f.set("type", null);
 
-        new FieldsTypeResolver(spec).resolve();
+        new FieldsTypeResolver(specNode).resolve();
     }
 }

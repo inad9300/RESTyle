@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class RestModel extends Model {
 
+    protected $dateFormat = 'Y-m-d\TH:i:sP'; // ISO 8601 format
+
+    protected $fileUrlPart = '/files';
+
     public $timestamps = false;
 
     protected $fillable = [];
@@ -36,5 +40,37 @@ class RestModel extends Model {
 
     public static function isSortable($field) {
         return in_array($field, static::$sortable);
+    }
+
+    /**
+     * Get the date formatted according to the ISO 8601.
+     */
+    public static function getIsoUtcDate($str) {
+        if (empty($str)) {
+            return $str;
+        }
+        $date = new \DateTime($str);
+        return $date->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d');
+    }
+
+    /**
+     * Get the time formatted according to the ISO 8601.
+     */
+    public static function getIsoUtcTime($str) {
+        if (empty($str)) {
+            return $str;
+        }
+        $date = new \DateTime($str);
+        return $date->setTimezone(new \DateTimeZone('UTC'))->format('H:i:sP');
+    }
+
+    /**
+     * Get the date and time formatted according to the ISO 8601.
+     */
+    public static function getIsoUtcDatetime($str) {
+        if (empty($str)) {
+            return $str;
+        }
+        return self::getIsoUtcDate($str) . 'T' . self::getIsoUtcTime($str);
     }
 }

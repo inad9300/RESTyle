@@ -13,22 +13,11 @@ use Illuminate\Support\ServiceProvider;
 class AuthServiceProvider extends ServiceProvider {
 
     /**
-     * The policy mappings for the application.
-     *
-     * @var array
-     */
-    protected $policies = [
-        {{#each resources}}{{class}}::class => {{class}}Policy::class,
-        {{/each}}
-    ];
-
-    /**
      * Register any application services.
      *
      * @return void
      */
-    public function register(Gate $gate) {
-        $this->registerPolicies($gate);
+    public function register() {
     }
 
     /**
@@ -42,6 +31,12 @@ class AuthServiceProvider extends ServiceProvider {
         // should return either a {{userClass}} instance or null. You're free to obtain
         // the User instance via an API token or any other method necessary.
 
+        /**
+         * The policy mappings for the application.
+         */
+        {{#each resources}}Gate::policy({{class}}::class, {{class}}Policy::class);
+        {{/each}}
+
         $this->app['auth']->viaRequest('api', function ($request) {
             // NOTE for the future: user name is forbidden to contain colon (':') in Basic Authentication
 
@@ -52,17 +47,15 @@ class AuthServiceProvider extends ServiceProvider {
             }
 
             $user = {{userClass}}::where('username', $_SERVER['PHP_AUTH_USER'])->first();
+            if (empty($user)) {
+                return null;
+            }
 
-            if (hash_equals($user->password, crypt($_SERVER['PHP_AUTH_PW'], $user->password))) {
+            if (\App\Utils\Security::verify($_SERVER['PHP_AUTH_PW'], $user->password)) {
                 return $user;
             }
+
             return null;
         });
-
-        // $this->app['auth']->viaRequest('api', function ($request) {
-        //     if ($request->input('api_token')) {
-        //         return {{userClass}}::where('api_token', $request->input('api_token'))->first();
-        //     }
-        // });
     }
 }

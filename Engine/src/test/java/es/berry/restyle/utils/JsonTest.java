@@ -1,7 +1,7 @@
 package es.berry.restyle.utils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import es.berry.restyle.specification.SpecObjectMapper;
 import org.junit.Test;
 
 import java.io.BufferedWriter;
@@ -28,13 +28,13 @@ public class JsonTest {
             assertFalse("Temporary file creation failed", true);
         }
 
-        ObjectNode expectedNode = new ObjectMapper().createObjectNode();
+        ObjectNode expectedNode = SpecObjectMapper.getInstance().createObjectNode();
         expectedNode.put("key", 33);
         expectedNode.put("value", 33);
 
         try {
             assertEquals(Json.resolveReferences(tmpFile), expectedNode);
-            assertEquals(Json.resolveReferences(tmpFile, new ObjectMapper()), expectedNode);
+            assertEquals(Json.resolveReferences(tmpFile, SpecObjectMapper.getInstance()), expectedNode);
         } catch (IOException e) {
             assertTrue("JSON references were not resolved properly", false);
         }

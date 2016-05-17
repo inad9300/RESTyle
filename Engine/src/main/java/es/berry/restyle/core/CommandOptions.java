@@ -25,6 +25,9 @@ final public class CommandOptions {
     public final static String HELP_S = "h";
     public final static String HELP_L = "help";
 
+    /**
+     * Statically return all the options defined for the application.
+     */
     public static Options get() {
         Options opts = new Options();
 

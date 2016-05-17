@@ -12,8 +12,6 @@ import java.util.*;
  */
 public class AdvancedValidator {
 
-    // IDEA: reduce all loops over resources to one
-
     private final Spec spec;
 
     public AdvancedValidator(Spec spec) {
@@ -25,11 +23,14 @@ public class AdvancedValidator {
         indexesValidation();
         rolesValidation();
         minMaxValidation();
-        isUserDuplicatesValidation();
+        isUserDuplicatedValidation();
         idGenerationValidation();
     }
 
-    private void isUserDuplicatesValidation() {
+    /**
+     * Ensure that only one resource is marked as user.
+     */
+    private void isUserDuplicatedValidation() {
         List<String> resourceNamesWithAsUser = new LinkedList<>();
 
         for (Resource res : spec.getResources())
@@ -41,23 +42,16 @@ public class AdvancedValidator {
                     + "are currently marked that way: " + Strings.join(resourceNamesWithAsUser, ", "));
     }
 
-    private boolean isNumber(Object o) {
-        // True if c is one of: AtomicInteger, AtomicLong, BigDecimal, BigInteger, Byte, Double, Float, Integer, Long,
-        // Short; or any class inheriting from those.
-        return o != null && Number.class.isAssignableFrom(o.getClass());
-    }
-
-    private boolean isString(Object o) {
-        return o != null && o instanceof String;
-    }
-
+    /**
+     * Check the values of the "min" and "max" properties of the fields, to see if their types make sense.
+     */
     private void minMaxValidation() {
         for (Resource res : spec.getResources())
             for (Field f : res.getFields()) {
                 if (f.getMin() == null && f.getMax() == null)
                     continue;
 
-                if (Types.MIN_MAX_INT.contains(f.getType())) {
+                if (Types.MIN_MAX_INT.contains(f.getType().toString())) {
                     if (f.getMin() != null && !isNumber(f.getMin()))
                         throw new SpecException("The minimum of fields of type "
                                 + f.getType() + " must be a number. Check the " + f.getName() + " field");
@@ -67,7 +61,7 @@ public class AdvancedValidator {
                                 + f.getType() + " must be a number. Check the " + f.getName() + " field");
                 }
 
-                if (Types.MIN_MAX_STRING.contains(f.getType())) {
+                if (Types.MIN_MAX_STRING.contains(f.getType().toString())) {
                     if (f.getMin() != null && !isString(f.getMin()))
                         throw new SpecException("The minimum of fields of type "
                                 + f.getType() + " must be a string. Check the " + f.getName() + " field");
@@ -81,19 +75,19 @@ public class AdvancedValidator {
                     final String dateTimeRegex = dateRegex + "T" + timeRegex + "Z";
 
                     switch (f.getType()) {
-                        case Types.DATE:
+                        case DATE:
                             if ((f.getMin() != null && !f.getMin().toString().matches(dateRegex)) ||
                                     (f.getMax() != null && !f.getMax().toString().matches(dateRegex)))
                                 throw new SpecException("The min and max properties of field " + f.getName()
                                         + " must follow the ISO 8601 rules for the date part");
                             break;
-                        case Types.TIME:
+                        case TIME:
                             if ((f.getMin() != null && !f.getMin().toString().matches(timeRegex)) ||
                                     (f.getMax() != null && !f.getMax().toString().matches(timeRegex)))
                                 throw new SpecException("The min and max properties of field " + f.getName()
                                         + " must follow the ISO 8601 rules for the time part");
                             break;
-                        case Types.DATETIME:
+                        case DATETIME:
                             if ((f.getMin() != null && !f.getMin().toString().matches(dateTimeRegex)) ||
                                     (f.getMax() != null && !f.getMax().toString().matches(dateTimeRegex)))
                                 throw new SpecException("The min and max properties of field " + f.getName()
@@ -104,6 +98,26 @@ public class AdvancedValidator {
             }
     }
 
+    /**
+     * Helper function to determine if a generic Object is a Number.
+     * <p>
+     * True if it is one of: AtomicInteger, AtomicLong, BigDecimal, BigInteger, Byte, Double, Float, Integer, Long,
+     * Short -- or any class inheriting from those.
+     */
+    private boolean isNumber(Object o) {
+        return o != null && Number.class.isAssignableFrom(o.getClass());
+    }
+
+    /**
+     * Helper function to determine if a generic Object is a String.
+     */
+    private boolean isString(Object o) {
+        return o != null && o instanceof String;
+    }
+
+    /**
+     * If id injection is enabled, no other field should be marked as auto incrementable.
+     */
     private void idGenerationValidation() {
         Set<String> autoIncrementalFieldNames = new HashSet<>();
 
@@ -121,6 +135,9 @@ public class AdvancedValidator {
                     + "marked: " + Strings.join(autoIncrementalFieldNames, ", "));
     }
 
+    /**
+     * Ensure that no resource is related with another one that is not defined. Good to catch spelling mistakes.
+     */
     private void relationshipsValidation() {
         List<String> resourceNames = new ArrayList<>();
 
@@ -134,6 +151,10 @@ public class AdvancedValidator {
                             + " with a nonexistent one: " + rel.getWith());
     }
 
+    /**
+     * Check the shape of the indexes defined. Example of a valid index definition:
+     * ["-title", "year", "+lastModified"]
+     */
     private void indexesValidation() {
         for (Resource res : spec.getResources()) {
             List<String> fieldNames = new ArrayList<>();
@@ -154,11 +175,21 @@ public class AdvancedValidator {
         }
     }
 
+    /**
+     * Ensure that there is a guest role, which is compulsory; and that the inheritance chain built is correct.
+     */
     private void rolesValidation() {
         List<String> roleNames = new ArrayList<>();
+        boolean thereIsGuestRole = false;
 
-        for (Role role : spec.getRoles())
+        for (Role role : spec.getRoles()) {
             roleNames.add(role.getName());
+            if (role.getIsGuest())
+                thereIsGuestRole = true;
+        }
+
+        if (!thereIsGuestRole)
+            throw new SpecException("No guest role was provided. It is mandatory to specify one.");
 
         for (Role role : spec.getRoles())
             if (role.getIsA() != null && !roleNames.contains(role.getIsA()))

@@ -2,16 +2,23 @@ package es.berry.restyle.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jackson.JsonLoader;
+import com.github.fge.jsonschema.core.exceptions.ProcessingException;
+import com.github.fge.jsonschema.core.report.ProcessingMessage;
+import com.github.fge.jsonschema.core.report.ProcessingReport;
+import com.github.fge.jsonschema.main.JsonSchema;
+import com.github.fge.jsonschema.main.JsonSchemaFactory;
 import es.berry.restyle.logging.Log;
 import es.berry.restyle.logging.Logger;
 import me.andrz.jackson.JsonReferenceException;
 import me.andrz.jackson.JsonReferenceProcessor;
-import me.andrz.jackson.ObjectMapperFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 
+/**
+ * Utility class for JSON-related operations.
+ */
 final public class Json {
 
     private static final Logger log = Log.getChain();
@@ -33,5 +40,29 @@ final public class Json {
 
     public static JsonNode resolveReferences(File json) throws IOException {
         return resolveReferences(json, null);
+    }
+
+
+    public static String validateAgainstSchema(JsonNode node, String schemaPath) {
+        final JsonNode schemaNode;
+        try {
+            schemaNode = JsonLoader.fromFile(new File(schemaPath));
+            final JsonSchema schema = JsonSchemaFactory.byDefault().getJsonSchema(schemaNode);
+
+            ProcessingReport report = schema.validate(node);
+            if (!report.isSuccess()) {
+                String msg = "The JSON data provided does not conform the meta-specification defined for it:\n";
+
+                for (ProcessingMessage r : report)
+                    msg += r;
+
+                return msg;
+            }
+        } catch (IOException e) {
+            log.error("The JSON schema file could not be read", e);
+        } catch (ProcessingException e) {
+            log.error("An error happened when processing the JSON schema file", e);
+        }
+        return null;
     }
 }

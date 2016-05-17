@@ -1,5 +1,6 @@
 package es.berry.restyle.generators;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -9,6 +10,7 @@ import es.berry.restyle.generators.interfaces.SqlCarrier;
 import es.berry.restyle.logging.Log;
 import es.berry.restyle.logging.Logger;
 import es.berry.restyle.specification.SpecHelper;
+import es.berry.restyle.specification.SpecObjectMapper;
 import es.berry.restyle.specification.generated.*;
 import es.berry.restyle.utils.Strings;
 import org.apache.commons.io.FileUtils;
@@ -18,14 +20,16 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Path;
 import java.security.SecureRandom;
-import java.util.*;
-
-// FIXME: /users/1/books work, but /books/1/users didn't got so lucky, nor did /preferences/1/users
-// IDEA: replace all \n\n\n\n by \n\n\n recursively, to avoid giant vertical spacing difficult to handle otherwise
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Set;
 
 /**
- * Plugin created for the framework Lumen, version 5.2
- * Documentation available in https://lumen.laravel.com/docs/5.2 and https://laravel.com/docs/5.2
+ * Plugin created for the framework Lumen, version 5.2. It aims to generate a complete and fully functional REST
+ * service.
+ * <p>
+ * External documentation available in https://lumen.laravel.com/docs/5.2 and https://laravel.com/docs/5.2
  */
 public class PhpLumen extends Generator {
     private static String HAS_MANY = null;
@@ -41,8 +45,8 @@ public class PhpLumen extends Generator {
 
     private static final Logger log = Log.getChain();
 
-    public PhpLumen(Spec spec, File outputDir) throws IOException {
-        super(spec, outputDir);
+    public PhpLumen(Spec spec, JsonNode specNode, File outputDir) throws IOException {
+        super(spec, specNode, outputDir);
         this.setTemplateGen(new TemplateGen(PhpLumen.class, "php"));
         this.prevGeneratorMustImplement(SqlCarrier.class);
 
@@ -77,8 +81,7 @@ public class PhpLumen extends Generator {
             log.info("· Generating initial file structure...");
             getInitialConfig();
 
-            String authRoutes = "";
-            String unauthRoutes = "";
+            String routes = "";
 
             Resource userRes = null;
             for (Resource res : this.getSpec().getResources())
@@ -93,21 +96,41 @@ public class PhpLumen extends Generator {
                 Strings.toFile(doPolicyPart(res, userRes), this.policiesOut + File.separator + PhpLumenHelper.getClassName(res) + "Policy.php");
                 Strings.toFile(doControllerPart(res), this.controllersOut + File.separator + PhpLumenHelper.getClassName(res) + "Controller.php");
 
-                if (SpecHelper.needsAuthentication(res))
-                    authRoutes += doRoutesPart(res) + "\n\n";
-                else
-                    unauthRoutes += doRoutesPart(res) + "\n\n";
+                if (res.getIsUser())
+                    generateAuthServiceProvider(res);
+
+                routes += doRoutesPart(res) + "\n\n";
             }
             Strings.toFile(
-                    this.getTemplateGen().compile("routes", new ObjectMapper().createObjectNode()
+                    this.getTemplateGen().compile("routes", SpecObjectMapper.getInstance().createObjectNode()
                             .put("prefix", "")
-                            .put("authRoutes", authRoutes)
-                            .put("unauthRoutes", unauthRoutes)),
+                            .put("routes", routes)),
                     this.serverOut + "/app/Http/routes.php"
             );
         } catch (IOException e) {
             log.error("Error generating some file in plugin " + this.getClass().getSimpleName(), e);
         }
+    }
+
+    /**
+     * Find all the relationships pointing to the current resource, as a way to define "belongsTo" relationships (the
+     * other side of the one to many and one to one relationships -- but not of many to many ones)
+     */
+    private Set<Resource> getResourcesBelongingToRelation(Resource res) {
+        final Set<Resource> result = new HashSet<>();
+
+        for (Resource _res : this.getSpec().getResources()) {
+            if (res.getName().equals(_res.getName()))
+                continue;
+
+            // if one to one or one to many... (not many to many)
+            if (SpecHelper.resourceContainsRelation(_res, res.getName(), HAS_ONE) ||
+                    (SpecHelper.resourceContainsRelation(_res, res.getName(), HAS_MANY) &&
+                            !SpecHelper.resourceContainsRelation(res, _res.getName(), HAS_MANY)))
+                result.add(_res);
+        }
+
+        return result;
     }
 
     private void getInitialConfig() throws IOException {
@@ -120,7 +143,7 @@ public class PhpLumen extends Generator {
         final Database db = this.getSpec().getDatabase();
 
         Strings.toFile(
-                new TemplateGen(PhpLumen.class).compile(".env", new ObjectMapper().createObjectNode()
+                new TemplateGen(PhpLumen.class).compile(".env", SpecObjectMapper.getInstance().createObjectNode()
                         .put("randomKey", new BigInteger(130, new SecureRandom()).toString(32))
                         .put("dbType", db.getDbms().toLowerCase())
                         .put("dbHost", db.getHost())
@@ -132,7 +155,7 @@ public class PhpLumen extends Generator {
         );
 
         Strings.toFile(
-                this.getTemplateGen().compile("app", new ObjectMapper().createObjectNode()
+                this.getTemplateGen().compile("app", SpecObjectMapper.getInstance().createObjectNode()
                         .put("charset", this.getSpec().getEncoding())
                         .put("timezone", this.getSpec().getTimeZone())),
                 this.serverOut + "/bootstrap/app.php"
@@ -145,7 +168,7 @@ public class PhpLumen extends Generator {
         String adminName = null;
         String guestName = null;
 
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = SpecObjectMapper.getInstance();
         ObjectNode root = mapper.createObjectNode();
 
         ArrayNode roles = mapper.createArrayNode();
@@ -171,33 +194,72 @@ public class PhpLumen extends Generator {
     }
 
     private String doRoutesPart(Resource res) {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = SpecObjectMapper.getInstance();
         ObjectNode root = mapper.createObjectNode();
         root.put("resourceName", res.getPlural());
         root.put("resourceRoute", res.getPlural());
         root.put("resourceClass", PhpLumenHelper.getClassName(res));
 
+        final Role guest = SpecHelper.findGuestRole(this.getSpec());
+        assert guest != null;
+        final String guestName = guest.getName();
+
+        root.put("guestCanReadResource", SpecHelper.roleCanRead(res, guestName));
+        root.put("guestCanCreateResource", SpecHelper.roleCanCreate(res, guestName));
+        root.put("guestCanUpdateResource", SpecHelper.roleCanUpdate(res, guestName));
+        root.put("guestCanDeleteResource", SpecHelper.roleCanDelete(res, guestName));
+
         ArrayNode relations = mapper.createArrayNode();
+        ArrayNode resourceFiles = mapper.createArrayNode();
 
         for (Relation rel : res.getRelations()) {
             final Resource relRes = SpecHelper.findResourceByName(this.getSpec(), rel.getWith());
             assert relRes != null;
 
+            final boolean isOneToOne = HAS_ONE.equals(rel.getType().toString());
+            boolean isManyToMany = HAS_MANY.equals(rel.getType().toString()) &&
+                    SpecHelper.resourceContainsRelation(relRes, res.getName(), HAS_MANY);
+
             relations.add(mapper.createObjectNode()
-                    .put("isManyToMany", HAS_MANY.equals(rel.getType().toString()) && SpecHelper.resourceContainsRelation(relRes, res.getName(), HAS_MANY))
+                    .put("isBelongTo", false)
+                    .put("isOneToOne", isOneToOne)
+                    .put("isManyToMany", isManyToMany)
                     .put("subresourceName", relRes.getPlural())
                     .put("subresourceRoute", relRes.getPlural())
                     .put("subresourceClass", PhpLumenHelper.getClassName(relRes))
-                    .put("subresourceClassPlural", PhpLumenHelper.getClassNamePlural(relRes)));
+                    .put("subresourceClassPlural", PhpLumenHelper.getClassNamePlural(relRes))
+                    .put("guestCanReadSubresource", SpecHelper.roleCanRead(relRes, guestName))
+                    .put("guestCanCreateSubresource", SpecHelper.roleCanCreate(relRes, guestName))
+                    .put("guestCanDeleteSubresource", SpecHelper.roleCanDelete(relRes, guestName)));
         }
 
+        for (Resource _res : getResourcesBelongingToRelation(res))
+            relations.add(mapper.createObjectNode()
+                    .put("isBelongTo", true)
+                    .put("isOneToOne", false)
+                    .put("isManyToMany", false)
+                    .put("subresourceName", _res.getPlural())
+                    .put("subresourceRoute", _res.getPlural())
+                    .put("subresourceClass", PhpLumenHelper.getClassName(_res))
+                    .put("subresourceClassPlural", PhpLumenHelper.getClassNamePlural(_res))
+                    .put("guestCanReadSubresource", SpecHelper.roleCanRead(_res, guestName))
+                    .put("guestCanCreateSubresource", SpecHelper.roleCanCreate(_res, guestName))
+                    .put("guestCanDeleteSubresource", SpecHelper.roleCanDelete(_res, guestName)));
+
+        for (Field f : res.getFields())
+            if (f.getType().equals(Field.Type.FILE))
+                resourceFiles.add(mapper.createObjectNode()
+                        .put("name", f.getName())
+                        .put("camelName", Strings.studly(f.getName())));
+
         root.putArray("relations").addAll(relations);
+        root.putArray("resourceFiles").addAll(resourceFiles);
 
         return this.getTemplateGen().compile("routes-resource", root);
     }
 
     private String doModelPart(Resource res) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = SpecObjectMapper.getInstance();
         ObjectNode root = mapper.createObjectNode();
 
         final String resPk = (String) this.invokePrevMethod("getPrimaryKey", new Class[]{Resource.class}, res);
@@ -205,17 +267,18 @@ public class PhpLumen extends Generator {
 
         root.put("resourceClass", PhpLumenHelper.getClassName(res));
         root.put("resourceTable", tableName);
+        root.put("resourceRoute", res.getPlural());
         root.put("isUser", res.getIsUser());
-
-        // TODO: move outside
-        if (res.getIsUser())
-            generateAuthServiceProvider(res);
 
         ArrayNode fillableAttributes = mapper.createArrayNode();
         ArrayNode hiddenAttributes = mapper.createArrayNode();
         ArrayNode filterableAttributes = mapper.createArrayNode();
         ArrayNode sortableAttributes = mapper.createArrayNode();
         ArrayNode casts = mapper.createArrayNode();
+        ArrayNode dateAttributes = mapper.createArrayNode();
+        ArrayNode timeAttributes = mapper.createArrayNode();
+        ArrayNode dateTimeAttributes = mapper.createArrayNode();
+        ArrayNode imageAttributes = mapper.createArrayNode();
         ArrayNode validationRules = mapper.createArrayNode();
 
         filterableAttributes.add(resPk);
@@ -229,9 +292,31 @@ public class PhpLumen extends Generator {
             if (f.getSortable())
                 sortableAttributes.add(f.getName());
 
+            if (f.getType().equals(Field.Type.DATE))
+                dateAttributes.add(mapper.createObjectNode()
+                        .put("name", f.getName())
+                        .put("camelName", Strings.studly(f.getName())));
+
+            if (f.getType().equals(Field.Type.TIME))
+                timeAttributes.add(mapper.createObjectNode()
+                        .put("name", f.getName())
+                        .put("camelName", Strings.studly(f.getName())));
+
+            if (f.getType().equals(Field.Type.DATETIME))
+                dateTimeAttributes.add(mapper.createObjectNode()
+                        .put("name", f.getName())
+                        .put("camelName", Strings.studly(f.getName())));
+
+            if (f.getType().equals(Field.Type.FILE))
+                imageAttributes.add(mapper.createObjectNode()
+                        .put("name", f.getName())
+                        .put("camelName", Strings.studly(f.getName())));
+
             String cast = PhpLumenHelper.getCastType(f);
             if (cast != null)
-                casts.add(mapper.createObjectNode().put("prop", f.getName()).put("type", cast));
+                casts.add(mapper.createObjectNode()
+                        .put("prop", f.getName())
+                        .put("type", cast));
 
             if (f.getWriteOnly() || f.getEncrypted())
                 hiddenAttributes.add(f.getName());
@@ -243,7 +328,9 @@ public class PhpLumen extends Generator {
                 final String validationRule = PhpLumenHelper.generateValidationRule(f, tableName);
 
                 if (!Strings.isEmpty(validationRule))
-                    validationRules.add(mapper.createObjectNode().put("prop", f.getName()).put("rule", validationRule));
+                    validationRules.add(mapper.createObjectNode()
+                            .put("prop", f.getName())
+                            .put("rule", validationRule));
             }
         }
 
@@ -304,28 +391,22 @@ public class PhpLumen extends Generator {
             }
         }
 
-        // Find all the relationships pointing to the current resource, as a way to define "belongsTo" relationships
-        // (the other side of the one to many and one to one relationships)
-        for (Resource _res : this.getSpec().getResources()) {
-            if (res.getName().equals(_res.getName()))
-                continue;
-
-            // if one to one or one to many... (not many to many)
-            if (SpecHelper.resourceContainsRelation(_res, res.getName(), HAS_ONE) ||
-                    (SpecHelper.resourceContainsRelation(_res, res.getName(), HAS_MANY) &&
-                            !SpecHelper.resourceContainsRelation(res, _res.getName(), HAS_MANY)))
-                belongsToRelations.add(mapper.createObjectNode()
-                        .put("fn", _res.getPlural())
-                        .put("class", PhpLumenHelper.getClassName(_res))
-                        .put("classBack", BACKSLASH + PhpLumenHelper.getClassName(_res))
-                        .put("fk", (String) this.invokePrevMethod("getForeignKey", new Class[]{Resource.class}, res))
-                        .put("id", (String) this.invokePrevMethod("getPrimaryKey", new Class[]{Resource.class}, _res)));
-        }
+        for (Resource _res : getResourcesBelongingToRelation(res))
+            belongsToRelations.add(mapper.createObjectNode()
+                    .put("fn", _res.getPlural())
+                    .put("class", PhpLumenHelper.getClassName(_res))
+                    .put("classBack", BACKSLASH + PhpLumenHelper.getClassName(_res))
+                    .put("fk", (String) this.invokePrevMethod("getForeignKey", new Class[]{Resource.class}, _res))
+                    .put("id", (String) this.invokePrevMethod("getPrimaryKey", new Class[]{Resource.class}, _res)));
 
         root.putArray("fillableAttributes").addAll(fillableAttributes);
         root.putArray("hiddenAttributes").addAll(hiddenAttributes);
         root.putArray("filterableAttributes").addAll(filterableAttributes);
         root.putArray("sortableAttributes").addAll(sortableAttributes);
+        root.putArray("dateAttributes").addAll(dateAttributes);
+        root.putArray("timeAttributes").addAll(timeAttributes);
+        root.putArray("dateTimeAttributes").addAll(dateTimeAttributes);
+        root.putArray("imageAttributes").addAll(imageAttributes);
         root.putArray("casts").addAll(casts);
         root.putArray("validationRules").addAll(validationRules);
 
@@ -338,7 +419,7 @@ public class PhpLumen extends Generator {
     }
 
     private String doPolicyPart(Resource res, Resource userRes) {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = SpecObjectMapper.getInstance();
         ObjectNode root = mapper.createObjectNode();
 
         final String resClass = PhpLumenHelper.getClassName(res);
@@ -410,7 +491,7 @@ public class PhpLumen extends Generator {
     private void generateAuthServiceProvider(Resource res) throws IOException {
         final String userClass = PhpLumenHelper.getClassName(res);
 
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = SpecObjectMapper.getInstance();
         ObjectNode root = mapper.createObjectNode();
 
         final ArrayNode resources = mapper.createArrayNode();
@@ -435,28 +516,32 @@ public class PhpLumen extends Generator {
     }
 
     private String doControllerPart(Resource res) {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = SpecObjectMapper.getInstance();
         ObjectNode root = mapper.createObjectNode();
 
-        final String tableName = (String) this.invokePrevMethod("getTableName", new Class[]{Resource.class}, res);
+        // final String tableName = (String) this.invokePrevMethod("getTableName", new Class[]{Resource.class}, res);
 
+        root.put("resourceNamePlural", res.getPlural());
         root.put("resourceClass", PhpLumenHelper.getClassName(res));
         root.put("resourceClassBack", BACKSLASH + PhpLumenHelper.getClassName(res));
-        root.put("resourceTable", tableName);
         root.put("resourceId", (String) this.invokePrevMethod("getPrimaryKey", new Class[]{Resource.class}, res));
 
         ArrayNode relations = mapper.createArrayNode();
+        ArrayNode resourceFiles = mapper.createArrayNode();
 
         for (Relation rel : res.getRelations()) {
             final Resource relRes = SpecHelper.findResourceByName(this.getSpec(), rel.getWith());
             assert relRes != null;
 
-            final boolean isOneToX = HAS_ONE.equals(rel.getType().toString());
-            final boolean isManyToMany = HAS_MANY.equals(rel.getType().toString()) && SpecHelper.resourceContainsRelation(relRes, res.getName(), HAS_MANY);
+            final boolean isOneToOne = HAS_ONE.equals(rel.getType().toString());
+            final boolean isManyToMany = HAS_MANY.equals(rel.getType().toString()) &&
+                    SpecHelper.resourceContainsRelation(relRes, res.getName(), HAS_MANY);
 
             relations.add(mapper.createObjectNode()
-                    .put("isOneToX", isOneToX)
+                    .put("isBelongTo", false)
+                    .put("isOneToOne", isOneToOne)
                     .put("isManyToMany", isManyToMany)
+                    .put("subresourceNamePlural", relRes.getPlural())
                     .put("subresourceClass", PhpLumenHelper.getClassName(relRes))
                     .put("subresourceClassBack", BACKSLASH + PhpLumenHelper.getClassName(relRes))
                     .put("subresourceClassPlural", PhpLumenHelper.getClassNamePlural(relRes))
@@ -464,7 +549,26 @@ public class PhpLumen extends Generator {
                     .put("subFn", relRes.getPlural()));
         }
 
+        for (Resource _res : getResourcesBelongingToRelation(res))
+            relations.add(mapper.createObjectNode()
+                    .put("isBelongTo", true)
+                    .put("isOneToOne", false)
+                    .put("isManyToMany", false)
+                    .put("subresourceNamePlural", _res.getPlural())
+                    .put("subresourceClass", PhpLumenHelper.getClassName(_res))
+                    .put("subresourceClassBack", BACKSLASH + PhpLumenHelper.getClassName(_res))
+                    .put("subresourceClassPlural", PhpLumenHelper.getClassNamePlural(_res))
+                    .put("subresourceId", (String) this.invokePrevMethod("getPrimaryKey", new Class[]{Resource.class}, _res))
+                    .put("subFn", _res.getPlural()));
+
+        for (Field f : res.getFields())
+            if (f.getType().equals(Field.Type.FILE))
+                resourceFiles.add(mapper.createObjectNode()
+                        .put("name", f.getName())
+                        .put("camelName", Strings.studly(f.getName())));
+
         root.putArray("relations").addAll(relations);
+        root.putArray("resourceFiles").addAll(resourceFiles);
 
         return this.getTemplateGen().compile("Controller", root);
     }

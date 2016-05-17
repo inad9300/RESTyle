@@ -1,6 +1,6 @@
 package es.berry.restyle.core;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import es.berry.restyle.specification.SpecObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -69,7 +69,7 @@ public class TemplateGenTest {
 
             assertEquals(expectedResult, templateGen.compile(templateBasename, jsonValues));
             assertEquals(expectedResult, templateGen.compile(templateBasename,
-                    new ObjectMapper().createObjectNode().put("name", "world")));
+                    SpecObjectMapper.getInstance().createObjectNode().put("name", "world")));
 
             tmpValuesFile = File.createTempFile("values", ".tmp", templateGenDir);
             bw = new BufferedWriter(new FileWriter(tmpValuesFile));

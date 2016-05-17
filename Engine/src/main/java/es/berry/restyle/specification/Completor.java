@@ -1,5 +1,6 @@
 package es.berry.restyle.specification;
 
+import es.berry.restyle.exceptions.SpecException;
 import es.berry.restyle.specification.generated.*;
 import es.berry.restyle.utils.Strings;
 import org.atteo.evo.inflector.English;
@@ -40,6 +41,7 @@ final public class Completor {
     private final static boolean DEF_WRITE_ONLY = false;
     private final static boolean DEF_READ_ONLY = false;
     private final static boolean DEF_ENCRYPTED = false;
+    private final static Object DEF_ACL = null;
 
     final private Spec spec;
 
@@ -51,6 +53,10 @@ final public class Completor {
         return this.spec;
     }
 
+    /**
+     * Return a Collection with all the roles' names. They are returned as simple Objects for convenience -- see use in
+     * addUserFields().
+     */
     private Set<Object> getUserRoleNames() {
         Set<Object> names = new HashSet<>();
 
@@ -60,14 +66,10 @@ final public class Completor {
         return names;
     }
 
-    private String getGuestRole() {
-        for (Role role : spec.getRoles())
-            if (role.getIsGuest() != null && role.getIsGuest())
-                return role.getName();
-
-        return null;
-    }
-
+    /**
+     * Add certain properties to a resource that wants to be considered a user by the system. Should be applied when the
+     * resource is marked as user.
+     */
     private void addUserFields(Resource res) {
         final List<String> userReservedFieldNames = Arrays.asList("username", "role", "password", "isAdmin");
 
@@ -78,7 +80,7 @@ final public class Completor {
 
         name.setName("username");
         name.setDescription("Name that uniquely identifies the user in the system");
-        name.setType(Types.STRING);
+        name.setType(Field.Type.STRING);
         name.setRequired(true);
         name.setPattern("^[a-zA-z0-9_]{4,32}$");
         name.setMin(4);
@@ -88,17 +90,19 @@ final public class Completor {
 
         role.setName("role");
         role.setDescription("Role of the user");
-        role.setType(Types.STRING);
+        role.setType(Field.Type.STRING);
         role.setRequired(true);
         role.setMin(2);
         role.setMax(64);
         role.setEnum(getUserRoleNames());
-        if (getGuestRole() != null)
-            role.setDefault(getGuestRole());
+
+        final Role guestRole = SpecHelper.findGuestRole(spec);
+        if (guestRole != null)
+            role.setDefault(guestRole.getName());
 
         pass.setName("password");
         pass.setDescription("Password the user must use for authentication");
-        pass.setType(Types.STRING);
+        pass.setType(Field.Type.STRING);
         pass.setRequired(true);
         pass.setMin(8);
         pass.setMax(512);
@@ -109,7 +113,7 @@ final public class Completor {
 
         isAdmin.setName("isAdmin");
         isAdmin.setDescription("Determines whether the user is a super administrator or not");
-        isAdmin.setType(Types.BOOL);
+        isAdmin.setType(Field.Type.BOOL);
         isAdmin.setRequired(true);
         isAdmin.setDefault(0);
 
@@ -121,8 +125,11 @@ final public class Completor {
         res.setFields(fields);
     }
 
+    /**
+     * Add default values to a field's properties.
+     */
     private static void addFieldDefaultValues(Field field) {
-        if (field.getMin() == null && Types.MIN_MAX_INT.contains(field.getType()))
+        if (field.getMin() == null && Types.MIN_MAX_INT.contains(field.getType().toString()))
             field.setMin(DEF_MIN);
 
         if (field.getMax() != null && field.getMax().equals(SPECIAL_MAX))
@@ -131,7 +138,7 @@ final public class Completor {
         if (field.getAutoIncrement() == null)
             field.setAutoIncrement(DEF_AUTO_INCREMENT);
         else if (field.getAutoIncrement())
-            field.setType(Types.INT);
+            field.setType(Field.Type.INT);
 
         if (field.getRequired() == null)
             field.setRequired(DEF_REQUIRED);
@@ -155,6 +162,48 @@ final public class Completor {
             field.setEncrypted(DEF_ENCRYPTED);
     }
 
+    /**
+     * Recursively resolves one role.
+     */
+    private Role resolveRole(Role role) {
+        // No more levels of inheritance
+        if (role == null || role.getIsA() == null || role.getIsAdmin() || role.getIsGuest())
+            return role;
+
+        Role parent = SpecHelper.findRoleByName(spec, role.getIsA());
+        if (parent == null)
+            throw new SpecException("The role " + role.getName() + " is defined as another one that does not exist: "
+                    + role.getIsA());
+
+        // Enable recursion
+        role.setIsA(parent.getIsA());
+
+        if (role.getRateLimit() == null)
+            role.setRateLimit(parent.getRateLimit());
+        else if (parent.getRateLimit() != null) {
+            if (role.getRateLimit().getNumOfRequests() == null)
+                role.getRateLimit().setNumOfRequests(parent.getRateLimit().getNumOfRequests());
+            if (role.getRateLimit().getRefreshTime() == null)
+                role.getRateLimit().setRefreshTime(parent.getRateLimit().getRefreshTime());
+        }
+        return resolveRole(role);
+    }
+
+    /**
+     * Resolve roles' inheritance.
+     */
+    private Set<Role> resolveRoles(Set<Role> roles) {
+        final Set<Role> resolvedRoles = new HashSet<>();
+
+        for (Role role : roles)
+            resolvedRoles.add(resolveRole(role));
+
+        return resolvedRoles;
+    }
+
+    /**
+     * Add default values to the specification.
+     */
     public Completor addDefaultValues() {
         if (Strings.isEmpty(spec.getEncoding()))
             spec.setEncoding(DEF_ENCODING);
@@ -171,10 +220,14 @@ final public class Completor {
 
             if (role.getIsGuest() == null)
                 role.setIsGuest(DEF_IS_GUEST);
+        }
 
+        spec.setRoles(resolveRoles(spec.getRoles()));
+
+        // Add the defaults only after resolving the possible inheritance on the roles
+        for (Role role : spec.getRoles())
             if (role.getRateLimit() != null && role.getRateLimit().getNumOfRequests() == null)
                 role.getRateLimit().setNumOfRequests((long) DEF_RATE_LIMIT_REQ_NUM);
-        }
 
         for (Resource resource : spec.getResources()) {
             if (resource.getIsUser() == null)
@@ -206,7 +259,8 @@ final public class Completor {
 
             resource.setIndex(newIndex);
 
-            // TODO: acl
+            if (resource.getAcl() == null)
+                resource.setAcl(DEF_ACL);
 
             for (Relation relation : resource.getRelations()) {
                 if (relation.getMin() == null)

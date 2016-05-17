@@ -7,9 +7,9 @@ import com.eclipsesource.restfuse.Response;
 import com.eclipsesource.restfuse.annotation.Context;
 import com.eclipsesource.restfuse.annotation.HttpTest;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import es.berry.restyle.specification.SpecObjectMapper;
 import es.berry.restyle.utils.Strings;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
@@ -21,13 +21,17 @@ import static com.eclipsesource.restfuse.Assert.assertOk;
 import static junit.framework.TestCase.assertTrue;
 
 /**
- * Tests for the results (namely, a RESTful API using the PHP Lumen framework) of the plugin PhpLumen, using the
- * pets-spec.json specification in the /resources/examples directory.
+ * Tests for the results of the plugin PhpLumen, namely a RESTful API using the PHP Lumen framework. They rely on the
+ * bookstore.json example specification found in the /resources/examples directory. They are not really specialized for
+ * the PhpLumen plugin, but are valid for any plugin that is said to build a web service based on the same example
+ * specification.
  * <p>
  * NOTE: a server is expected to be up and running before the tests are run, for instance via
  * php -S localhost:5555 -t public/
+ * That means that the program must have been run beforehand, and the outcome moved to some working HTTP server such as
+ * Apache or Nginx.
  */
-/* @RunWith(HttpJUnitRunner.class)
+@RunWith(HttpJUnitRunner.class)
 public class PhpLumenTest {
     @Rule
     public Destination destination = getDestination();
@@ -58,7 +62,7 @@ public class PhpLumenTest {
 
         JsonNode jsonNode = null;
         try {
-            jsonNode = new ObjectMapper().readTree(response.getBody());
+            jsonNode = SpecObjectMapper.getInstance().readTree(response.getBody());
         } catch (IOException e) {
             assertTrue("Returned JSON was not properly formatted", false);
         }
@@ -77,4 +81,4 @@ public class PhpLumenTest {
         assertTrue(fieldNames.contains("breed"));
         assertTrue(fieldNames.contains("owner_id"));
     }
-} */
+}

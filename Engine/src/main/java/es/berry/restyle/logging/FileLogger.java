@@ -9,6 +9,9 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+/**
+ * Logs to a file, given by its name.
+ */
 public class FileLogger extends Logger {
 
     private String filename;

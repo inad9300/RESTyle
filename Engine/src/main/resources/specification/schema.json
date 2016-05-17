@@ -92,12 +92,15 @@
 
     "definitions": {
 
+        "basicName": {
+            "type": "string",
+            "pattern": "^([A-Za-z_]+)$"
+        },
+
         "role": {
             "type": "object",
             "properties": {
-                "name": {
-                    "type": "string"
-                },
+                "name": { "$ref": "#/definitions/basicName" },
                 "isAdmin": {
                     "type": "boolean"
                 },
@@ -141,18 +144,12 @@
         "resource": {
             "type": "object",
             "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "plural": {
-                    "type": "string"
-                },
+                "name": { "$ref": "#/definitions/basicName" },
+                "plural": { "$ref": "#/definitions/basicName" },
                 "description": {
                     "type": "string"
                 },
-                "base": {
-                    "type": "string"
-                },
+                "base": { "$ref": "#/definitions/basicName" },
                 "isUser": {
                     "type": "boolean"
                 },
@@ -193,14 +190,13 @@
         "field": {
             "type": "object",
             "properties": {
-                "name": {
-                    "type": "string"
-                },
+                "name": { "$ref": "#/definitions/basicName" },
                 "description": {
                     "type": "string"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": ["int", "float", "decimal", "string", "bool", "date", "time", "datetime", "file"]
                 },
                 "autoIncrement": {
                     "type": "boolean"
@@ -210,13 +206,13 @@
                 },
                 "min": {
                     "oneOf": [
-                        { "type": "integer" },
+                        { "type": "number" },
                         { "type": "string" }
                     ]
                 },
                 "max": {
                     "oneOf": [
-                        { "type": "integer" },
+                        { "type": "number" },
                         { "type": "string" }
                     ]
                 },
@@ -245,8 +241,12 @@
                     "type": "string"
                 },
                 "patternOptions": {
-                    "type": "string",
-                    "pattern": ""
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "uniqueItems": true,
+                    "minItems": 1
                 },
                 "filterable": {
                     "type": "boolean"
@@ -270,9 +270,7 @@
         "relation": {
             "type": "object",
             "properties": {
-                "with": {
-                    "type": "string"
-                },
+                "with": { "$ref": "#/definitions/basicName" },
                 "type": {
                     "type": "string",
                     "enum": ["hasOne", "hasMany"]
@@ -306,10 +304,7 @@
 
         "aclSimple": {
             "type": "array",
-            "items": {
-                "type": "string",
-                "pattern": "^([a-zA-Z0-9_]{1,}(\\+[a-zA-Z0-9_]{1,}){0,1})$"
-            },
+            "items": { "$ref": "#/definitions/basicName" },
             "uniqueItems": true,
             "minItems": 0
         },

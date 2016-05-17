@@ -1,15 +1,5 @@
 <?php
 
-// Remove PHP's default header
-header_remove('X-Powered-By');
-
-// Set the character encoding
-mb_internal_encoding('{{charset}}');
-
-// Set the default time zone
-date_default_timezone_set('{{timezone}}');
-
-
 require_once __DIR__.'/../vendor/autoload.php';
 
 try {
@@ -32,6 +22,24 @@ try {
 $app = new Laravel\Lumen\Application(
     realpath(__DIR__.'/../')
 );
+
+// Remove PHP's default header
+header_remove('X-Powered-By');
+
+// Set the character encoding
+mb_internal_encoding('UTF-8');
+
+// Set the default time zone
+date_default_timezone_set('UTC');
+
+// Control error displaying
+if (env('APP_DEBUG', false)) {
+    // Report all errors except E_NOTICE
+    error_reporting(E_ALL & ~E_NOTICE);
+} else {
+    // Turn off all error reporting
+    error_reporting(0);
+}
 
 $app->withFacades();
 
@@ -73,9 +81,10 @@ $app->singleton(
 //    App\Http\Middleware\ExampleMiddleware::class
 // ]);
 
-// $app->routeMiddleware([
-//     'auth' => App\Http\Middleware\Authenticate::class,
-// ]);
+$app->routeMiddleware([
+    'auth' => App\Http\Middleware\Authenticate::class,
+    'rate' => App\Http\Middleware\RateMiddleware::class
+]);
 
 /*
 |--------------------------------------------------------------------------
@@ -90,6 +99,7 @@ $app->singleton(
 
 // $app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
+$app->register(GrahamCampbell\Throttle\ThrottleServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
 
 /*

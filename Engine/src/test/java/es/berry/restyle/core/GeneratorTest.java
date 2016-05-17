@@ -1,5 +1,6 @@
 package es.berry.restyle.core;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import es.berry.restyle.fakes.FakePlugin;
 import es.berry.restyle.fakes.FakePluginDependencies;
 import es.berry.restyle.fakes.FakePluginI;
@@ -26,8 +27,8 @@ public class GeneratorTest {
     @Before
     public void setUp() {
         firstFakePlugin = createMockBuilder(FakePlugin.class).addMockedMethod("doSomething").createMock();
-        lastFakePlugin = new FakePlugin(createMock(Spec.class), createMock(File.class));
-        fakePluginDependencies = new FakePluginDependencies(createMock(Spec.class), createMock(File.class));
+        lastFakePlugin = new FakePlugin(createMock(Spec.class), createMock(JsonNode.class), createMock(File.class));
+        fakePluginDependencies = new FakePluginDependencies(createMock(Spec.class), createMock(JsonNode.class), createMock(File.class));
     }
 
     @Test
@@ -43,19 +44,19 @@ public class GeneratorTest {
         List<Class<? extends Generator>> fakePlugins = new ArrayList<>();
         fakePlugins.add(fakePluginDependencies.getClass());
 
-        Generator.runAll(fakePlugins, createMock(Spec.class), createMock(File.class));
+        Generator.runAll(fakePlugins, createMock(Spec.class), createMock(JsonNode.class), createMock(File.class));
     }
 
     @Test(expected = RuntimeException.class)
     public void prevGeneratorNonMatchingDependency() {
         final FakePluginNoDependencies fakePluginNoDependencies =
-                new FakePluginNoDependencies(createMock(Spec.class), createMock(File.class));
+                new FakePluginNoDependencies(createMock(Spec.class), createMock(JsonNode.class), createMock(File.class));
 
         List<Class<? extends Generator>> fakePlugins = new ArrayList<>();
         fakePlugins.add(fakePluginNoDependencies.getClass());
         fakePlugins.add(fakePluginDependencies.getClass());
 
-        Generator.runAll(fakePlugins, createMock(Spec.class), createMock(File.class));
+        Generator.runAll(fakePlugins, createMock(Spec.class), createMock(JsonNode.class), createMock(File.class));
     }
 
     @Test

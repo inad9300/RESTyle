@@ -1,6 +1,7 @@
 package es.berry.restyle.generators;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import es.berry.restyle.core.Generator;
 import es.berry.restyle.core.TemplateGen;
@@ -9,7 +10,7 @@ import es.berry.restyle.generators.interfaces.SqlCarrier;
 import es.berry.restyle.logging.Log;
 import es.berry.restyle.logging.Logger;
 import es.berry.restyle.specification.SpecHelper;
-import es.berry.restyle.specification.Types;
+import es.berry.restyle.specification.SpecObjectMapper;
 import es.berry.restyle.specification.generated.Field;
 import es.berry.restyle.specification.generated.Relation;
 import es.berry.restyle.specification.generated.Resource;
@@ -40,8 +41,8 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
     // Array to remember which M to N relationships were already treated
     private Set<String> resourcesWithManyToManyRelationshipsCreated = new HashSet<>();
 
-    public MysqlCreationScript(Spec spec, File out) {
-        super(spec, out);
+    public MysqlCreationScript(Spec spec, JsonNode specNode, File out) {
+        super(spec, specNode, out);
         this.setTemplateGen(new TemplateGen(MysqlCreationScript.class, "sql"));
     }
 
@@ -81,14 +82,23 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
     private String getInitialConfig() {
         final String charset = MysqlHelper.adaptStandardName(this.getSpec().getEncoding());
 
-        ObjectNode node = new ObjectMapper().createObjectNode();
+        ObjectNode node = SpecObjectMapper.getInstance().createObjectNode();
         node.put("charset", charset);
-        node.put("timezone", this.getSpec().getTimeZone());
+
+        // NOTE: to display the actual list of available time zones: "select * from mysql.time_zone_name;". More
+        // information in https://dev.mysql.com/doc/refman/5.7/en/time-zone-support.html
+        node.put("timezone", this.getSpec().getTimeZone().equals("UTC") ? "+00:00" : this.getSpec().getTimeZone());
+
         node.put("collation", MysqlHelper.getCollation(charset));
         node.put("dbName", this.getSpec().getDatabase().getName());
         node.put("dbHost", this.getSpec().getDatabase().getHost());
         node.put("dbAdminName", this.getSpec().getDatabase().getAdmin().getName());
         node.put("dbAdminPass", this.getSpec().getDatabase().getAdmin().getPassword());
+
+        // Custom attributes -- must be accessed directly via the JsonNode since the Spec class is automatically
+        // generated from the main JSON Schema, but custom attributes are defined in the plugin-specific JSON Schema.
+        final boolean dropFirst = this.getSpecNode().get("database").get("x-dropFirst").asBoolean(true);
+        node.put("dropFirst", dropFirst);
 
         return this.getTemplateGen().compile("initial_config", node);
     }
@@ -98,7 +108,6 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
         return res.getPlural();
     }
 
-    // TODO: support inheritance, considering "abstract", "inheritanceStrategy", "base" and "acl"
     private String doResourcePart(Resource res) {
         if (res.getAbstract())
             return "";
@@ -118,7 +127,9 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
         final Set<Field> fields = res.getFields();
         assert fields != null && fields.size() > 0;
 
-        final String fieldsPart = doFieldsPart(fields);
+        final JsonNode rawFields = SpecHelper.findResourceByName(this.getSpecNode(), res.getName()).get("fields");
+
+        final String fieldsPart = doFieldsPart(fields, (ArrayNode) rawFields);
         // final String pkPart = doPrimaryKeyPart(res);
         final String indexPart = doIndexPart(res.getIndex());
         // final String uniquePart = doUniquePart(res);
@@ -137,21 +148,24 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
         return Strings.join(s, "\n");
     }
 
-    private String doFieldsPart(Collection<Field> fields) {
+    private String doFieldsPart(Collection<Field> fields, ArrayNode rawFields) {
         List<String> fieldsPart = new ArrayList<>();
-        for (Field field : fields)
+        int i = 0;
+        for (Field field : fields) {
+            final ObjectNode rawField = (ObjectNode) rawFields.get(i++);
             fieldsPart.add("\t"
                     + Strings.surround(field.getName(), REVERSE_QUOTE)
-                    + " " + MysqlHelper.getType(field)
-                    + " " + MysqlHelper.getTypeModifier(field));
+                    + " " + MysqlHelper.getType(field, rawField)
+                    + " " + MysqlHelper.getTypeModifier(field, rawField));
+        }
 
         return Strings.join(fieldsPart, ",\n");
     }
 
-    private String doPrimaryKeyPart(Resource res) {
-        // Not defined by spec.
-        return null;
-    }
+//    private String doPrimaryKeyPart(Resource res) {
+//        // Not defined by spec.
+//        return null;
+//    }
 
     private String doIndexPart(Collection<String> indexes) {
         if (indexes == null || indexes.size() <= 0)
@@ -171,9 +185,9 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
         return finalIdx + ")";
     }
 
-    private String doUniquePart(Resource res) {
-        return null;
-    }
+//    private String doUniquePart(Resource res) {
+//        return null;
+//    }
 
     @Override
     public String getPrimaryKey(Resource res) {
@@ -223,44 +237,43 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
 
         final String quotedName = Strings.surround(field.getName(), REVERSE_QUOTE);
 
-        // TODO: avoid if the maximum is the maximum of the type
         switch (field.getType()) {
-            case Types.STRING:
+            case STRING:
                 if (field.getMax() != null)
                     checks.add("char_length(" + quotedName + ") <= " + field.getMax());
 
                 if (field.getMin() != null && ((Number) field.getMin()).intValue() != 0)
                     checks.add("char_length(" + quotedName + ") >= " + field.getMin());
                 break;
-            case Types.FILE:
-                if (field.getMax() != null && ((Number) field.getMin()).intValue() != 0)
+            case FILE:
+                if (field.getMax() != null && ((Number) field.getMax()).intValue() != 0)
                     checks.add("length(" + quotedName + ") <= " + field.getMax());
 
                 if (field.getMin() != null)
                     checks.add("length(" + quotedName + ") >= " + field.getMin());
                 break;
-            case Types.INT:
-            case Types.FLOAT:
-            case Types.DECIMAL:
+            case INT:
+            case FLOAT:
+            case DECIMAL:
                 if (field.getMax() != null)
                     checks.add(quotedName + " <= " + field.getMax());
 
                 if (field.getMin() != null)
                     checks.add(quotedName + " >= " + field.getMin());
                 break;
-            case Types.DATE:
-            case Types.TIME:
-            case Types.DATETIME:
+            case DATE:
+            case TIME:
+            case DATETIME:
                 String fmt = null;
                 switch (field.getType()) {
-                    case Types.DATE:
+                    case DATE:
                         fmt = MysqlHelper.ISO_8601_UTC_DATE;
                         break;
-                    case Types.TIME:
-                        fmt = MysqlHelper.ISO_8601_UTC_DATE;
+                    case TIME:
+                        fmt = MysqlHelper.ISO_8601_UTC_TIME;
                         break;
-                    case Types.DATETIME:
-                        fmt = MysqlHelper.ISO_8601_UTC_DATE;
+                    case DATETIME:
+                        fmt = MysqlHelper.ISO_8601_UTC_FULL;
                         break;
                 }
                 assert fmt != null;
@@ -309,8 +322,8 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
     }
 
     private String addReferenceOptions(Relation rel) {
-        return (rel.getOnDelete() == null ? "" : " ON DELETE " + rel.getOnDelete().toUpperCase()) +
-                (rel.getOnUpdate() == null ? "" : " ON UPDATE " + rel.getOnUpdate().toUpperCase());
+        return (rel.getOnDelete() == null ? "" : " ON DELETE " + MysqlHelper.transformReferencialActions(rel.getOnDelete())) +
+                (rel.getOnUpdate() == null ? "" : " ON UPDATE " + MysqlHelper.transformReferencialActions(rel.getOnUpdate()));
     }
 
     private String doOneToManyRelationshipsPart(Resource res) {
@@ -344,7 +357,6 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
         return false;
     }
 
-    // TODO: support "reflective" relationships (users -- users (as friends))
     private String doManyToManyRelationshipsPart(Resource resA) {
         if (resourcesWithManyToManyRelationshipsCreated.contains(resA.getName()))
             return "";
@@ -362,9 +374,17 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
                 resourcesWithManyToManyRelationshipsCreated.add(resA.getName());
                 resourcesWithManyToManyRelationshipsCreated.add(resB.getName());
 
-                Set<Field> allFields = new HashSet<>();
+                // Putting all the fields together
+                final Set<Field> allFields = new HashSet<>();
                 allFields.addAll(relA.getFields());
                 allFields.addAll(relB.getFields());
+
+                // Putting all the fields together, on its raw form
+                final JsonNode rawRelA = SpecHelper.findRelationByName(SpecHelper.findResourceByName(this.getSpecNode(), resA.getName()), relA.getWith());
+                final JsonNode rawRelB = SpecHelper.findRelationByName(SpecHelper.findResourceByName(this.getSpecNode(), resB.getName()), relB.getWith());
+                final ArrayNode rawFields = SpecObjectMapper.getInstance().createArrayNode();
+                if (rawRelA != null && rawRelA.hasNonNull("fields")) rawFields.addAll((ArrayNode) rawRelA.get("fields"));
+                if (rawRelB != null && rawRelB.hasNonNull("fields")) rawFields.addAll((ArrayNode) rawRelB.get("fields"));
 
                 Set<String> allIndexes = new HashSet<>();
                 allIndexes.addAll(relA.getIndex());
@@ -379,7 +399,7 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
                 final String newTableQ = Strings.surround(
                         getManyToManyTableName(resA, resB), REVERSE_QUOTE);
 
-                final String fieldsPart = doFieldsPart(allFields);
+                final String fieldsPart = doFieldsPart(allFields, rawFields);
                 final String indexPart = doIndexPart(allIndexes);
                 // final String uniquePart = doUniquePart(allFields);
                 final String checkPart = doCheckPart(allFields, Strings.join(allChecks, " AND ", true));

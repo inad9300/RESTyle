@@ -1,5 +1,8 @@
 package es.berry.restyle.exceptions;
 
+/**
+ * Exception to represent problems encountered during plugins' execution.
+ */
 public class PluginException extends RuntimeException {
 
     public PluginException() {

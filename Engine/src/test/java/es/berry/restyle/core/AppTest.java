@@ -51,7 +51,7 @@ public class AppTest {
     @Test
     public void mainSuccessfulFlow() {
         final String[] args = {
-                "-" + CommandOptions.SPEC_S, "/home/daniel/Code/RESTyle/Engine/src/main/resources/examples/spec.json",
+                "-" + CommandOptions.SPEC_S, "/home/daniel/Code/RESTyle/Engine/src/main/resources/examples/bookstore.json",
                 "-" + CommandOptions.PLUGINS_S, "MysqlCreationScript,PhpLumen",
                 "-" + CommandOptions.OUT_S, tmpOut.getAbsolutePath()
         };
@@ -95,7 +95,7 @@ public class AppTest {
     @Test
     public void noPluginsArg() {
         final String[] args = {
-                "-" + CommandOptions.SPEC_S, "/home/daniel/Code/RESTyle/Engine/src/main/resources/examples/spec.json",
+                "-" + CommandOptions.SPEC_S, "/home/daniel/Code/RESTyle/Engine/src/main/resources/examples/bookstore.json",
                 "-" + CommandOptions.OUT_S, tmpOut.getAbsolutePath()
         };
         exit.expectSystemExitWithStatus(1);
@@ -110,7 +110,7 @@ public class AppTest {
     @Test
     public void noOutputArg() {
         final String[] args = {
-                "-" + CommandOptions.SPEC_S, "/home/daniel/Code/RESTyle/Engine/src/main/resources/examples/spec.json",
+                "-" + CommandOptions.SPEC_S, "/home/daniel/Code/RESTyle/Engine/src/main/resources/examples/bookstore.json",
                 "-" + CommandOptions.PLUGINS_S, "MysqlCreationScript,PhpLumen"
         };
         exit.expectSystemExitWithStatus(1);

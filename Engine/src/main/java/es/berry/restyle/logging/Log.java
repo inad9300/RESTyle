@@ -7,9 +7,12 @@ import es.berry.restyle.core.Config;
  */
 final public class Log {
 
-    private static Logger chain = _getChain();
+    private static Logger chain = buildChain();
 
-    private static Logger _getChain() {
+    /**
+     * Concatenates different loggers, assigning each of them a level.
+     */
+    private static Logger buildChain() {
         Logger consoleLogger = new ConsoleLogger(Logger.INFO);
         Logger fileLogger = new FileLogger(Logger.ERROR, Config.LOG_FILE);
 
@@ -18,6 +21,9 @@ final public class Log {
         return consoleLogger; // Return the one everyone else is linked to
     }
 
+    /**
+     * Return the default chain of loggers.
+     */
     public static Logger getChain() {
         return chain;
     }

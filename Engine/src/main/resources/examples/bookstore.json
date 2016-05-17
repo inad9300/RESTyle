@@ -1,9 +1,10 @@
 {
     "title": "Bookstore",
-    "description": { "$ref": "spec.desc.json#/description" },
+    "description": { "$ref": "bookstore-desc.json#/description" },
     "version": "v1",
     "baseUrl": "https://api.bookstore.example.org/{version}/",
-    "dataFormats": ["application/json", "text/xml"],
+    "dataFormats": ["application/json"],
+    "authenticationMechanism": "Basic",
     "encoding": "UTF-8",
     "timeZone": "UTC",
     "dateFormat": "ISO-8601",
@@ -11,14 +12,16 @@
         { "name": "admin", "isAdmin": true },
         { "name": "user", "isA": "guest" },
         { "name": "vip_user", "isA": "user" },
-        { "name": "guest", "isGuest": true }
+        { "name": "alpha_tester" },
+        { "name": "guest", "isGuest": true, "rateLimit": { "numOfRequests": 60, "refreshTime": 60 } }
     ],
     "database": {
         "dbms": "MySQL",
         "name": "test_db",
         "host": "localhost",
         "port": 3306,
-        "prefix": "api_",
+        "prefix": "",
+        "x-dropFirst": true,
         "admin": {
             "name": "root",
             "password": "root"
@@ -29,7 +32,7 @@
         "type": "string",
         "min": 3,
         "pattern": "^(?!(?:(?:\\x22?\\x5C[\\x00-\\x7E]\\x22?)|(?:\\x22?[^\\x5C\\x22]\\x22?)){255,})(?!(?:(?:\\x22?\\x5C[\\x00-\\x7E]\\x22?)|(?:\\x22?[^\\x5C\\x22]\\x22?)){65,}@)(?:(?:[\\x21\\x23-\\x27\\x2A\\x2B\\x2D\\x2F-\\x39\\x3D\\x3F\\x5E-\\x7E]+)|(?:\\x22(?:[\\x01-\\x08\\x0B\\x0C\\x0E-\\x1F\\x21\\x23-\\x5B\\x5D-\\x7F]|(?:\\x5C[\\x00-\\x7F]))*\\x22))(?:\\.(?:(?:[\\x21\\x23-\\x27\\x2A\\x2B\\x2D\\x2F-\\x39\\x3D\\x3F\\x5E-\\x7E]+)|(?:\\x22(?:[\\x01-\\x08\\x0B\\x0C\\x0E-\\x1F\\x21\\x23-\\x5B\\x5D-\\x7F]|(?:\\x5C[\\x00-\\x7F]))*\\x22)))*@(?:(?:(?!.*[^.]{64,})(?:(?:(?:xn--)?[a-z0-9]+(?:-[a-z0-9]+)*\\.){1,126}){1,}(?:(?:[a-z][a-z0-9]*)|(?:(?:xn--)[a-z0-9]+))(?:-[a-z0-9]+)*)|(?:\\[(?:(?:IPv6:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){7})|(?:(?!(?:.*[a-f0-9][:\\]]){7,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?)))|(?:(?:IPv6:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){5}:)|(?:(?!(?:.*[a-f0-9]:){5,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3}:)?)))?(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))(?:\\.(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))){3}))\\]))$",
-        "patternOptions": "iD"
+        "patternOptions": ["i", "D"]
     }],
     "resources": [{
         "name": "user",
@@ -51,6 +54,16 @@
             "name": "country",
             "type": "string",
             "enum": ["Spain", "Portugal", "France", "Italy"]
+        }, {
+            "name": "weight",
+            "type": "float"
+        }, {
+            "name": "height",
+            "type": "decimal",
+            "precision": [20, 10]
+        }, {
+            "name": "gender",
+            "type": "bool"
         }],
         "relations": [{
             "with": "book",
@@ -60,8 +73,8 @@
             "type": "hasOne"
         }],
         "acl": {
-            "read": ["user"],
-            "create": ["guest"],
+            "read": ["guest"],
+            "create": ["user"],
             "update": ["user"],
             "delete": ["admin"]
         }
@@ -72,21 +85,25 @@
             "name": "language",
             "type": "string",
             "enum": ["es", "pt", "fr", "it"]
+        }, {
+            "name": "is_interested_in_literature",
+            "type": "bool",
+            "default": false
         }],
         "acl": ["user"]
     }, {
         "name": "book",
-        "description": "Bunch of pages glued together.",
+        "description": "Bunch of pages glued together",
         "fields": [{
             "name": "title",
-            "description": "Title of the book.",
+            "description": "Title of the book",
             "type": "string",
             "required": true,
             "min": 1,
             "max": 300
         }, {
             "name": "author",
-            "description": "Person who wrote the book.",
+            "description": "Person who wrote the book",
             "type": "string",
             "required": true,
             "min": 1,
@@ -94,7 +111,8 @@
             "default": "Anon."
         }, {
             "name": "cover",
-            "type": "file"
+            "type": "file",
+            "enum": ["image/gif", "image/png", "image/jpeg"]
         }],
         "relations": [{
             "with": "bookstore",
@@ -118,6 +136,16 @@
             "required": true,
             "min": 1,
             "max": 300
+        }, {
+            "name": "lastModified",
+            "type": "datetime",
+            "default": "CURRENT_TIMESTAMP",
+            "x-onUpdate": "CURRENT_TIMESTAMP"
+        }, {
+            "name": "launchedOn",
+            "description": "Date when the bookstore was first opened to the public",
+            "type": "date",
+            "default": "2016-01-01"
         }, {
             "name": "openTime",
             "type": "time"

@@ -5,7 +5,9 @@ namespace App\Utils;
 class Security {
 
     // Source: https://alias.io/2010/01/store-passwords-safely-with-php-and-mysql
-    public static function encrypt($str) {
+    // NOTE: requires PHP's Mcrypt extension (http://php.net/manual/es/book.mcrypt.php)
+
+    public static function hash($str) {
         // A higher "cost" is more secure but consumes more processing power
         $cost = 10;
 
@@ -18,5 +20,10 @@ class Security {
 
         // Hash the string with the salt
         return crypt($str, $salt);
+    }
+
+    public static function verify($plain, $hash) {
+        // Hashing the password with its hash as the salt returns the same hash
+        return hash_equals($hash, crypt($plain, $hash));
     }
 }

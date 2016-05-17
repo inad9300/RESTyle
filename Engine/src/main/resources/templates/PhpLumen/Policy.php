@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App{{userClassBack}};{{#if differentRes}}
-use App{{resClassBack}};{{/if}}
+use App\Models{{userClassBack}};{{#if differentRes}}
+use App\Models{{resClassBack}};{{/if}}
 
 class {{resClass}}Policy {
 

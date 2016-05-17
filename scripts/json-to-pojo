@@ -21,9 +21,25 @@ nodejs json-deref.js $INPUT false $TMP_FILE
 rm -f $TMP_FILE
 
 # The Field class is duplicated since it appears both in the resource and
-# relationship fields. This extra step should fix that behavour.
+# relationship fields. This extra step should fix that behaviour.
 perl -p -i -e 's/Field_/Field/g' `find ./ -name *.java`
 find . -type f -name "Field_.java" -exec rm -f {} \;
+
+# Restricting the "types"'s "type" to some values produces a "Type" class with a inner "Type" enum,
+# thus producing code that does not compile. Plus, that enum is already inside "Field". This bit
+# fixes the bug by changing the enum's name and making all the changes needed after that.
+# Declaration
+perl -p -i -e 's/enum Type/enum __ShouldNotBeUsedTypeEnum__/g' `find ./ -name Type.java`
+# Constructor
+perl -p -i -e 's/private Type\(/private __ShouldNotBeUsedTypeEnum__\(/g' `find ./ -name Type.java`
+# Uses
+perl -p -i -e 's/Type\.Type/Field\.Type/g' `find ./ -name Type.java`
+# Remove incompatibility in the static initializer
+perl -p -i -e 's/for \(Field\.Type c: values\(\)\) \{/if \(true\) \{/g' `find ./ -name Type.java`
+perl -p -i -e 's/CONSTANTS\.put\(c\.value, c\);//g' `find ./ -name Type.java`
+
+
+mkdir -p $OUTPUT
 
 rm -f $OUTPUT/*.java
 mv $TMP_OUTPUT/es/berry/restyle/specification/generated/* $OUTPUT

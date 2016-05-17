@@ -43,7 +43,7 @@ class Role {
 		// Accept an array of role names too
 		if (is_array($roleName)) {
 			foreach ($roleName as $role) {
-				if (self::isOver($user, $role) {
+				if (self::isOver($user, $role)) {
 					return true;
 				}
 			}

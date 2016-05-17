@@ -1,5 +1,8 @@
 package es.berry.restyle.logging;
 
+/**
+ * Wrapper object to be passed to the loggers' handlers, encapsulating the information that may be of use for them.
+ */
 public class LogRequest {
 
     private int severity;

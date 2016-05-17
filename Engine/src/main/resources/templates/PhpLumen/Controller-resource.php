@@ -1,10 +1,11 @@
-    public static function getMany(Request $req) {
+    public function getMany(Request $req) {
         if (Gate::denies('read', new {{resourceClass}}())) {
-            // ...
-            // abort(403);
+            return self::abort(HttpStatus::Forbidden, [
+                'title' => 'Not allowed to read the resource'
+            ]);
         }
 
-        $query = DB::table('{{resourceTable}}');
+        $query = {{resourceClass}}::query();
 
         $query = self::addFieldsToQuery($query, $req);
 
@@ -22,16 +23,42 @@
 
         $entities = $query->get();
 
-        return response()->json($entities);
+        foreach ($entities as &$ent) {
+            self::addHalLink($ent, 'self', $req->path() . '/' . $ent->id);
+        }
+
+        $result = new \stdClass;
+        $result->count = count($entities);
+        $result->total = {{resourceClass}}::count();
+
+        self::addQueryMade($result, $req);
+        self::addHalPageLinks($result, $req, $result->total);
+        self::addHalEmbedded($result, '{{resourceNamePlural}}', $entities);
+
+        return response()->json($result);
     }
 
-    public static function getOne($id) {
+    public function getOne(Request $req, $id) {
+        if (Gate::denies('read', new {{resourceClass}}())) {
+            return self::abort(HttpStatus::Forbidden, [
+                'title' => 'Not allowed to read the resource'
+            ]);
+        }
+
         $entity = {{resourceClass}}::findOrFail($id);
+
+        self::addHalLink($entity, 'self', $req->path());
 
         return response()->json($entity);
     }
 
-    public static function create(Request $req) {
+    public function create(Request $req) {
+        if (Gate::denies('create', new {{resourceClass}}())) {
+            return self::abort(HttpStatus::Forbidden, [
+                'title' => 'Not allowed to create the resource'
+            ]);
+        }
+
         $input = $req->all();
 
         if (Arrays::isAssoc($input)) {
@@ -41,23 +68,32 @@
             foreach ($input as $relatedEntity) {
                 $validator = Validator::make($relatedEntity, {{resourceClass}}::getValidationRules());
                 if ($validator->fails()) {
-                    return self::error($validator->messages());
+                    return self::abort(422, ['invalid-fields' => $validator->messages()]);
                 }
             }
             DB::transaction(function () {
                 $relatedEntities = [];
-                foreach ($input as $entity) {
-                    $relatedEntities[] = {{resourceClass}}::create($entity);
+                foreach ($input as $ent) {
+                    $relatedEntities[] = {{resourceClass}}::create($ent);
                 }
             });
         } else {
-            // ...
+            return self::abort(HttpStatus::BadRequest, [
+                'title' => 'Wrong data format',
+                'detail' => 'Only JSON objects and JSON arrays are valid'
+            ]);
         }
 
         return response()->json($relatedEntities);
     }
 
-    public static function fullUpdateOne(Request $req, $id) {
+    public function fullUpdateOne(Request $req, $id) {
+        if (Gate::denies('update', new {{resourceClass}}())) {
+            return self::abort(HttpStatus::Forbidden, [
+                'title' => 'Not allowed to update the resource'
+            ]);
+        }
+
         $this->validate($req, {{resourceClass}}::getValidationRules());
 
         $entity = {{resourceClass}}::findOrFail($id);
@@ -71,11 +107,20 @@
         return response()->json($entity);
     }
 
-    public static function fullUpdateMany(Request $req) {
+    public function fullUpdateMany(Request $req) {
+        if (Gate::denies('update', new {{resourceClass}}())) {
+            return self::abort(HttpStatus::Forbidden, [
+                'title' => 'Not allowed to update the resource'
+            ]);
+        }
+
         $reqPets = $req->all();
 
         if (!is_array($reqPets)) {
-            // ...
+            return self::abort(HttpStatus::BadRequest, [
+                'title' => 'Wrong data format',
+                'detail' => 'Only JSON objects and JSON arrays are valid'
+            ]);
         }
 
         if (Arrays::isAssoc($reqPets)) {
@@ -84,10 +129,10 @@
 
         $entityIds = [];
 
-        foreach ($reqPets as $entity) {
-            $validator = Validator::make($entity, {{resourceClass}}::getValidationRules());
+        foreach ($reqPets as $ent) {
+            $validator = Validator::make($ent, {{resourceClass}}::getValidationRules());
             if ($validator->fails()) {
-                return self::error($validator->messages());
+                return self::abort(422, ['invalid-fields' => $validator->messages()]);
             }
             $entityIds[] = $entity['{{resourceId}}'];
         }
@@ -107,7 +152,13 @@
         return response()->json($realPets);
     }
 
-    public static function partialUpdateOne(Request $req, $id) {
+    public function partialUpdateOne(Request $req, $id) {
+        if (Gate::denies('update', new {{resourceClass}}())) {
+            return self::abort(HttpStatus::Forbidden, [
+                'title' => 'Not allowed to update the resource'
+            ]);
+        }
+
         $this->validate($req, {{resourceClass}}::getValidationRules());
 
         $entity = {{resourceClass}}::findOrFail($id);
@@ -118,11 +169,20 @@
         return response()->json($entity);
     }
 
-    public static function partialUpdateMany(Request $req) {
+    public function partialUpdateMany(Request $req) {
+        if (Gate::denies('update', new {{resourceClass}}())) {
+            return self::abort(HttpStatus::Forbidden, [
+                'title' => 'Not allowed to update the resource'
+            ]);
+        }
+
         $reqPets = $req->all();
 
         if (!is_array($reqPets)) {
-            // ...
+            return self::abort(HttpStatus::BadRequest, [
+                'title' => 'Wrong data format',
+                'detail' => 'Only JSON objects and JSON arrays are valid'
+            ]);
         }
 
         if (Arrays::isAssoc($reqPets)) {
@@ -134,7 +194,7 @@
         foreach ($reqPets as $entity) {
             $validator = Validator::make($entity, {{resourceClass}}::getValidationRules());
             if ($validator->fails()) {
-                return self::error($validator->messages());
+                return self::abort(422, ['invalid-fields' => $validator->messages()]);
             }
             $entityIds[] = $entity['{{resourceId}}'];
         }
@@ -152,7 +212,13 @@
         return response()->json($realPets);
     }
 
-    public static function deleteMany(Request $req) {
+    public function deleteMany(Request $req) {
+        if (Gate::denies('delete', new {{resourceClass}}())) {
+            return self::abort(HttpStatus::Forbidden, [
+                'title' => 'Not allowed to delete the resource'
+            ]);
+        }
+
         if (!$req->getContent()) {
             $entities = {{resourceClass}}::all();
             {{resourceClass}}::truncate();
@@ -160,13 +226,22 @@
             $entities = {{resourceClass}}::findOrFail($req->all());
             {{resourceClass}}::destroy($req->all());
         } else {
-            // ...
+            return self::abort(HttpStatus::BadRequest, [
+                'title' => 'Wrong data format',
+                'detail' => 'Either an empty body or a numeric array must be provided'
+            ]);
         }
 
         return response()->json($entities);
     }
 
-    public static function deleteOne($id) {
+    public function deleteOne($id) {
+        if (Gate::denies('delete', new {{resourceClass}}())) {
+            return self::abort(HttpStatus::Forbidden, [
+                'title' => 'Not allowed to delete the resource'
+            ]);
+        }
+
         $entity = {{resourceClass}}::findOrFail($id);
         $entity->delete();
 
