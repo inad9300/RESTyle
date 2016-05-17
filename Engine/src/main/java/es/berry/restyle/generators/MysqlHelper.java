@@ -3,6 +3,7 @@ package es.berry.restyle.generators;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import es.berry.restyle.specification.Types;
 import es.berry.restyle.specification.generated.Field;
+import es.berry.restyle.utils.Numbers;
 import es.berry.restyle.utils.Strings;
 
 import java.math.BigInteger;
@@ -330,7 +331,7 @@ public class MysqlHelper {
             if (field.getMax() == null)
                 field.setMax((long) TEXT_MAX);
 
-            final long max = (long) field.getMax();
+            final long max = Numbers.getLong(field.getMax());
 
             if (max <= TINY_MAX)
                 return "TINYBLOB";

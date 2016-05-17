@@ -23,6 +23,8 @@ public class TemplateGenTest {
 
     @Before
     public void setUp() {
+        SpecObjectMapper.configure("whatever.json");
+
         templateGen = new TemplateGen(createMock(Generator.class).getClass());
 
         // This test must work before any of the rest are even tried

@@ -2,6 +2,7 @@ package es.berry.restyle.generators;
 
 import es.berry.restyle.specification.generated.Field;
 import es.berry.restyle.specification.generated.Resource;
+import es.berry.restyle.utils.Numbers;
 import es.berry.restyle.utils.Strings;
 
 import java.util.LinkedList;
@@ -94,9 +95,12 @@ public class PhpLumenHelper {
             if (field.getMin() != null) rules.add("min:" + field.getMin());
             if (field.getMax() != null) rules.add("max:" + field.getMax());
         } else if (field.getType().equals(Field.Type.FILE)) {
+            final long min = Numbers.getLong(field.getMin());
+            final long max = Numbers.getLong(field.getMax());
+
             // The spec. is in bytes, but Lumen assumes KB, reason why we divide by 1024
-            if (field.getMin() != null) rules.add("min:" + ((long) field.getMin()) / 1024);
-            if (field.getMax() != null) rules.add("max:" + ((long) field.getMax()) / 1024);
+            if (field.getMin() != null) rules.add("min:" + min / 1024);
+            if (field.getMax() != null) rules.add("max:" + max / 1024);
         }
 
         return Strings.join(rules, "|");

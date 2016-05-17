@@ -28,10 +28,13 @@ public class FieldsTypeResolverTest {
     private ObjectNode r = null;
     private ObjectNode f = null;
 
-    final private ObjectMapper mapper = SpecObjectMapper.getInstance();
+    private ObjectMapper mapper = null;
 
     @Before
     public void setUp() {
+        SpecObjectMapper.configure("whatever.json");
+        mapper = SpecObjectMapper.getInstance();
+
         spec = new Spec();
         resources = new HashSet<>();
         resource = new Resource();

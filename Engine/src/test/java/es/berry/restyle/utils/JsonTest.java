@@ -2,6 +2,7 @@ package es.berry.restyle.utils;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import es.berry.restyle.specification.SpecObjectMapper;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.BufferedWriter;
@@ -12,6 +13,11 @@ import java.io.IOException;
 import static org.junit.Assert.*;
 
 public class JsonTest {
+
+    @Before
+    public void setUp() {
+        SpecObjectMapper.configure("whatever.json");
+    }
 
     @Test
     public void resolveReferences() {
@@ -28,7 +34,7 @@ public class JsonTest {
             assertFalse("Temporary file creation failed", true);
         }
 
-        ObjectNode expectedNode = SpecObjectMapper.getInstance().createObjectNode();
+        final ObjectNode expectedNode = SpecObjectMapper.getInstance().createObjectNode();
         expectedNode.put("key", 33);
         expectedNode.put("value", 33);
 

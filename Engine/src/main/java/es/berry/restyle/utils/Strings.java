@@ -64,10 +64,6 @@ final public class Strings {
     }
 
 
-    public static String list(List<String> strings) {
-        return list(strings, "-");
-    }
-
     public static String list(Collection<String> strings, String listingSymbol) {
         String result = "";
 
@@ -75,6 +71,10 @@ final public class Strings {
             result += listingSymbol + " " + str + "\n";
 
         return result;
+    }
+
+    public static String list(List<String> strings) {
+        return list(strings, "-");
     }
 
 
@@ -133,18 +133,14 @@ final public class Strings {
 
 
     /**
-     * Port of the Str::studly() method implemented by Laravel. Original code (see
-     * https://github.com/laravel/framework/blob/5.2/src/Illuminate/Support/Str.php):
+     * Port of the Str::studly() method implemented by Laravel.
+     * <p>
+     * Original code (see https://github.com/laravel/framework/blob/5.2/src/Illuminate/Support/Str.php):
      * <p>
      * public static function studly($value) {
      * $key = $value;
-     * <p>
-     * if (isset(static::$studlyCache[$key])) {
-     * return static::$studlyCache[$key];
-     * }
-     * <p>
+     * if (isset(static::$studlyCache[$key])) return static::$studlyCache[$key];
      * $value = ucwords(str_replace(['-', '_'], ' ', $value));
-     * <p>
      * return static::$studlyCache[$key] = str_replace(' ', '', $value);
      * }
      */
