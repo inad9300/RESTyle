@@ -159,7 +159,7 @@
             ]);
         }
 
-        $this->validate($req, {{resourceClass}}::getValidationRules());
+        $this->validate($req, self::filterValidationRules({{resourceClass}}::getValidationRules(), $req));
 
         $entity = {{resourceClass}}::findOrFail($id);
 
@@ -192,7 +192,7 @@
         $entityIds = [];
 
         foreach ($reqPets as $entity) {
-            $validator = Validator::make($entity, {{resourceClass}}::getValidationRules());
+            $validator = Validator::make($entity, self::filterValidationRules({{resourceClass}}::getValidationRules(), $entity));
             if ($validator->fails()) {
                 return self::abort(422, ['invalid-fields' => $validator->messages()]);
             }

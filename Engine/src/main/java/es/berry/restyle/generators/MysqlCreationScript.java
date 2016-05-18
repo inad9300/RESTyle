@@ -79,6 +79,9 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
         }
     }
 
+    /**
+     * Build the initial part of the script.
+     */
     private String getInitialConfig() {
         final String charset = MysqlHelper.adaptStandardName(this.getSpec().getEncoding());
 
@@ -108,6 +111,9 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
         return res.getPlural();
     }
 
+    /**
+     * Take one resource and build everything the specification needs, in terms of tables.
+     */
     private String doResourcePart(Resource res) {
         if (res.getAbstract())
             return "";
@@ -148,6 +154,9 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
         return Strings.join(s, "\n");
     }
 
+    /**
+     * Build the necessary string to create a row in a table from the information given about a field of a resource.
+     */
     private String doFieldsPart(Collection<Field> fields, ArrayNode rawFields) {
         List<String> fieldsPart = new ArrayList<>();
         int i = 0;
@@ -167,6 +176,9 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
 //        return null;
 //    }
 
+    /**
+     * Build the index part of the 'CREATE TABLE' statement.
+     */
     private String doIndexPart(Collection<String> indexes) {
         if (indexes == null || indexes.size() <= 0)
             return "";
@@ -189,16 +201,25 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
 //        return null;
 //    }
 
+    /**
+     * Return the name of the primary key that will be used for a particular resource. In this case it is a constant.
+     */
     @Override
     public String getPrimaryKey(Resource res) {
         return "id";
     }
 
+    /**
+     * Return the name of the foreign key for one resource.
+     */
     @Override
     public String getForeignKey(Resource res) {
         return res.getName() + "_id";
     }
 
+    /**
+     * Simple algorithm to calculate the name of a table needed by a many to many relationship.
+     */
     @Override
     public String getManyToManyTableName(Resource resA, Resource resB) {
         if (resA.getPlural().compareTo(resB.getPlural()) < 0)
@@ -312,7 +333,7 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
             if (HAS_ONE.equals(rel.getType().toString())) {
                 final String newCol = Strings.surround(getForeignKey(res), REVERSE_QUOTE);
                 stmts.add("ALTER TABLE " + Strings.surround(SpecHelper.findResourceByName(this.getSpec(), rel.getWith()).getPlural(), REVERSE_QUOTE)
-                        + "\nADD COLUMN " + newCol + " " + KEY_MODIFIERS + ","
+                        + "\nADD COLUMN " + newCol + " " + KEY_MODIFIERS + " UNIQUE,"
                         + "\nADD FOREIGN KEY (" + newCol + ") REFERENCES " + Strings.surround(res.getPlural(), REVERSE_QUOTE)
                         + "(" + Strings.surround(getPrimaryKey(res), REVERSE_QUOTE) + ")"
                         + addReferenceOptions(rel) + ";");
@@ -383,8 +404,10 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
                 final JsonNode rawRelA = SpecHelper.findRelationByName(SpecHelper.findResourceByName(this.getSpecNode(), resA.getName()), relA.getWith());
                 final JsonNode rawRelB = SpecHelper.findRelationByName(SpecHelper.findResourceByName(this.getSpecNode(), resB.getName()), relB.getWith());
                 final ArrayNode rawFields = SpecObjectMapper.getInstance().createArrayNode();
-                if (rawRelA != null && rawRelA.hasNonNull("fields")) rawFields.addAll((ArrayNode) rawRelA.get("fields"));
-                if (rawRelB != null && rawRelB.hasNonNull("fields")) rawFields.addAll((ArrayNode) rawRelB.get("fields"));
+                if (rawRelA != null && rawRelA.hasNonNull("fields"))
+                    rawFields.addAll((ArrayNode) rawRelA.get("fields"));
+                if (rawRelB != null && rawRelB.hasNonNull("fields"))
+                    rawFields.addAll((ArrayNode) rawRelB.get("fields"));
 
                 Set<String> allIndexes = new HashSet<>();
                 allIndexes.addAll(relA.getIndex());

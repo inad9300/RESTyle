@@ -49,10 +49,12 @@ class Handler extends ExceptionHandler {
             // return $e->getResponse();
         } elseif ($e instanceof ModelNotFoundException) {
             $e = new NotFoundHttpException($e->getMessage(), $e);
+            $statusCode = HttpStatus::NotFound;
         } elseif ($e instanceof AuthorizationException) {
-            $e = new HttpException(403, $e->getMessage());
+            $e = new HttpException(HttpStatus::Forbidden, $e->getMessage());
         } elseif ($e instanceof ValidationException && $e->getResponse()) {
             $errors = json_decode($e->getResponse()->content());
+            $statusCode = HttpStatus::UnprocessableEntity;
         }
 
         if ($request->wantsJson()) {
@@ -79,7 +81,15 @@ class Handler extends ExceptionHandler {
                 ];
             }
 
-            return response()->json($response, method_exists($e, 'getStatusCode') ? $e->getStatusCode() : HttpStatus::InternalServerError);
+            if (!isset($statusCode)) {
+                if (method_exists($e, 'getStatusCode')) {
+                    $statusCode = $e->getStatusCode();
+                } else {
+                    $statusCode = HttpStatus::InternalServerError;
+                }
+            }
+
+            return response()->json($response, $statusCode);
         }
 
         return parent::render($request, $e);

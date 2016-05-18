@@ -63,7 +63,9 @@ public class PhpLumen extends Generator {
         this.controllersOut = new File(this.serverOut + "/app/Http/Controllers").toPath();
     }
 
-    // Some initialization that needs to be done after the construction phase
+    /**
+     * Initialization that needs to be done after the construction phase.
+     */
     private void init() {
         // Storing some constants that this plugin must agree on with the previous plugin
         HAS_ONE = (String) this.invokePrevMethod("getHasOneStr");
@@ -133,6 +135,10 @@ public class PhpLumen extends Generator {
         return result;
     }
 
+    /**
+     * At first, we copy a prepared folder containing a slightly modified version of Lumen 5.2 (basically, it adds some
+     * extra classes), and compile some "singleton" (only one occurrence of those exist) templates.
+     */
     private void getInitialConfig() throws IOException {
         // Copy seed project (slightly modified version of Lumen 5.2)
         FileUtils.copyDirectory(
@@ -164,6 +170,10 @@ public class PhpLumen extends Generator {
         createRoleFile();
     }
 
+    /**
+     * Compile and save the Role class, created ad hoc for Lumen to work with the roles that the specification is
+     * supposed to support.
+     */
     private void createRoleFile() throws IOException {
         String adminName = null;
         String guestName = null;
@@ -193,6 +203,10 @@ public class PhpLumen extends Generator {
         Strings.toFile(this.getTemplateGen().compile("Role", root), this.policiesOut + "/Role.php");
     }
 
+    /**
+     * Generate the file containing all the routes that the REST service will respond to, pointing to methods on
+     * classes that will be created separately.
+     */
     private String doRoutesPart(Resource res) {
         ObjectMapper mapper = SpecObjectMapper.getInstance();
         ObjectNode root = mapper.createObjectNode();
@@ -258,6 +272,10 @@ public class PhpLumen extends Generator {
         return this.getTemplateGen().compile("routes-resource", root);
     }
 
+    /**
+     * Create models for all the resources defined in the specification, including all the available details (that make
+     * sense, namely, that Lumen/Laravel supports) on them.
+     */
     private String doModelPart(Resource res) throws IOException {
         ObjectMapper mapper = SpecObjectMapper.getInstance();
         ObjectNode root = mapper.createObjectNode();
@@ -418,6 +436,10 @@ public class PhpLumen extends Generator {
         return this.getTemplateGen().compile("Model", root);
     }
 
+    /**
+     * For each resource, create a class holding the information about which roles have access to it, that is, a policy
+     * class.
+     */
     private String doPolicyPart(Resource res, Resource userRes) {
         ObjectMapper mapper = SpecObjectMapper.getInstance();
         ObjectNode root = mapper.createObjectNode();
@@ -488,6 +510,10 @@ public class PhpLumen extends Generator {
         return this.getTemplateGen().compile("Policy", root);
     }
 
+    /**
+     * Generate a slightly modified version of the Lumen's AuthServiceProvider class, for it to know how to return a
+     * user from the database, thus making possible the authentication.
+     */
     private void generateAuthServiceProvider(Resource res) throws IOException {
         final String userClass = PhpLumenHelper.getClassName(res);
 
@@ -515,6 +541,11 @@ public class PhpLumen extends Generator {
         );
     }
 
+    /**
+     * Generate one controller per resource, containing the actual implementation of the methods that the routes are
+     * expecting. They will contain the actions related with the resource they are associated with, plus those regarding
+     * the related resources, when it makes sense.
+     */
     private String doControllerPart(Resource res) {
         ObjectMapper mapper = SpecObjectMapper.getInstance();
         ObjectNode root = mapper.createObjectNode();

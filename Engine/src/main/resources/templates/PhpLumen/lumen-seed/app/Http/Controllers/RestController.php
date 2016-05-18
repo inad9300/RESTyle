@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Utils\Arrays;
 use App\Utils\HttpStatus;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Exception\HttpResponseException;
 use Laravel\Lumen\Routing\Controller as BaseController;
 
 class RestController extends BaseController {
@@ -24,12 +27,19 @@ class RestController extends BaseController {
      * extra problem-specific information.
      */
     protected static function abort($code = HttpStatus::BadRequest, $data = []) {
-        /* $data['type'] = $data['type'] ?: '';
-        $data['title'] = $data['title'] ?: 'Something went wrong';
-        $data['detail'] = $data['detail'] ?: 'No more information is known';
-        $data['instance'] = $data['instance'] ?: ''; */
+        // $data['type'] = $data['type'] ?: '';
+        // $data['title'] = $data['title'] ?: 'Something went wrong';
+        // $data['detail'] = $data['detail'] ?: 'No more information is known';
+        // $data['instance'] = $data['instance'] ?: '';
 
         return response()->json($data, $code);
+    }
+
+    /**
+     * Same idea as abort(), but for internal use in the controller.
+     */
+    private static function error($code = HttpStatus::BadRequest, $data = []) {
+        throw new HttpResponseException(new JsonResponse($data, $code));
     }
 
     /**
@@ -85,6 +95,17 @@ class RestController extends BaseController {
     }
 
     /**
+     * Selects those rules referring to the properties present in the given data. Suitable for
+     * partial updates.
+     */
+    protected static function filterValidationRules(array $rules, Request $req) {
+        return array_intersect_key(
+            $rules,
+            array_flip(array_keys($req->all()))
+        );
+    }
+
+    /**
      * Add the query string parameters given by the user, merged with the default ones used,
      * so that the user knows exactly how the query was performed.
      */
@@ -132,7 +153,7 @@ class RestController extends BaseController {
                 } else if ($prop[0] === '+') {
                     $prop = ltrim($prop, '+');
                 }
-                
+
                 if (call_user_func($isPropSortable, $prop)) {
                     $query = $query->orderBy($prop, $order);
                 }
@@ -174,7 +195,11 @@ class RestController extends BaseController {
     protected static function parseField($field) {
         if (!preg_match('/([a-zA-Z_]{1,})\.(eq|neq|in|nin|lt|lte|gt|gte|bt|nbt)\((.{1,})\)/', $field, $matches)) {
             // NOTE: operator separator:  ^
-            // ...
+            self::error(HttpStatus::BadRequest, [
+                'title' => 'Wrong query format; please, double-check it',
+                'detail' => 'The provided query does not conform to the expected format. Valid queries must follow: ' .
+                            '{attribute}.{operator}({values})'
+            ]);
         }
 
         return [
@@ -185,7 +210,8 @@ class RestController extends BaseController {
     }
 
     /**
-     * Adds conditions to the database query based on the given query.
+     * Adds conditions to the database query based on the given query (from the query string of the
+     * HTTP request).
      */
     protected static function addFilterToQuery($query, Request $req, callable $isPropFilterable) {
         if (!$req->has('filter')) {
@@ -206,7 +232,9 @@ class RestController extends BaseController {
             switch ($operator) {
             case 'eq':
                 if ($numOfValues < 1) {
-                    // ...
+                    self::error(HttpStatus::BadRequest, [
+                        'title' => 'Some value is needed for equality comparison'
+                    ]);
                 }
                 $query = $query->where(function ($q) use ($name, $values) {
                     foreach ($values as $value) {
@@ -224,7 +252,9 @@ class RestController extends BaseController {
                 break;
             case 'neq':
                 if ($numOfValues < 1) {
-                    // ...
+                    self::error(HttpStatus::BadRequest, [
+                        'title' => 'Some value is needed for non-equality comparison'
+                    ]);
                 }
                 foreach ($values as $value) {
                     if ($value === self::WILDCARD) {
@@ -240,54 +270,72 @@ class RestController extends BaseController {
                 break;
             case 'in':
                 if ($numOfValues < 1) {
-                    // ...
+                    self::error(HttpStatus::BadRequest, [
+                        'title' => 'Some value is needed for inclusion comparisons, none provided'
+                    ]);
                 }
                 $query = $query->whereIn($name, $values);
                 break;
             case 'nin':
                 if ($numOfValues < 1) {
-                    // ...
+                    self::error(HttpStatus::BadRequest, [
+                        'title' => 'Some value is needed for non-inclusion comparisons, none provided'
+                    ]);
                 }
                 $query = $query->whereNotIn($name, $values);
                 break;
             case 'lt':
                 if ($numOfValues !== 1) {
-                    // ...
+                    self::error(HttpStatus::BadRequest, [
+                        'title' => 'Exactly one value is needed for is-less-than comparisons'
+                    ]);
                 }
                 $query = $query->where($name, '<', $values[0]);
                 break;
             case 'lte':
                 if ($numOfValues !== 1) {
-                    // ...
+                    self::error(HttpStatus::BadRequest, [
+                        'title' => 'Exactly one value is needed for is-less-or-equals-than comparisons'
+                    ]);
                 }
                 $query = $query->where($name, '<=', $values[0]);
                 break;
             case 'gt':
                 if ($numOfValues !== 1) {
-                    // ...
+                    self::error(HttpStatus::BadRequest, [
+                        'title' => 'Exactly one value is needed for is-greater-than comparisons'
+                    ]);
                 }
                 $query = $query->where($name, '>', $values[0]);
                 break;
             case 'gte':
                 if ($numOfValues !== 1) {
-                    // ...
+                    self::error(HttpStatus::BadRequest, [
+                        'title' => 'Exactly one value is needed for is-greater-or-equal-than comparisons'
+                    ]);
                 }
                 $query = $query->where($name, '>=', $values[0]);
                 break;
             case 'bt':
                 if ($numOfValues !== 2) {
-                    // ...
+                    self::error(HttpStatus::BadRequest, [
+                        'title' => 'Exactly two values are needed for is-between comparisons'
+                    ]);
                 }
                 $query = $query->whereBetween($name, $values);
                 break;
             case 'nbt':
                 if ($numOfValues !== 2) {
-                    // ...
+                    self::error(HttpStatus::BadRequest, [
+                        'title' => 'Exactly two values are needed for is-not-between comparisons'
+                    ]);
                 }
                 $query = $query->whereNotBetween($name, $values);
                 break;
             default:
-                // ...
+                self::error(HttpStatus::BadRequest, [
+                    'title' => "Unknown operator used: '$operator'"
+                ]);
                 break;
             }
         }
