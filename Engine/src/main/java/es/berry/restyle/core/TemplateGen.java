@@ -23,7 +23,7 @@ import java.io.IOException;
  */
 public class TemplateGen {
 
-    public static String TMPL_DIR = "./src/main/resources/templates/";
+    public static String TMPL_DIR = Config.getResourcePath("templates/");
 
     private Class associatedClass = null;
 

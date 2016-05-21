@@ -16,14 +16,18 @@ public class PhpLumenHelper {
     // public static final String FILE_PREFIX = "<?php\n\n";
 
     public static String getClassName(Resource res) {
-        return Strings.ucFirst(res.getName(), true);
+        return Strings.studly(res.getName());
     }
 
     public static String getClassNamePlural(Resource res) {
-        return Strings.ucFirst(res.getPlural(), true);
+        return Strings.studly(res.getPlural());
     }
 
-    // Check documentation at https://laravel.com/docs/5.2/eloquent-mutators#attribute-casting
+    /**
+     * Convert between the types defined by the specification, and those supported by Laravel's casting feature.
+     * <p>
+     * Check documentation at https://laravel.com/docs/5.2/eloquent-mutators#attribute-casting
+     */
     public static String getCastType(Field field) {
         switch (field.getType()) {
             case BOOL:
@@ -48,6 +52,9 @@ public class PhpLumenHelper {
         return null;
     }
 
+    /**
+     * Produce a Laravel's validation rule based on the restrictions defined for a field in the specification.
+     */
     public static String generateValidationRule(Field field, String tableName) {
         List<String> rules = new LinkedList<>();
 

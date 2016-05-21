@@ -27,7 +27,7 @@ public abstract class Generator {
 
     private static Logger log = Log.getChain();
 
-    private static final String PLUGIN_SCHEMAS_PATH = "./src/main/resources/schemas/";
+    private static final String PLUGIN_SCHEMAS_PATH = Config.getResourcePath("schemas/");
 
     /**
      * Interface method to be implemented by any class claiming to be a Generator, where the magic (namely, the
@@ -128,7 +128,7 @@ public abstract class Generator {
      * the chain of generators by passing the previous one to the next. Plus, it establish a "JSON Schema validation"
      * phase, where plugin-specific restrictions are validated, if any.
      */
-    public static void runAll(List<Class<? extends Generator>> concreteGenerators, Spec spec, JsonNode specNode, File outputDir) {
+     /* package-private */ static void runAll(List<Class<? extends Generator>> concreteGenerators, Spec spec, JsonNode specNode, File outputDir) {
         Generator prevGen = null;
 
         for (Class<? extends Generator> genClass : concreteGenerators)

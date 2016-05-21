@@ -46,6 +46,9 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
         this.setTemplateGen(new TemplateGen(MysqlCreationScript.class, "sql"));
     }
 
+    /**
+     * Main method, from which the others are called to finally produce the desired DDL file.
+     */
     @Override
     public void generate() {
         log.info("· Getting initial configuration...");
@@ -83,7 +86,7 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
      * Build the initial part of the script.
      */
     private String getInitialConfig() {
-        final String charset = MysqlHelper.adaptStandardName(this.getSpec().getEncoding());
+        final String charset = MysqlHelper.adaptEncodingName(this.getSpec().getEncoding());
 
         ObjectNode node = SpecObjectMapper.getInstance().createObjectNode();
         node.put("charset", charset);
@@ -106,6 +109,9 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
         return this.getTemplateGen().compile("initial_config", node);
     }
 
+    /**
+     * Method to calculate the name of a MySQL table that will correspond to a resource.
+     */
     @Override
     public String getTableName(Resource res) {
         return res.getPlural();
@@ -238,6 +244,9 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
         return HAS_MANY;
     }
 
+    /**
+     * Collect the user-provided explicit checks, and calculate those coming from the fields' restrictions.
+     */
     private String doCheckPart(Collection<Field> fields, String checkStr) {
         List<String> checks = new ArrayList<>();
 
@@ -253,6 +262,9 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
         return "\tCHECK (" + Strings.join(checks, " AND ") + ")";
     }
 
+    /**
+     * Calculate the SQL checks based on the restrictions the fields have.
+     */
     private List<String> getFieldChecks(Field field) {
         List<String> checks = new ArrayList<>();
 
@@ -311,6 +323,9 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
         return checks;
     }
 
+    /**
+     * Generate the last part of the MySQL sentence to create a row in a table.
+     */
     private String doTableOptionsPart(Resource res) {
         if (!Strings.isEmpty(res.getDescription()))
             return "COMMENT " + Strings.surround(res.getDescription(), SINGLE_QUOTE);
@@ -318,13 +333,16 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
         return "";
     }
 
-    /* e.g.
-        +----------+        +---------+
-        | users    |--------| phone   |
-        +----------+        +---------+
-        | id       |        | id      |
-        +----------+        | user_id |
-                            +---------+
+    /**
+     * Produce the necessary statements to make one-to-one relationships possible.
+     * <p>
+     * e.g.
+     * +----------+        +---------+
+     * | users    |--------| phone   |
+     * +----------+        +---------+
+     * | id       |        | id      |
+     * +----------+        | user_id |
+     * .                   +---------+
      */
     private String doOneToOneRelationshipsPart(Resource res) {
         List<String> stmts = new ArrayList<>();
@@ -342,11 +360,17 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
         return Strings.join(stmts, "\n\n");
     }
 
+    /**
+     * Return the reference option to be added to some "REFERENCES" statement.
+     */
     private String addReferenceOptions(Relation rel) {
         return (rel.getOnDelete() == null ? "" : " ON DELETE " + MysqlHelper.transformReferencialActions(rel.getOnDelete())) +
                 (rel.getOnUpdate() == null ? "" : " ON UPDATE " + MysqlHelper.transformReferencialActions(rel.getOnUpdate()));
     }
 
+    /**
+     * Produce the necessary statements to make one-to-many relationships possible.
+     */
     private String doOneToManyRelationshipsPart(Resource res) {
         List<String> stmts = new ArrayList<>();
 
@@ -363,9 +387,11 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
         return Strings.join(stmts, "\n\n");
     }
 
-    // Checks if there is a relationship between two resources, one given as a Relation object.
-    // To make it easier to understand, variables are named considering that we are looking
-    // for a relationship from books back to users.
+    /**
+     * Checks if there is a relationship between two resources, one of them given as a Relation object. To make it
+     * easier to understand the code, variables are named considering that we are looking for a relationship from books
+     * back to users.
+     */
     private boolean hasHasManyRelationship(Relation booksAsRelation, Resource usersAsResource) {
         Resource booksAsResource = SpecHelper.findResourceByName(this.getSpec(), booksAsRelation.getWith());
 
@@ -378,6 +404,9 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
         return false;
     }
 
+    /**
+     * Produce the necessary statements to make many-to-many relationships possible.
+     */
     private String doManyToManyRelationshipsPart(Resource resA) {
         if (resourcesWithManyToManyRelationshipsCreated.contains(resA.getName()))
             return "";

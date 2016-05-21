@@ -33,7 +33,7 @@ final public class App {
     private static final Logger log = Log.getChain();
 
     private static final String VALUES_SEP = ",";
-    private static final String SPEC_SCHEMA = "./src/main/resources/specification/schema.json";
+    private static final String SPEC_SCHEMA = Config.getResourcePath("specification/schema.json");
 
     /**
      * Main method. In summary, parses the command line arguments, and executes the plugins passing them the
@@ -41,13 +41,13 @@ final public class App {
      */
     public static void main(String[] args) {
         try {
+            // The following bit allows for some manual testing with "mock args" while not breaking the automatic tests
             final String[] mockArgs = {
                     "-" + CommandOptions.SPEC_S, "/home/daniel/Code/RESTyle/Engine/src/main/resources/examples/bookstore.json",
                     "-" + CommandOptions.PLUGINS_S, "MysqlCreationScript" + VALUES_SEP + "PhpLumen",
                     "-" + CommandOptions.OUT_S, "/home/daniel/Code/RESTyle_output",
                     "-verbose"
             };
-            // Temporarely to make the automatic tests pass while being able to check some manual "mock args"
             if (args.length == 0) args = mockArgs;
 
             final CommandLine cmd = setUpCli(args);
@@ -134,7 +134,7 @@ final public class App {
         }
 
         if (!cmd.hasOption(CommandOptions.VERBOSE_S))
-            Reflections.log = null;
+            Reflections.log = null; // FIXME: not working
     }
 
     /**

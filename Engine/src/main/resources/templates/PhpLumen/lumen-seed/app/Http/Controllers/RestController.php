@@ -48,6 +48,10 @@ class RestController extends BaseController {
      * http://phlyrestfully.readthedocs.io/en/latest/halprimer.html
      */
     protected static function addHalLink(&$obj, $key, $val) {
+        if (empty($obj)) {
+            return;
+        }
+
         if (!property_exists($obj, '_links') || empty($obj->_links)) {
             $obj->_links = new \stdClass;
         }
@@ -61,6 +65,10 @@ class RestController extends BaseController {
      * Add HAL links related with pagination.
      */
     protected static function addHalPageLinks(&$obj, Request $req, $totalItems) {
+        if (empty($obj)) {
+            return;
+        }
+
         $path = '/' . trim($req->path(), '/');
         $queryStrObj = $req->query();
 

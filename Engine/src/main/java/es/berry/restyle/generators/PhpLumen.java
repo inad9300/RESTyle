@@ -39,7 +39,7 @@ public class PhpLumen extends Generator {
     private final Path controllersOut;
     private static String HAS_ONE = null;
 
-    // It is used to prepend to different values and thus fix Handlebars escaping bug:
+    // String used as prefix to different values in order to fix Handlebars escaping bug:
     // "\{{x}}" compiles to "{{x}}"; whereas "\\{{x}}" compiles to "\{{x}}", as oppose to "\valueOfX"
     private final String BACKSLASH = "\\";
 
@@ -75,6 +75,9 @@ public class PhpLumen extends Generator {
         assert !Strings.isEmpty(HAS_MANY);
     }
 
+    /**
+     * Main method where all the magic happens.
+     */
     @Override
     public void generate() {
         init();

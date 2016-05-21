@@ -47,51 +47,56 @@ class Handler extends ExceptionHandler {
     public function render($request, Exception $e) {
         if ($e instanceof HttpResponseException) {
             // return $e->getResponse();
+            $title = 'An exception happened when preparing the HTTP response';
         } elseif ($e instanceof ModelNotFoundException) {
             $e = new NotFoundHttpException($e->getMessage(), $e);
             $statusCode = HttpStatus::NotFound;
+            $title = 'The entity does not exist';
         } elseif ($e instanceof AuthorizationException) {
             $e = new HttpException(HttpStatus::Forbidden, $e->getMessage());
+            $title = 'You are not authorized to access this information';
         } elseif ($e instanceof ValidationException && $e->getResponse()) {
             $errors = json_decode($e->getResponse()->content());
             $statusCode = HttpStatus::UnprocessableEntity;
+            $title = 'Data validation error';
         }
 
-        if ($request->wantsJson()) {
-            $response = [];
-            /* $response = [
-                'type' => '',
-                'title' => 'Something went wrong', // IDEA: title should be based on HTTP status code's reason / thrown exception type
-                'detail' => $e->getMessage() ?: 'No more information is known',
-                'instance' => ''
-            ]; */
+        $response = [];
+        /* $response = [
+            'type' => '',
+            'title' => 'Something went wrong',
+            'detail' => $e->getMessage() ?: 'No more information is known',
+            'instance' => ''
+        ]; */
 
-            if ($e->getMessage()) {
-                $response['detail'] = $e->getMessage();
-            }
-            if (isset($errors)) {
-                $response['invalid-fields'] = $errors;
-            }
-
-            if (env('APP_DEBUG', false)) {
-                $response['debug'] = [
-                    'exception' => get_class($e),
-                    'trace' => $e->getTrace(),
-                    'response' => method_exists($e, 'getResponse') ? $e->getResponse() : ''
-                ];
-            }
-
-            if (!isset($statusCode)) {
-                if (method_exists($e, 'getStatusCode')) {
-                    $statusCode = $e->getStatusCode();
-                } else {
-                    $statusCode = HttpStatus::InternalServerError;
-                }
-            }
-
-            return response()->json($response, $statusCode);
+        if (isset($title)) {
+            $response['title'] = $title;
+        }
+        if ($e->getMessage()) {
+            $response['detail'] = $e->getMessage();
+        }
+        if (isset($errors)) {
+            $response['invalid-fields'] = $errors;
         }
 
-        return parent::render($request, $e);
+        if (env('APP_DEBUG', false)) {
+            $response['debug'] = [
+                'exception' => get_class($e),
+                'trace' => $e->getTrace(),
+                'response' => method_exists($e, 'getResponse') ? $e->getResponse() : ''
+            ];
+        }
+
+        if (!isset($statusCode)) {
+            if (method_exists($e, 'getStatusCode')) {
+                $statusCode = $e->getStatusCode();
+            } else {
+                $statusCode = HttpStatus::InternalServerError;
+            }
+        }
+
+        return response()->json($response, $statusCode);
+
+        // return parent::render($request, $e);
     }
 }

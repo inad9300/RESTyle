@@ -25,8 +25,12 @@ public class MysqlHelper {
 //        public final static String TABLE_PER_CLASS = "tablePerClass";
 //    }
 
-    // NOTE: to list the available character sets and their default collations use the "show character set;" statement
-    public static String adaptStandardName(String name) {
+    /**
+     * Transforms the name of an encoding given on its "standard" form, to the one preferred by MySQL.
+     * <p>
+     * NOTE: to list the available character sets and their default collations use the "show character set;" statement
+     */
+    public static String adaptEncodingName(String name) {
         final String UTF_8 = "utf-8";
         final Set<String> validCharsets = new HashSet<>(Collections.singletonList(UTF_8));
 
@@ -39,8 +43,12 @@ public class MysqlHelper {
                 + Strings.join(validCharsets, ", ").toUpperCase());
     }
 
-    // NOTE: in general, *_general_ci is more performant, but less accurate, while *_unicode_ci properly implements the
-    // unicode sorting rules, being a bit less efficient
+    /**
+     * Given a character set, return a collation by default.
+     * <p>
+     * NOTE: in general, *_general_ci is more performant, but less accurate, while *_unicode_ci properly implements the
+     * unicode sorting rules, being a bit less efficient
+     */
     public static String getCollation(String charset) {
         if ("utf8".equals(charset) || "utf8mb4".equals(charset))
             return charset + "_unicode_ci";
@@ -48,6 +56,9 @@ public class MysqlHelper {
         return null;
     }
 
+    /**
+     * Convert from the values expected in the specification, to the ones preferred by MySQL.
+     */
     public static String transformReferencialActions(String name) {
         switch (name) {
             case "restrict":
@@ -64,9 +75,10 @@ public class MysqlHelper {
         return name.toUpperCase();
     }
 
+    /**
+     * Determines whether a field needs quotes when using a "DEFAULT" on it, based on its type and value.
+     */
     public static boolean typeNeedsQuotesForDefaultValue(Field.Type t, Object defVal) {
-
-
         switch (t) {
             case STRING:
                 return true;
@@ -87,6 +99,10 @@ public class MysqlHelper {
         return false;
     }
 
+    /**
+     * Return a string with all the modifiers that can be applied to a MySQL column, based on the restrictions defined
+     * for the corresponding field in the specification.
+     */
     public static String getTypeModifier(Field field, ObjectNode rawField) {
         List<String> modifiers = new ArrayList<>();
 
@@ -105,14 +121,8 @@ public class MysqlHelper {
             modifiers.add("DEFAULT " + (needsQuotes ? Strings.surround(defStr, SINGLE_QUOTE) : field.getDefault()));
         }
 
-        // We need to check against null because some fields are added to the Spec class, not being present in the
-        // original JSON file, such as those added to the resource marked as user.
-        if (rawField != null && rawField.hasNonNull("x-onUpdate")) {
-            final String onUpdate = rawField.get("x-onUpdate").asText("");
-
-            if (!Strings.isEmpty(onUpdate))
-                modifiers.add("ON UPDATE " + onUpdate);
-        }
+        if (!Strings.isEmpty(field.getOnUpdate()))
+            modifiers.add("ON UPDATE " + field.getOnUpdate());
 
         if (field.getAutoIncrement())
             modifiers.add("AUTO_INCREMENT");
@@ -126,6 +136,11 @@ public class MysqlHelper {
         return Strings.join(modifiers, " ");
     }
 
+    /**
+     * Convert between the types supported by the specification for fields and those allowed in MySQL for columns,
+     * trying to find the best fit specially looking into the limits defined by the "min" and "max" attributes of the
+     * field.
+     */
     public static String getType(Field field, ObjectNode rawField) {
         // Integers. Reference: http://dev.mysql.com/doc/refman/5.7/en/integer-types.html
         // Signed
@@ -177,6 +192,8 @@ public class MysqlHelper {
                 else if (min >= S_INT_MIN && max <= S_INT_MAX)
                     return "INT";
                 else {
+                    // NOTE: the tool used to automatically translate JSON Schemas into Java classes goes up to the
+                    // "long" type for integers, but sometimes something bigger is needed
                     final BigInteger bigMin = new BigInteger(rawField.get("min").asText());
                     final BigInteger bigMax = new BigInteger(rawField.get("max").asText());
 

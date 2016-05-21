@@ -18,13 +18,52 @@ public class AdvancedValidator {
         this.spec = spec;
     }
 
+    /**
+     * Main method of the class.
+     */
     public void validate() {
+        findDuplicates();
         relationshipsValidation();
         indexesValidation();
         rolesValidation();
         minMaxValidation();
         isUserDuplicatedValidation();
         idGenerationValidation();
+    }
+
+    /**
+     * Ensure that unique elements are not repeated, such as resources in the spec, and relationships and fields inside
+     * a resource.
+     */
+    private void findDuplicates() {
+        final List<String> resourceNames = new ArrayList<>();
+        final List<String> fieldNames = new ArrayList<>();
+        final List<String> relationNames = new ArrayList<>();
+
+        for (Resource res : spec.getResources()) {
+            if (resourceNames.contains(res.getName()))
+                throw new SpecException("Resource names must be unique. " + res.getName() + " is duplicated.");
+
+            resourceNames.add(res.getName());
+
+            fieldNames.clear();
+            relationNames.clear();
+
+            for (Field f : res.getFields()) {
+                if (fieldNames.contains(f.getName()))
+                    throw new SpecException("Field names must be unique inside a resource. " + f.getName()
+                            + " is duplicated in " + res.getName() + ".");
+
+                fieldNames.add(res.getName());
+            }
+            for (Relation r : res.getRelations()) {
+                if (relationNames.contains(r.getWith()))
+                    throw new SpecException("Relations must be unique inside a resource. " + r.getWith()
+                            + " is duplicated in " + res.getName() + ".");
+
+                relationNames.add(r.getWith());
+            }
+        }
     }
 
     /**

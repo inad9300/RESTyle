@@ -8,6 +8,10 @@
         $entity = {{resourceClass}}::findOrFail($entityId);
         $related = $entity->{{subFn}};
 
+        if (empty($related)) {
+            throw new \Illuminate\Database\Eloquent\ModelNotFoundException();
+        }
+
         self::addHalLink($related, 'self', $req->path());
 
         return response()->json($related);

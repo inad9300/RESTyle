@@ -32,7 +32,7 @@ public class FileLogger extends Logger {
             final String ts = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
             writer.append(ts + " - " + message + "\n");
             if (!Strings.isEmpty(devMessage))
-                writer.append("\t-> More info:\n" + devMessage + "\n");
+                writer.append("\t-> More info: " + devMessage + "\n");
 
             writer.close();
         } catch (IOException e) {

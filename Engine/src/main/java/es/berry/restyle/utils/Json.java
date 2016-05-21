@@ -23,6 +23,9 @@ final public class Json {
 
     private static final Logger log = Log.getChain();
 
+    /**
+     * Resolve JSON references (https://tools.ietf.org/html/draft-pbryan-zyp-json-ref-03) present on a file.
+     */
     public static JsonNode resolveReferences(File json, final ObjectMapper mapper) throws IOException {
         JsonReferenceProcessor processor = new JsonReferenceProcessor();
         processor.setStopOnCircular(true);
@@ -38,11 +41,18 @@ final public class Json {
         }
     }
 
+    /**
+     * Override the resolveReferences() function to take no ObjectMapper by default.
+     */
     public static JsonNode resolveReferences(File json) throws IOException {
         return resolveReferences(json, null);
     }
 
 
+    /**
+     * Validate a JsonNode against a JSON Schema, returning null if everything went well, or a String containing a
+     * report with the errors found.
+     */
     public static String validateAgainstSchema(JsonNode node, String schemaPath) {
         final JsonNode schemaNode;
         try {

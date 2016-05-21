@@ -5,6 +5,9 @@ package es.berry.restyle.utils;
  */
 final public class Numbers {
 
+    /**
+     * Convert virtually anything into a long.
+     */
     public static long getLong(Object n) {
         if (n instanceof Integer)
             return ((Integer) n).longValue();

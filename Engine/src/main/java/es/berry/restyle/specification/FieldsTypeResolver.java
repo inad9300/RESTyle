@@ -88,13 +88,19 @@ public class FieldsTypeResolver {
      * Apply the type resolution for each field of each resource.
      */
     public void resolve() {
-        for (JsonNode resource : spec.get(RESOURCES)) {
-            ArrayNode resolvedFields = SpecObjectMapper.getInstance().createArrayNode();
+        try {
+            for (JsonNode resource : spec.get(RESOURCES)) {
+                ArrayNode resolvedFields = SpecObjectMapper.getInstance().createArrayNode();
 
-            for (JsonNode field : resource.get(RESOURCE_FIELDS))
-                resolvedFields.add(resolveOne((ObjectNode) field));
+                for (JsonNode field : resource.get(RESOURCE_FIELDS))
+                    resolvedFields.add(resolveOne((ObjectNode) field));
 
-            ((ObjectNode) resource).putArray(RESOURCE_FIELDS).addAll(resolvedFields);
+                ((ObjectNode) resource).putArray(RESOURCE_FIELDS).addAll(resolvedFields);
+            }
+        } catch (NullPointerException e) {
+            // Do nothing. We are dealing with a file which was not validated against any JSON Schema. Thus, if some
+            // field was expected but not present (raising a NullPointerException), it is better to ignore the error and
+            // let the validation happen, showing a more descriptive message.
         }
     }
 }

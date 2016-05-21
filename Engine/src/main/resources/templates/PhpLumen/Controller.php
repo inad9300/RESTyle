@@ -75,7 +75,7 @@ class {{resourceClass}}Controller extends RestController {
     {{#if isOneToOne}}
 {{> Controller-getSingleResourceFunction}}{{/if}}
 
-    public function create{{subresourceClassPlural}}(Request $req, $entityId) {
+    {{#unless isBelongTo}}public function create{{subresourceClassPlural}}(Request $req, $entityId) {
         if (Gate::denies('create', new {{subresourceClass}}())) {
             return self::abort(HttpStatus::Forbidden, [
                 'title' => 'Not allowed to create the resource'
@@ -185,20 +185,6 @@ class {{resourceClass}}Controller extends RestController {
 
         return response()->json($pivots);
     }{{else}}
-    public function delete{{subresourceClass}}($entityId, $relatedEntityId) {
-        if (Gate::denies('delete', new {{subresourceClass}}())) {
-            return self::abort(HttpStatus::Forbidden, [
-                'title' => 'Not allowed to delete the resource'
-            ]);
-        }
-
-        $entity = {{resourceClass}}::findOrFail($entityId);
-        $relatedEntity = $entity->{{subFn}}()->findOrFail($relatedEntityId);
-        {{subresourceClass}}::destroy($relatedEntity->{{subresourceId}});
-
-        return response()->json($relatedEntity);
-    }
-
     public function delete{{subresourceClassPlural}}(Request $req, $entityId) {
         if (Gate::denies('delete', new {{subresourceClass}}())) {
             return self::abort(HttpStatus::Forbidden, [
@@ -224,6 +210,20 @@ class {{resourceClass}}Controller extends RestController {
         }{{/if}}
 
         return response()->json($related);
-    }{{/if}}
+    }
+
+    {{#unless isOneToOne}}public function delete{{subresourceClass}}($entityId, $relatedEntityId) {
+        if (Gate::denies('delete', new {{subresourceClass}}())) {
+            return self::abort(HttpStatus::Forbidden, [
+                'title' => 'Not allowed to delete the resource'
+            ]);
+        }
+
+        $entity = {{resourceClass}}::findOrFail($entityId);
+        $relatedEntity = $entity->{{subFn}}()->findOrFail($relatedEntityId);
+        {{subresourceClass}}::destroy($relatedEntity->{{subresourceId}});
+
+        return response()->json($relatedEntity);
+    }{{/unless}}{{/if}}{{/unless}}
     {{/each}}
 }

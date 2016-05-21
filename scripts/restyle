@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Simple wrapper to encapsulate all the Java options needed and avoid typing them every time.
+
+JAR_FILE=restyle.jar
+
+java -jar $JAR_FILE . "$@"

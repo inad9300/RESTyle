@@ -68,7 +68,7 @@
             foreach ($input as $relatedEntity) {
                 $validator = Validator::make($relatedEntity, {{resourceClass}}::getValidationRules());
                 if ($validator->fails()) {
-                    return self::abort(422, ['invalid-fields' => $validator->messages()]);
+                    return self::abort(HttpStatus::UnprocessableEntity, ['invalid-fields' => $validator->messages()]);
                 }
             }
             DB::transaction(function () {
@@ -132,7 +132,7 @@
         foreach ($reqPets as $ent) {
             $validator = Validator::make($ent, {{resourceClass}}::getValidationRules());
             if ($validator->fails()) {
-                return self::abort(422, ['invalid-fields' => $validator->messages()]);
+                return self::abort(HttpStatus::UnprocessableEntity, ['invalid-fields' => $validator->messages()]);
             }
             $entityIds[] = $entity['{{resourceId}}'];
         }
@@ -194,7 +194,7 @@
         foreach ($reqPets as $entity) {
             $validator = Validator::make($entity, self::filterValidationRules({{resourceClass}}::getValidationRules(), $entity));
             if ($validator->fails()) {
-                return self::abort(422, ['invalid-fields' => $validator->messages()]);
+                return self::abort(HttpStatus::UnprocessableEntity, ['invalid-fields' => $validator->messages()]);
             }
             $entityIds[] = $entity['{{resourceId}}'];
         }

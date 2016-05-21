@@ -78,11 +78,14 @@ final public class Completor {
         Field pass = new Field();
         Field isAdmin = new Field();
 
+        // Restrictions similar to those used by most programming languages for variable names
+        final String BASIC_NAME_PATTERN = "^[a-zA-Z_$][a-zA-Z_$0-9]*$";
+
         name.setName("username");
         name.setDescription("Name that uniquely identifies the user in the system");
         name.setType(Field.Type.STRING);
         name.setRequired(true);
-        name.setPattern("^[a-zA-z0-9_]{4,32}$");
+        name.setPattern(BASIC_NAME_PATTERN);
         name.setMin(4);
         name.setMax(32);
         name.setDefault("");
@@ -236,7 +239,15 @@ final public class Completor {
                 addUserFields(resource);
 
             if (Strings.isEmpty(resource.getPlural()))
-                resource.setPlural(English.plural(resource.getName()));
+                // Special case for camel-case notation: pluralize only the last word
+                if (resource.getName().contains("_")) {
+                    final List<String> words = Arrays.asList(resource.getName().split("_"));
+                    final List<String> wordsExceptLast = words.subList(0, words.size() - 1);
+                    final String lastWord = words.get(words.size() - 1);
+                    resource.setPlural(Strings.join(wordsExceptLast, "_") + "_" + English.plural(lastWord));
+                } else {
+                    resource.setPlural(English.plural(resource.getName()));
+                }
 
             if (resource.getAbstract() == null)
                 resource.setAbstract(DEF_ABSTRACT);

@@ -9,15 +9,24 @@ import java.util.*;
  */
 final public class Strings {
 
+    /**
+     * Surround a string with another (usually of length one)
+     */
     public static String surround(String str, String wrapper) {
         return wrapper + (str == null ? "" : str) + wrapper;
     }
 
+    /**
+     * Surround a string with another two, one on the left, one on the right.
+     */
     public static String surround(String str, String leftWrapper, String rightWrapper) {
         return leftWrapper + str + rightWrapper;
     }
 
 
+    /**
+     * Concatenate a group of strings together with some "glue".
+     */
     public static String join(Collection<String> strings, String separator) {
         final int lastElem = strings.size() - 1;
 
@@ -30,6 +39,9 @@ final public class Strings {
         return result;
     }
 
+    /**
+     * Special case to join a group of strings that ignores the empty strings on that group.
+     */
     public static String join(Collection<String> strings, String separator, boolean ignoreEmpties) {
         if (ignoreEmpties)
             strings = Strings.removeEmpty(strings);
@@ -37,6 +49,9 @@ final public class Strings {
         return join(strings, separator);
     }
 
+    /**
+     * Another version to join a group of "things", taking only the strings from it.
+     */
     public static String join(String separator, Collection<Object> objects) {
         Collection<String> strings = new ArrayList<>();
 
@@ -48,6 +63,9 @@ final public class Strings {
     }
 
 
+    /**
+     * Given a collection of strings, return another one without empty strings.
+     */
     public static Collection<String> removeEmpty(Collection<String> strings) {
         Collection<String> cleanStrings = new ArrayList<>();
 
@@ -59,11 +77,17 @@ final public class Strings {
     }
 
 
+    /**
+     * Forces a string to fit in a fixed number of characters, appending an ellipsis if it is longer.
+     */
     public static String cut(String str, int maxLen) {
         return str.length() <= maxLen ? str : str.substring(0, maxLen - 3) + "...";
     }
 
 
+    /**
+     * Build a visual list from a group of strings.
+     */
     public static String list(Collection<String> strings, String listingSymbol) {
         String result = "";
 
@@ -73,16 +97,26 @@ final public class Strings {
         return result;
     }
 
+    /**
+     * Override the list() function to build lists based on the "-" symbol by default.
+     */
     public static String list(List<String> strings) {
         return list(strings, "-");
     }
 
 
+    /**
+     * Determine if a string is empty, meaning it is null or it has a size equals to 0.
+     */
     public static boolean isEmpty(String str) {
         return str == null || str.isEmpty();
     }
 
 
+    /**
+     * Easy way to save a string into a file in the filesystem, allowing to control if existing files should be
+     * overwritten.
+     */
     public static void toFile(String content, String filename, boolean override) throws IOException {
         File file = new File(filename);
 
@@ -95,12 +129,16 @@ final public class Strings {
         writer.close();
     }
 
+    /**
+     * Override toFile() to override existing files by default.
+     */
     public static void toFile(String content, String filename) throws IOException {
         toFile(content, filename, true);
     }
 
-
-    // This method is not recommended for big files
+    /**
+     * Retrieve a string based on a file's content. This function is not recommended for very big files.
+     */
     public static String fromFile(File f) throws IOException {
         FileInputStream fis = new FileInputStream(f);
         byte[] data = new byte[(int) f.length()];
@@ -111,6 +149,9 @@ final public class Strings {
     }
 
 
+    /**
+     * Build a nice string from a Java Exception.
+     */
     public static String fromException(Exception e) {
         final StringWriter errors = new StringWriter();
         e.printStackTrace(new PrintWriter(errors));
@@ -118,10 +159,9 @@ final public class Strings {
     }
 
 
-    public static String ucFirst(String str) {
-        return ucFirst(str, false);
-    }
-
+    /**
+     * Uppercase the first character of a string, also deciding about the case of the rest of the string.
+     */
     public static String ucFirst(String str, boolean lowerCaseRest) {
         final String firstChar = str.substring(0, 1).toUpperCase();
         String rest = str.substring(1);
@@ -131,11 +171,19 @@ final public class Strings {
         return firstChar + rest;
     }
 
+    /**
+     * Override ucFirst() to let untouched everything but the first character by default.
+     */
+    public static String ucFirst(String str) {
+        return ucFirst(str, false);
+    }
+
 
     /**
-     * Port of the Str::studly() method implemented by Laravel.
+     * Convert a value from snake case to camel case, wrongly named as studly case by the Laravel team (see
+     * https://en.wikipedia.org/wiki/Studly_caps). It is a port of the Str::studly() method implemented by Laravel.
      * <p>
-     * Original code (see https://github.com/laravel/framework/blob/5.2/src/Illuminate/Support/Str.php):
+     * Original code (see https://github.com/laravel/framework/blob/5.2/src/Illuminate/Support/Str.php#L428):
      * <p>
      * public static function studly($value) {
      * $key = $value;
@@ -159,6 +207,9 @@ final public class Strings {
     }
 
 
+    /**
+     * Convert a Iterator of Strings into a List of Strings.
+     */
     public static List<String> iteratorToList(Iterator<String> itr) {
         final List<String> list = new ArrayList<>();
         while (itr.hasNext())

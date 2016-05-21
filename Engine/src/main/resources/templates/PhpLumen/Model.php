@@ -14,7 +14,7 @@ class {{resourceClass}} extends RestModel{{#if isUser}} implements Authenticatab
     protected $table = '{{resourceTable}}';
 
     protected $fillable = [
-        {{#each fillableAttributes}}'{{this}}', {{/each}}
+        {{#each belongsToRelations}}'{{fk}}', {{/each}}{{#each fillableAttributes}}'{{this}}', {{/each}}
     ];
 
     protected $hidden = [
@@ -22,20 +22,22 @@ class {{resourceClass}} extends RestModel{{#if isUser}} implements Authenticatab
     ];
 
     protected static $filterable = [
-        {{#each filterableAttributes}}'{{this}}', {{/each}}
+        {{#each belongsToRelations}}'{{fk}}', {{/each}}{{#each filterableAttributes}}'{{this}}', {{/each}}
     ];
 
     protected static $sortable = [
-        {{#each sortableAttributes}}'{{this}}', {{/each}}
+        {{#each belongsToRelations}}'{{fk}}', {{/each}}{{#each sortableAttributes}}'{{this}}', {{/each}}
     ];
 
     protected $casts = [
-        {{#each casts}}'{{prop}}' => '{{type}}',{{#unless @last}}{{! Skips last new line }}
+        {{#each belongsToRelations}}'{{fk}}' => 'integer',
+        {{/each}}{{#each casts}}'{{prop}}' => '{{type}}',{{#unless @last}}{{! Skips last new line }}
         {{/unless}}{{/each}}
     ];
 
     protected static $validationRules = [
-        {{#each validationRules}}'{{prop}}' => '{{rule}}',{{#unless @last}}
+        {{#each belongsToRelations}}'{{fk}}' => 'integer|required|min:1',
+        {{/each}}{{#each validationRules}}'{{prop}}' => '{{rule}}',{{#unless @last}}
         {{/unless}}{{/each}}
     ];
 
