@@ -1,5 +1,6 @@
 package es.berry.restyle.utils;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import es.berry.restyle.specification.SpecObjectMapper;
 import org.junit.Before;
@@ -44,5 +45,15 @@ public class JsonTest {
         } catch (IOException e) {
             assertTrue("JSON references were not resolved properly", false);
         }
+    }
+
+    @Test
+    public void validateAgainstSchema() {
+        final JsonNode node = SpecObjectMapper.getInstance().createObjectNode();
+        final String result = Json.validateAgainstSchema(node, "/specification/schema.json");
+
+        // node should be invalid, therefore result should contain some explanatory error message
+        assertNotNull(result);
+        assertTrue(result.length() > 32);
     }
 }

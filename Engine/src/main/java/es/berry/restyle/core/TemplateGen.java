@@ -12,6 +12,7 @@ import es.berry.restyle.logging.Log;
 import es.berry.restyle.logging.Logger;
 import es.berry.restyle.specification.SpecObjectMapper;
 import es.berry.restyle.utils.Strings;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,63 +24,69 @@ import java.io.IOException;
  */
 public class TemplateGen {
 
-    public static String TMPL_DIR = Config.getResourcePath("templates/");
-
-    private Class associatedClass = null;
-
-    private Handlebars handlebars;
+    final private String ext;
+    final private String baseDir;
+    final private Handlebars handlebars;
+    final private static String TMPL_DIR_PART = "/templates/";
 
     private static final Logger log = Log.getChain();
 
-    /**
-     * Common part of the construction phase, just to avoid some code duplication in the constructor.
-     */
-    private void commonConstruct(String dir, String ext) {
-        final File d = new File(dir);
-        if (!d.mkdirs() && !d.exists())
-            log.warn("Could not to create templates' directory " + d.getAbsolutePath());
+    public TemplateGen(Class c, String ext) {
+        this.baseDir = calculateBaseDir(c);
+        this.ext = tuneExtension(ext);
 
-        final TemplateLoader loader = new FileTemplateLoader(dir, tuneExtension(ext));
+        final TemplateLoader loader = new FileTemplateLoader(this.baseDir, this.ext);
         this.handlebars = new Handlebars(loader);
-        handlebars.registerHelper("json", Jackson2Helper.INSTANCE);
+        this.handlebars.registerHelper("json", Jackson2Helper.INSTANCE);
     }
 
-    /**
-     * Ensure that an extension is valid.
-     */
-    private String tuneExtension(String ext) {
-        if (Strings.isEmpty(ext))
-            return ".hbs"; // Default value for handlebars
-
-        return ext.startsWith(".") ? ext : "." + ext;
+    public TemplateGen(Class c) {
+        this(c, null);
     }
 
     /**
      * Return the directory where the templates are supposed to be by default.
      */
-    public String getDefaultDir() {
-        if (this.associatedClass == null)
-            return TMPL_DIR;
+    private static String calculateBaseDir(Class c) {
+        String dir = Config.getConfigDir().getAbsolutePath() + TMPL_DIR_PART;
 
-        return TMPL_DIR + this.associatedClass.getSimpleName() + File.separator;
+        return c == null ? dir : dir + c.getSimpleName() + "/";
     }
 
-    public TemplateGen(Class c) {
-        this.associatedClass = c;
-        commonConstruct(getDefaultDir(), null);
+    public String getBaseDir() {
+        return this.baseDir;
     }
 
-    public TemplateGen(Class c, String ext) {
-        this.associatedClass = c;
-        commonConstruct(getDefaultDir(), ext);
+    /**
+     * Ensure that an extension is properly prefixed.
+     */
+    private static String tuneExtension(String ext) {
+        if (Strings.isEmpty(ext))
+            return ".hbs"; // Default value for Handlebars.java
+
+        return ext.startsWith(".") ? ext : "." + ext;
     }
 
-    public TemplateGen(String dir) {
-        commonConstruct(dir, null);
-    }
+//    /**
+//     * This method provides a way to get the content of a resource (a template) as a String, given the path pointing to
+//     * it. It is necessary due to problems when referring to a file once the application's JAR is generated (using
+//     * relative paths and the File interface worked from the IDE, but not from the JAR file).
+//     */
+//    private static String getResourceTemplate(String resourcePath) throws IOException {
+//        final InputStream in = TemplateGen.class.getResourceAsStream(resourcePath);
+//        if (in == null)
+//            throw new NullPointerException("Stream corresponding to the resource is null: " + resourcePath);
+//        return Strings.streamToString(in);
+//    }
 
-    public TemplateGen(String dir, String ext) {
-        commonConstruct(dir, ext);
+    /**
+     * Check the given template's name to increase the probabilities of its correctness.
+     */
+    private String normalizeTemplateName(String name) {
+//        final String suffix = name.endsWith(this.ext) ? "" : this.ext;
+//        name = StringUtils.strip(name, "/");
+//        return this.baseDir + name + suffix;
+        return StringUtils.strip(name, "/");
     }
 
     /**
@@ -91,9 +98,9 @@ public class TemplateGen {
      */
     public String compile(String tmplName, JsonNode jsonNode) {
         try {
-            Template template = handlebars.compile(tmplName);
+            final Template template = handlebars.compile(normalizeTemplateName(tmplName));
 
-            Context context = Context.newBuilder(jsonNode).resolver(
+            final Context context = Context.newBuilder(jsonNode).resolver(
                     JsonNodeValueResolver.INSTANCE,
                     JavaBeanValueResolver.INSTANCE,
                     FieldValueResolver.INSTANCE,

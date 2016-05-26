@@ -91,14 +91,6 @@ final public class Completor {
         name.setDefault("");
         name.setUnique(true);
 
-        role.setName("role");
-        role.setDescription("Role of the user");
-        role.setType(Field.Type.STRING);
-        role.setRequired(true);
-        role.setMin(2);
-        role.setMax(64);
-        role.setEnum(getUserRoleNames());
-
         final Role guestRole = SpecHelper.findGuestRole(spec);
         if (guestRole != null)
             role.setDefault(guestRole.getName());
@@ -114,11 +106,21 @@ final public class Completor {
         pass.setWriteOnly(true);
         pass.setEncrypted(true);
 
+        role.setName("role");
+        role.setDescription("Role of the user");
+        role.setType(Field.Type.STRING);
+        role.setRequired(true);
+        role.setMin(2);
+        role.setMax(64);
+        role.setEnum(getUserRoleNames());
+        role.setReadOnly(true); // Should not be possible to easily choose "your" role
+
         isAdmin.setName("isAdmin");
         isAdmin.setDescription("Determines whether the user is a super administrator or not");
         isAdmin.setType(Field.Type.BOOL);
         isAdmin.setRequired(true);
-        isAdmin.setDefault(0);
+        isAdmin.setDefault(false);
+        isAdmin.setReadOnly(true); // Should not be possible to create administrators arbitrarily
 
         Set<Field> fields = res.getFields();
 

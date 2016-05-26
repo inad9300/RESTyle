@@ -10,6 +10,4 @@ public interface SqlCarrier {
     String getForeignKey(Resource res);
     String getTableName(Resource res);
     String getManyToManyTableName(Resource resA, Resource resB);
-    String getHasOneStr();
-    String getHasManyStr();
 }

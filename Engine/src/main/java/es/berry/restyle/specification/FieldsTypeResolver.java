@@ -6,7 +6,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import es.berry.restyle.exceptions.SpecException;
 
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Responsible of resolving the types of the resources' fields, when they are defined based on another one written in
@@ -100,7 +102,12 @@ public class FieldsTypeResolver {
         } catch (NullPointerException e) {
             // Do nothing. We are dealing with a file which was not validated against any JSON Schema. Thus, if some
             // field was expected but not present (raising a NullPointerException), it is better to ignore the error and
-            // let the validation happen, showing a more descriptive message.
+            // let the validation happen, showing a more descriptive message...
+
+            // ...unless *we* really wanted to.
+            for (StackTraceElement elem : Arrays.asList(e.getStackTrace()))
+                if (elem.getClassName().equals(FieldsTypeResolver.class.getName()))
+                    throw e;
         }
     }
 }

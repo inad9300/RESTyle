@@ -1,5 +1,7 @@
 package es.berry.restyle.utils;
 
+import org.apache.commons.io.IOUtils;
+
 import java.io.*;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.*;
@@ -98,7 +100,7 @@ final public class Strings {
     }
 
     /**
-     * Override the list() function to build lists based on the "-" symbol by default.
+     * Overload the list() function to build lists based on the "-" symbol by default.
      */
     public static String list(List<String> strings) {
         return list(strings, "-");
@@ -130,7 +132,7 @@ final public class Strings {
     }
 
     /**
-     * Override toFile() to override existing files by default.
+     * Overload toFile() to override existing files by default.
      */
     public static void toFile(String content, String filename) throws IOException {
         toFile(content, filename, true);
@@ -172,7 +174,7 @@ final public class Strings {
     }
 
     /**
-     * Override ucFirst() to let untouched everything but the first character by default.
+     * Overload ucFirst() to let untouched everything but the first character by default.
      */
     public static String ucFirst(String str) {
         return ucFirst(str, false);
@@ -216,5 +218,15 @@ final public class Strings {
             list.add(itr.next());
 
         return list;
+    }
+
+
+    /**
+     * Convert an InputStream into a String.
+     */
+    public static String fromStream(InputStream inStream) throws IOException {
+        final StringWriter writer = new StringWriter();
+        IOUtils.copy(inStream, writer, "UTF-8");
+        return writer.toString();
     }
 }

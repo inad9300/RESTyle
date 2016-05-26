@@ -43,6 +43,8 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
 
     public MysqlCreationScript(Spec spec, JsonNode specNode, File out) {
         super(spec, specNode, out);
+        SpecHelper.unsupportedReflexiveRelations(spec);
+
         this.setTemplateGen(new TemplateGen(MysqlCreationScript.class, "sql"));
     }
 
@@ -232,16 +234,6 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
             return resA.getPlural() + "_" + resB.getPlural();
         else
             return resB.getPlural() + "_" + resA.getPlural();
-    }
-
-    @Override
-    public String getHasOneStr() {
-        return HAS_ONE;
-    }
-
-    @Override
-    public String getHasManyStr() {
-        return HAS_MANY;
     }
 
     /**

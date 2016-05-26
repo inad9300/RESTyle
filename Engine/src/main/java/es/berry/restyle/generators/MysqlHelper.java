@@ -106,19 +106,19 @@ public class MysqlHelper {
     public static String getTypeModifier(Field field, ObjectNode rawField) {
         List<String> modifiers = new ArrayList<>();
 
+        final String SINGLE_QUOTE = "'";
+
         if (field.getRequired())
             modifiers.add("NOT NULL");
-        else
+        else if (field.getDefault() == null)
             modifiers.add("DEFAULT NULL");
-
-        final String SINGLE_QUOTE = "'";
 
         if (field.getDefault() != null) {
             final String defStr = field.getDefault().toString();
             final boolean needsQuotes = typeNeedsQuotesForDefaultValue(field.getType(), field.getDefault())
                     && !defStr.startsWith(SINGLE_QUOTE)
                     && !defStr.endsWith(SINGLE_QUOTE);
-            modifiers.add("DEFAULT " + (needsQuotes ? Strings.surround(defStr, SINGLE_QUOTE) : field.getDefault()));
+            modifiers.add("DEFAULT " + (needsQuotes ? Strings.surround(defStr, SINGLE_QUOTE) : defStr));
         }
 
         if (!Strings.isEmpty(field.getOnUpdate()))
@@ -337,7 +337,7 @@ public class MysqlHelper {
                         + CHAR_SIZE + " bytes (" + field.getMax() + " * " + CHAR_SIZE + " = "
                         + maxBytes + ").");
         } else if (fieldType.equals(Types.BOOL))
-            return "BIT(1)";
+            return "BOOL";
         else if (fieldType.equals(Types.DATETIME))
             return "DATETIME"; // Reference: http://dev.mysql.com/doc/refman/5.7/en/datetime.html
         else if (fieldType.equals(Types.DATE))

@@ -3,10 +3,7 @@ package es.berry.restyle.utils;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -51,14 +48,14 @@ public class StringsTest {
     }
 
     @Test
-    public void cut() {
-        assertEquals("abcdef", Strings.cut("abcdef", 6));
-        assertEquals("abc...", Strings.cut("abcdefghi", 6));
+    public void removeEmpty() {
+        assertEquals(list, Strings.removeEmpty(listWithEmpties));
     }
 
     @Test
-    public void removeEmpty() {
-        assertEquals(list, Strings.removeEmpty(listWithEmpties));
+    public void cut() {
+        assertEquals("abcdef", Strings.cut("abcdef", 6));
+        assertEquals("abc...", Strings.cut("abcdefghi", 6));
     }
 
     @Test
@@ -75,11 +72,19 @@ public class StringsTest {
     }
 
     @Test
-    public void ucFirst() {
-        assertEquals("Abc", Strings.ucFirst("abc"));
-        assertEquals("Abc", Strings.ucFirst("Abc"));
-        assertEquals("ABC", Strings.ucFirst("aBC"));
-        assertEquals("Abc", Strings.ucFirst("aBC", true));
+    public void toFile() {
+        try {
+            final String filename = tmpFolder.getAbsolutePath() + File.separator
+                    + "__junit_test_file__" + Long.toString(System.nanoTime()) + ".tmp";
+
+            Strings.toFile(fileContent, filename);
+            assertEquals(fileContent, Strings.fromFile(new File(filename)));
+
+            Strings.toFile(fileContent + "_mod_", filename);
+            assertEquals(fileContent + "_mod_", Strings.fromFile(new File(filename)));
+        } catch (IOException e) {
+            assertFalse("Failure creating a file from a string", true);
+        }
     }
 
     @Test
@@ -101,23 +106,7 @@ public class StringsTest {
         }
     }
 
-    @Test
-    public void toFile() {
-        try {
-            final String filename = tmpFolder.getAbsolutePath() + File.separator
-                    + "__junit_test_file__" + Long.toString(System.nanoTime()) + ".tmp";
-
-            Strings.toFile(fileContent, filename);
-            assertEquals(fileContent, Strings.fromFile(new File(filename)));
-
-            Strings.toFile(fileContent + "_mod_", filename);
-            assertEquals(fileContent + "_mod_", Strings.fromFile(new File(filename)));
-        } catch (IOException e) {
-            assertFalse("Failure creating a file from a string", true);
-        }
-    }
-
-    @Test // NOTE: (expected = FileAlreadyExistsException.class) doesn't work, apparently, for non-RunTime exceptions
+    @Test // NOTE: "(expected = FileAlreadyExistsException.class)" apparently doesn't work for non-Runtime exceptions
     public void toFileFailure() {
         final String filename = tmpFolder.getAbsolutePath() + File.separator + "sameFile.tmp";
         boolean thrown = false;
@@ -134,16 +123,35 @@ public class StringsTest {
     }
 
     @Test
-    public void iteratorToList() {
-        assertEquals(list, Strings.iteratorToList(listItr));
-    }
-
-    @Test
     public void fromException() {
         final int minSize = 30;
         assertTrue(
                 "String representing an exception should be bigger than " + minSize,
                 Strings.fromException(new Exception()).length() >= minSize
         );
+    }
+
+    @Test
+    public void ucFirst() {
+        assertEquals("Abc", Strings.ucFirst("abc"));
+        assertEquals("Abc", Strings.ucFirst("Abc"));
+        assertEquals("ABC", Strings.ucFirst("aBC"));
+        assertEquals("Abc", Strings.ucFirst("aBC", true));
+    }
+
+    @Test
+    public void studly() {
+        assertEquals("CamelCase", Strings.studly("camel_case"));
+        assertEquals("CamelCase", Strings.studly("camelCase"));
+    }
+
+    @Test
+    public void iteratorToList() {
+        assertEquals(list, Strings.iteratorToList(listItr));
+    }
+
+    @Test
+    public void streamToString() throws IOException {
+        assertEquals("abc", Strings.fromStream(new ByteArrayInputStream("abc".getBytes("UTF-8"))));
     }
 }

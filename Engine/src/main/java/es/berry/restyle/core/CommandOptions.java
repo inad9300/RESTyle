@@ -16,6 +16,9 @@ final public class CommandOptions {
     public final static String OUT_S = "o";
     public final static String OUT_L = "output";
 
+    public final static String CONFIG_S = "c";
+    public final static String CONFIG_L = "config";
+
     public final static String LIST_PLUGINS_S = "lp";
     public final static String LIST_PLUGINS_L = "list-plugins";
 
@@ -45,7 +48,7 @@ final public class CommandOptions {
                 Option
                         .builder(CommandOptions.PLUGINS_S)
                         .longOpt(CommandOptions.PLUGINS_L)
-                        .desc("names of the plugins to be applied to the specification, space-separated")
+                        .desc("names of the plugins to be applied to the specification, comma-separated")
                         .hasArgs()
                         .type(String.class)
                         .build()
@@ -65,6 +68,16 @@ final public class CommandOptions {
                         .builder(CommandOptions.OUT_S)
                         .longOpt(CommandOptions.OUT_L)
                         .desc("directory to place the output files in")
+                        .hasArg()
+                        .type(String.class)
+                        .build()
+        );
+
+        opts.addOption(
+                Option
+                        .builder(CommandOptions.CONFIG_S)
+                        .longOpt(CommandOptions.CONFIG_L)
+                        .desc("directory where different configuration files and resources can be found, such as the plugins' templates")
                         .hasArg()
                         .type(String.class)
                         .build()

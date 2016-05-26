@@ -1,6 +1,7 @@
 package es.berry.restyle.specification;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import es.berry.restyle.exceptions.SpecException;
 import es.berry.restyle.specification.generated.*;
 
 import java.util.ArrayList;
@@ -130,6 +131,18 @@ final public class SpecHelper {
                 return role;
 
         return null;
+    }
+
+    /**
+     * Check if there are reflexive relations in the given specification and, if that is the case, throw an exception
+     * indicating that they are not supported.
+     */
+    public static void unsupportedReflexiveRelations(Spec spec) {
+        for (Resource res : spec.getResources())
+            for (Relation rel : res.getRelations())
+                if (res.getName().equals(rel.getWith()))
+                    throw new SpecException("Reflexive relationships are not supported by this plugin. Found " +
+                            res.getName() + " related with itself.");
     }
 
     public static boolean roleCanRead(Resource res, String roleName) {

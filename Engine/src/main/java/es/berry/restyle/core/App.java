@@ -33,7 +33,7 @@ final public class App {
     private static final Logger log = Log.getChain();
 
     private static final String VALUES_SEP = ",";
-    private static final String SPEC_SCHEMA = Config.getResourcePath("specification/schema.json");
+    private static final String SPEC_SCHEMA = "/specification/schema.json";
 
     /**
      * Main method. In summary, parses the command line arguments, and executes the plugins passing them the
@@ -43,7 +43,7 @@ final public class App {
         try {
             // The following bit allows for some manual testing with "mock args" while not breaking the automatic tests
             final String[] mockArgs = {
-                    "-" + CommandOptions.SPEC_S, "/home/daniel/Code/RESTyle/Engine/src/main/resources/examples/bookstore.json",
+                    "-" + CommandOptions.SPEC_S, "src/main/resources/examples/bookstore.json",
                     "-" + CommandOptions.PLUGINS_S, "MysqlCreationScript" + VALUES_SEP + "PhpLumen",
                     "-" + CommandOptions.OUT_S, "/home/daniel/Code/RESTyle_output",
                     "-verbose"
@@ -61,6 +61,7 @@ final public class App {
 
             final String specPath = cmd.getOptionValue(CommandOptions.SPEC_S);
             final String outputPath = cmd.getOptionValue(CommandOptions.OUT_S);
+            final String configPath = cmd.getOptionValue(CommandOptions.CONFIG_S);
             final String pluginsValue = cmd.getOptionValue(CommandOptions.PLUGINS_S);
 
             validateArgKeys(specPath, outputPath, pluginsValue);
@@ -69,6 +70,8 @@ final public class App {
             final File outputDir = new File(outputPath);
 
             validateArgValues(specFile, outputDir);
+
+            Config.setConfigDir(configPath);
 
             SpecObjectMapper.configure(specPath);
 

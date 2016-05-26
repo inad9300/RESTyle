@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import es.berry.restyle.core.Generator;
 import es.berry.restyle.core.TemplateGen;
+import es.berry.restyle.exceptions.SpecException;
 import es.berry.restyle.generators.interfaces.SqlCarrier;
 import es.berry.restyle.logging.Log;
 import es.berry.restyle.logging.Logger;
@@ -32,12 +33,12 @@ import java.util.Set;
  * External documentation available in https://lumen.laravel.com/docs/5.2 and https://laravel.com/docs/5.2
  */
 public class PhpLumen extends Generator {
-    private static String HAS_MANY = null;
     private final Path serverOut;
     private final Path modelsOut;
     private final Path policiesOut;
     private final Path controllersOut;
-    private static String HAS_ONE = null;
+    private final static String HAS_ONE = "hasOne";
+    private final static String HAS_MANY = "hasMany";
 
     // String used as prefix to different values in order to fix Handlebars escaping bug:
     // "\{{x}}" compiles to "{{x}}"; whereas "\\{{x}}" compiles to "\{{x}}", as oppose to "\valueOfX"
@@ -47,6 +48,8 @@ public class PhpLumen extends Generator {
 
     public PhpLumen(Spec spec, JsonNode specNode, File outputDir) throws IOException {
         super(spec, specNode, outputDir);
+        SpecHelper.unsupportedReflexiveRelations(spec);
+
         this.setTemplateGen(new TemplateGen(PhpLumen.class, "php"));
         this.prevGeneratorMustImplement(SqlCarrier.class);
 
@@ -64,24 +67,10 @@ public class PhpLumen extends Generator {
     }
 
     /**
-     * Initialization that needs to be done after the construction phase.
-     */
-    private void init() {
-        // Storing some constants that this plugin must agree on with the previous plugin
-        HAS_ONE = (String) this.invokePrevMethod("getHasOneStr");
-        HAS_MANY = (String) this.invokePrevMethod("getHasManyStr");
-
-        assert !Strings.isEmpty(HAS_ONE);
-        assert !Strings.isEmpty(HAS_MANY);
-    }
-
-    /**
      * Main method where all the magic happens.
      */
     @Override
     public void generate() {
-        init();
-
         try {
             log.info("· Generating initial file structure...");
             getInitialConfig();
@@ -97,9 +86,9 @@ public class PhpLumen extends Generator {
 
             log.info("· Creating models, policies (authorization), controllers and routes...");
             for (Resource res : this.getSpec().getResources()) {
-                Strings.toFile(doModelPart(res), this.modelsOut + File.separator + PhpLumenHelper.getClassName(res) + ".php");
-                Strings.toFile(doPolicyPart(res, userRes), this.policiesOut + File.separator + PhpLumenHelper.getClassName(res) + "Policy.php");
-                Strings.toFile(doControllerPart(res), this.controllersOut + File.separator + PhpLumenHelper.getClassName(res) + "Controller.php");
+                Strings.toFile(doModelPart(res), this.modelsOut + "/" + PhpLumenHelper.getClassName(res) + ".php");
+                Strings.toFile(doPolicyPart(res, userRes), this.policiesOut + "/" + PhpLumenHelper.getClassName(res) + "Policy.php");
+                Strings.toFile(doControllerPart(res), this.controllersOut + "/" + PhpLumenHelper.getClassName(res) + "Controller.php");
 
                 if (res.getIsUser())
                     generateAuthServiceProvider(res);
@@ -145,7 +134,7 @@ public class PhpLumen extends Generator {
     private void getInitialConfig() throws IOException {
         // Copy seed project (slightly modified version of Lumen 5.2)
         FileUtils.copyDirectory(
-                new File(this.getTemplateGen().getDefaultDir() + "lumen-seed"),
+                new File(this.getTemplateGen().getBaseDir() + "lumen-seed"),
                 this.serverOut.toFile()
         );
 
@@ -299,7 +288,8 @@ public class PhpLumen extends Generator {
         ArrayNode dateAttributes = mapper.createArrayNode();
         ArrayNode timeAttributes = mapper.createArrayNode();
         ArrayNode dateTimeAttributes = mapper.createArrayNode();
-        ArrayNode imageAttributes = mapper.createArrayNode();
+        ArrayNode encryptedAttributes = mapper.createArrayNode();
+        ArrayNode fileAttributes = mapper.createArrayNode();
         ArrayNode validationRules = mapper.createArrayNode();
 
         filterableAttributes.add(resPk);
@@ -328,8 +318,21 @@ public class PhpLumen extends Generator {
                         .put("name", f.getName())
                         .put("camelName", Strings.studly(f.getName())));
 
+            if (f.getEncrypted()) {
+                // Should not be of time time, date, dateTime or file. Otherwise, the previous setters will be overridden
+                if (f.getType().equals(Field.Type.FILE) ||
+                        f.getType().equals(Field.Type.TIME) ||
+                        f.getType().equals(Field.Type.DATE) ||
+                        f.getType().equals(Field.Type.DATETIME))
+                    throw new SpecException("Neither files or date/times can be encrypted. Found problem in field " + f.getName());
+
+                encryptedAttributes.add(mapper.createObjectNode()
+                        .put("name", f.getName())
+                        .put("camelName", Strings.studly(f.getName())));
+            }
+
             if (f.getType().equals(Field.Type.FILE))
-                imageAttributes.add(mapper.createObjectNode()
+                fileAttributes.add(mapper.createObjectNode()
                         .put("name", f.getName())
                         .put("camelName", Strings.studly(f.getName())));
 
@@ -427,7 +430,8 @@ public class PhpLumen extends Generator {
         root.putArray("dateAttributes").addAll(dateAttributes);
         root.putArray("timeAttributes").addAll(timeAttributes);
         root.putArray("dateTimeAttributes").addAll(dateTimeAttributes);
-        root.putArray("imageAttributes").addAll(imageAttributes);
+        root.putArray("encryptedAttributes").addAll(encryptedAttributes);
+        root.putArray("fileAttributes").addAll(fileAttributes);
         root.putArray("casts").addAll(casts);
         root.putArray("validationRules").addAll(validationRules);
 

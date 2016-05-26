@@ -22,7 +22,7 @@ public class TemplateGenTest {
     private File templateGenDir = null;
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
         SpecObjectMapper.configure("whatever.json");
 
         templateGen = new TemplateGen(createMock(Generator.class).getClass());
@@ -31,8 +31,10 @@ public class TemplateGenTest {
         templateGenDir = testGetDefaultDir(templateGen);
     }
 
-    private File testGetDefaultDir(TemplateGen g) {
-        final File defaultDir = new File(g.getDefaultDir());
+    private File testGetDefaultDir(TemplateGen g) throws IOException {
+        final File defaultDir = new File(g.getBaseDir());
+        if (!defaultDir.mkdirs())
+            throw new IOException("Could not create temp directory: " + defaultDir.getAbsolutePath());
 
         assertTrue(defaultDir.exists());
         assertTrue(defaultDir.canRead());

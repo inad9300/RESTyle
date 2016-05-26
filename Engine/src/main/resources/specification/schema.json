@@ -275,6 +275,9 @@
                     "type": "string",
                     "enum": ["hasOne", "hasMany"]
                 },
+                "description": {
+                    "type": "string"
+                },
                 "min": {
                     "type": "integer"
                 },

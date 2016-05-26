@@ -4,6 +4,7 @@ import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.ValidatableResponse;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.*;
@@ -23,7 +24,9 @@ import static org.hamcrest.Matchers.*;
  * bookstores have many books
  * <p>
  * A server is expected to be up and running before the tests are executed, for instance via
- * php -S localhost:5555 -t public/
+ * <p>
+ * <code>php -S localhost:5555 -t public/</code>
+ * <p>
  * That means that the program must have been run beforehand, and the outcome moved to some working HTTP server such as
  * Apache, Nginx or the one given by PHP's CLI, as shown.
  * <p>
@@ -36,6 +39,7 @@ import static org.hamcrest.Matchers.*;
  * generation makes it really hard to test even the smallest of examples, since it has the ability to quickly produce
  * lots of big classes. It would be nice to do it sometime in the future, though.
  */
+@Ignore // Ignore by default, since (i) the server is not up from the beginning and (ii) they are quite time-consuming.
 public class PhpLumenTest {
 
     final static private String DB_ADMIN_NAME = "tyson";
@@ -52,7 +56,7 @@ public class PhpLumenTest {
 
     @Test
     public void upAndRunning() {
-        get("/").then().statusCode(404);
+        get("/").then().statusCode(200);
     }
 
     @Test
@@ -214,13 +218,14 @@ public class PhpLumenTest {
 
         get("/books/" + bookId).then().body("title", equalTo("New New Book"));
 
-        // Full update
-        final String newNewBook = "{\"title\": \"New New New Book\", \"author\": \"New New Author\"}";
+        // Full update - user_id needs to be provided
+        final String newNewBook = "{\"title\": \"New New New Book\", \"author\": \"New New Author\", \"user_id\": 1}";
 
         given().contentType(ContentType.JSON).body(newNewBook).when()
                 .put("/books/" + bookId).then()
                 .body("title", equalTo("New New New Book"))
-                .body("author", equalTo("New New Author"));
+                .body("author", equalTo("New New Author"))
+                .body("user_id", equalTo(1));
 
         // Deletion
         delete("/books/" + bookId).then()

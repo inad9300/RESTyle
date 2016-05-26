@@ -10,6 +10,7 @@ import es.berry.restyle.utils.Strings;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.util.List;
 
 /**
@@ -27,7 +28,7 @@ public abstract class Generator {
 
     private static Logger log = Log.getChain();
 
-    private static final String PLUGIN_SCHEMAS_PATH = Config.getResourcePath("schemas/");
+    private static final String PLUGIN_SCHEMAS_PATH = "/schemas/";
 
     /**
      * Interface method to be implemented by any class claiming to be a Generator, where the magic (namely, the
@@ -128,7 +129,7 @@ public abstract class Generator {
      * the chain of generators by passing the previous one to the next. Plus, it establish a "JSON Schema validation"
      * phase, where plugin-specific restrictions are validated, if any.
      */
-     /* package-private */ static void runAll(List<Class<? extends Generator>> concreteGenerators, Spec spec, JsonNode specNode, File outputDir) {
+     /* package */ static void runAll(List<Class<? extends Generator>> concreteGenerators, Spec spec, JsonNode specNode, File outputDir) {
         Generator prevGen = null;
 
         for (Class<? extends Generator> genClass : concreteGenerators)
@@ -170,20 +171,19 @@ public abstract class Generator {
      * either more restrictions (e.g. for attribute values) or new, custom attributes.
      */
     private static void validateJsonSchema(Generator gen) {
-        final File jsonSchemaFile = new File(PLUGIN_SCHEMAS_PATH + gen.getClass().getSimpleName() + ".json");
+        final String jsonSchemaResourcePath = PLUGIN_SCHEMAS_PATH + gen.getClass().getSimpleName() + ".json";
+        final URL jsonSchema = Generator.class.getResource(jsonSchemaResourcePath);
 
-        if (jsonSchemaFile.exists() && jsonSchemaFile.isFile()) {
+        if (jsonSchema != null) {
             log.info("· Validating against JSON schema...");
 
             final String report = Json.validateAgainstSchema(
                     SpecObjectMapper.getInstance().valueToTree(gen.getSpec()),
-                    jsonSchemaFile.getAbsolutePath()
+                    jsonSchemaResourcePath
             );
 
-            if (!Strings.isEmpty(report)) {
+            if (!Strings.isEmpty(report))
                 log.error(report);
-                System.exit(1);
-            }
         }
     }
 }

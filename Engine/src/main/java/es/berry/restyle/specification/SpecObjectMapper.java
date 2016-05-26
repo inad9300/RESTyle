@@ -27,6 +27,9 @@ final public class SpecObjectMapper {
      * Return the singleton instance. Will return null until the ObjectMapper gets configured.
      */
     public static ObjectMapper getInstance() {
+        if (mapper == null)
+            throw new NullPointerException("The ObjectMapper is not ready: it needs to be prepared via the \"configure\" method first.");
+
         return mapper;
     }
 

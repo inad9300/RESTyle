@@ -42,7 +42,7 @@ final public class Json {
     }
 
     /**
-     * Override the resolveReferences() function to take no ObjectMapper by default.
+     * Overload the resolveReferences() function to take no ObjectMapper by default.
      */
     public static JsonNode resolveReferences(File json) throws IOException {
         return resolveReferences(json, null);
@@ -53,10 +53,10 @@ final public class Json {
      * Validate a JsonNode against a JSON Schema, returning null if everything went well, or a String containing a
      * report with the errors found.
      */
-    public static String validateAgainstSchema(JsonNode node, String schemaPath) {
+    public static String validateAgainstSchema(JsonNode node, String resoucePath) {
         final JsonNode schemaNode;
         try {
-            schemaNode = JsonLoader.fromFile(new File(schemaPath));
+            schemaNode = JsonLoader.fromResource(resoucePath);
             final JsonSchema schema = JsonSchemaFactory.byDefault().getJsonSchema(schemaNode);
 
             ProcessingReport report = schema.validate(node);

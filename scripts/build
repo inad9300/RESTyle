@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Script to build new executable versions of the application, placing them into ../bin
+
+VERSION=1.0
+
+# Get the directory where the script is, no matter from where it is called. Taken from              
+# http://stackoverflow.com/a/246128/2018219                                                         
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR=$SCRIPT_DIR/..
+
+# Build with Maven, excluding tests
+mvn assembly:assembly -f $ROOT_DIR/Engine/pom.xml -DdescriptorId=jar-with-dependencies -Dmaven.test.skip=true
+
+# Ensure that the ../bin directory exists
+mkdir -p $ROOT_DIR/bin
+
+# Put the resulting JAR file into the ../bin directory
+cp $ROOT_DIR/Engine/target/restyle-${VERSION}-jar-with-dependencies.jar $ROOT_DIR/bin/restyle.jar
+
+# Plus, the script that encapsulates the call to the JAR
+cp $SCRIPT_DIR/restyle $ROOT_DIR/bin/restyle
+
+# Copy the last version of the plugins' templates
+mkdir -p $ROOT_DIR/bin/.restyle.config
+cp -r $ROOT_DIR/Engine/src/main/resources/templates/ $ROOT_DIR/bin/.restyle.config/
