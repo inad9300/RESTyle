@@ -88,7 +88,6 @@ final public class Completor {
         name.setPattern(BASIC_NAME_PATTERN);
         name.setMin(4);
         name.setMax(32);
-        name.setDefault("");
         name.setUnique(true);
 
         final Role guestRole = SpecHelper.findGuestRole(spec);

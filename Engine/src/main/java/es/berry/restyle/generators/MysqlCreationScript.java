@@ -105,7 +105,13 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
 
         // Custom attributes -- must be accessed directly via the JsonNode since the Spec class is automatically
         // generated from the main JSON Schema, but custom attributes are defined in the plugin-specific JSON Schema.
-        final boolean dropFirst = this.getSpecNode().get("database").get("x-dropFirst").asBoolean(true);
+        final boolean DROP_FIRST_DEF = true;
+        boolean dropFirst = DROP_FIRST_DEF;
+        try {
+            dropFirst = this.getSpecNode().get("database").get("x-dropFirst").asBoolean(DROP_FIRST_DEF);
+        } catch (NullPointerException e) {
+            // If the element does not exist in the JSON file, do nothing (a default value was already set)
+        }
         node.put("dropFirst", dropFirst);
 
         return this.getTemplateGen().compile("initial_config", node);
@@ -320,7 +326,7 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
      */
     private String doTableOptionsPart(Resource res) {
         if (!Strings.isEmpty(res.getDescription()))
-            return "COMMENT " + Strings.surround(res.getDescription(), SINGLE_QUOTE);
+            return "COMMENT " + Strings.surround(MysqlHelper.escapeSingleQuotes(res.getDescription()), SINGLE_QUOTE);
 
         return "";
     }

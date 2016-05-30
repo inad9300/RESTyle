@@ -100,6 +100,13 @@ public class MysqlHelper {
     }
 
     /**
+     * Escape single quotes, specially for comments.
+     */
+    public static String escapeSingleQuotes(String str) {
+        return str.replace("'", "\\'");
+    }
+
+    /**
      * Return a string with all the modifiers that can be applied to a MySQL column, based on the restrictions defined
      * for the corresponding field in the specification.
      */
@@ -131,7 +138,7 @@ public class MysqlHelper {
             modifiers.add("UNIQUE");
 
         if (!Strings.isEmpty(field.getDescription()))
-            modifiers.add("COMMENT " + Strings.surround(field.getDescription(), SINGLE_QUOTE));
+            modifiers.add("COMMENT " + Strings.surround(escapeSingleQuotes(field.getDescription()), SINGLE_QUOTE));
 
         return Strings.join(modifiers, " ");
     }
