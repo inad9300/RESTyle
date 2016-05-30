@@ -1,0 +1,18 @@
+{
+  "name": "letta",
+  "version": "0.0.0",
+  "description": "",
+  "dependencies": {
+    "angular": "^1.5.3",
+    "angular-animate": "^1.5.3",
+    "angular-i18n": "^1.5.3",
+    "angular-route": "^1.5.3",
+    "angular-sanitize": "^1.5.3",
+    "bootstrap": "^4.0.0-alpha.2",
+    "font-awesome": "^4.5.0",
+    "jquery": "^2.2.2",
+    "ng-toast": "^2.0.0",
+    "tether": "^1.2.0"
+  },
+  "devDependencies": {}
+}

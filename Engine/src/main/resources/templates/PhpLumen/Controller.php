@@ -14,8 +14,8 @@ use App\Models{{resourceClassBack}};
 {{/each}}
 class {{resourceClass}}Controller extends RestController {
 
-    // Resource end-point callbacks
-    // ----------------------------
+    // Resource end-points callbacks
+    // -----------------------------
 
 {{> Controller-resource}}{{! Indentation already in partial file }}
 {{> Controller-files}}
