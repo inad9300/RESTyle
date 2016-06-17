@@ -101,6 +101,31 @@ final public class SpecHelper {
     }
 
     /**
+     * Determines whether or not a many-to-many relationship exists between two resources.
+     */
+    public static boolean haveManyToManyRelationship(Resource resA, Resource resB) {
+        final Relation resAinB = findRelationByName(resB, resA.getName());
+        final Relation resBinA = findRelationByName(resA, resB.getName());
+
+        return resAinB != null && resBinA != null;
+    }
+
+    /**
+     * Determines if a relationship of the type "belongs to" exists between two resources. Will return true if the
+     * first resource given belongs to the second one.
+     * <p>
+     * More concretely, a resource A belongs to a resource B if B "hasOne" A, or B "hasMany" A and not many-to-many
+     * relationship exists between the two. Put in other words, a resource A would belong to a resource B if A
+     * participates in a 1:1 or 1:M relationship, and is in the side that does not define the relationship in the
+     * specification.
+     */
+    public static boolean belongsTo(Resource resA, Resource resB) {
+        final Relation resAinB = findRelationByName(resB, resA.getName());
+
+        return resAinB != null && !haveManyToManyRelationship(resA, resB);
+    }
+
+    /**
      * Try to find a role in the root-level "roles" array, by name.
      */
     public static Role findRoleByName(Spec spec, String roleName) {

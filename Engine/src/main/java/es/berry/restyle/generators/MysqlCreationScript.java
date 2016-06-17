@@ -32,8 +32,8 @@ public class MysqlCreationScript extends Generator implements SqlCarrier {
     // http://dev.mysql.com/doc/refman/5.7/en/identifiers.html)
     private static final int MAX_NAME_LEN = 64;
 
-    private static final String HAS_ONE = "hasOne";
-    private static final String HAS_MANY = "hasMany";
+    private static final String HAS_ONE = Relation.Type.HAS_ONE.toString();
+    private static final String HAS_MANY = Relation.Type.HAS_MANY.toString();
     private static final String KEY_MODIFIERS = "INT UNSIGNED NOT NULL";
 
     private static final Logger log = Log.getChain();

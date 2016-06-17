@@ -37,7 +37,7 @@ class {{resourceClass}} extends RestModel{{#if isUser}} implements Authenticatab
 
     protected static $validationRules = [
         {{#each belongsToRelations}}'{{fk}}' => 'integer|min:1',{{! Should be 'required' sometimes, but in any case the action will be blocked, just that the error message will not be that accurate }}
-        {{/each}}{{#each validationRules}}'{{prop}}' => '{{rule}}',{{#unless @last}}
+        {{/each}}{{#each validationRules}}'{{prop}}' => [{{{rule}}}],{{#unless @last}}
         {{/unless}}{{/each}}
     ];
 

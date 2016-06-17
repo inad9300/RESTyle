@@ -1,0 +1,11 @@
+<form class="page">
+    <div class="alert alert-warning" ng-repeat="err in errors">
+        <strong>\{{err.key}}</strong> \{{err.value}}
+    </div>
+    {{#each fields}}<fieldset class="form-group">
+        <label>{{niceName}}</label>
+        <input {{{attrs}}} class="form-control" placeholder="{{niceName}}" ng-model="resource.{{name}}">
+    </fieldset>
+    {{/each}}
+    <button class="btn btn-primary" ng-click="update()">Update</button>
+</form>

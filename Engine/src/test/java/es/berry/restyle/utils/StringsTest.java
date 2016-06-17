@@ -146,6 +146,14 @@ public class StringsTest {
     }
 
     @Test
+    public void dashify() {
+        assertEquals("camel-case", Strings.dashify("CamelCase"));
+        assertEquals("camel-case", Strings.dashify("camelCase"));
+        assertEquals("camel-case", Strings.dashify("camel-case"));
+        assertEquals("camel-case", Strings.dashify("camel-Case"));
+    }
+
+    @Test
     public void iteratorToList() {
         assertEquals(list, Strings.iteratorToList(listItr));
     }

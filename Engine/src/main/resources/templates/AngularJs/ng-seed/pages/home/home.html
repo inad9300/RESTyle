@@ -1,0 +1,21 @@
+<section class="page">
+    <form ng-if="!user.isLoggedIn">
+        <fieldset class="form-group">
+            <input type="text" class="form-control" placeholder="Username" ng-model="user.username">
+        </fieldset>
+        <fieldset class="form-group">
+            <input type="password" class="form-control" placeholder="Password" ng-model="user.password">
+        </fieldset>
+
+        <button class="btn btn-primary" ng-click="login()">Log in</button>
+    </form>
+
+    <div class="jumbotron" ng-if="user.isLoggedIn">
+        <p class="lead">Welcome, {{user.username}}.</p>
+        <p>Have a look around. In the top menu you will find your way towards resources' management.</p>
+        <hr class="m-y-2">
+        <p class="lead">
+            <button class="btn btn-warning" ng-click="logout()">Log out</button>
+        </p>
+    </div>
+</section>

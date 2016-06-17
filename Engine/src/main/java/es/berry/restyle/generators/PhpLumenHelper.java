@@ -56,6 +56,9 @@ public class PhpLumenHelper {
      * Produce a Laravel's validation rule based on the restrictions defined for a field in the specification.
      */
     public static String generateValidationRule(Field field, String tableName) {
+        // NOTE: rules must be build as PHP arrays to avoid problems. See:
+        // http://stackoverflow.com/questions/32810385/laravel-preg-match-no-ending-delimiter-found
+
         List<String> rules = new LinkedList<>();
 
         if (field.getRequired())
@@ -110,6 +113,9 @@ public class PhpLumenHelper {
             if (field.getMax() != null) rules.add("max:" + max / 1024);
         }
 
-        return Strings.join(rules, "|");
+        for (int i = 0; i < rules.size(); i++)
+            rules.set(i, Strings.surround(rules.get(i), "'"));
+
+        return Strings.join(rules, ", ");
     }
 }

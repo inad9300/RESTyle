@@ -10,7 +10,7 @@ class CorsMiddleware {
 
         $response->header('Access-Control-Allow-Origin', '*');
         $response->header('Access-Control-Allow-Methods', 'DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT');
-        // $response->header('Access-Control-Allow-Headers', 'Authorization, X-Requested-With, X-Auth-Token, Content-Type');
+        $response->header('Access-Control-Allow-Headers', 'Authorization, X-Requested-With, X-Auth-Token, Content-Type');
         // $response->header('Access-Control-Allow-Credentials', 'true');
 
         return $response;

@@ -1,0 +1,21 @@
+<nav class="navbar navbar-light bg-faded">
+    <button class="navbar-toggler hidden-sm-up" data-toggle="collapse" data-target="#main-nav">
+        &#9776;
+    </button>
+
+    <div class="collapse navbar-toggleable-xs" id="main-nav">
+        <a class="navbar-brand" href="#/">Resource viewer</a>
+
+        <ul class="nav navbar-nav pull-xs-right">
+            <li class="nav-item dropdown">
+                <button class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">
+                    Resources
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                    {{#each resources}}<a class="dropdown-item" href="#/{{path}}">{{niceName}}</a>
+                    {{/each}}
+                </div>
+            </li>
+        </ul>
+    </div>
+</nav>

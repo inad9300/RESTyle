@@ -188,6 +188,16 @@ public class AdvancedValidator {
                 if (!resourceNames.contains(rel.getWith()))
                     throw new SpecException("Trying to relate the resource " + res.getName()
                             + " with a nonexistent one: " + rel.getWith());
+                else if (rel.getType().equals(Relation.Type.HAS_ONE)) {
+                    // Ensure that "hasOne" relationships are only defined from one side
+                    final Resource relatedRes = SpecHelper.findResourceByName(spec, rel.getWith());
+                    final Relation relatedResRel = SpecHelper.findRelationByName(relatedRes, res.getName());
+
+                    if (relatedResRel != null && relatedResRel.getType() != null)
+                        throw new SpecException("A relationship of type \"hasOne\" exists between " + res.getName() +
+                                " and " + relatedRes.getName() + ". No relation is allowed to be defined in the " +
+                                "opposite direction, but one was found.");
+                }
     }
 
     /**

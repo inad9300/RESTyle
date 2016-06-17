@@ -33,12 +33,14 @@ import java.util.Set;
  * External documentation available in https://lumen.laravel.com/docs/5.2 and https://laravel.com/docs/5.2
  */
 public class PhpLumen extends Generator {
+
     private final Path serverOut;
     private final Path modelsOut;
     private final Path policiesOut;
     private final Path controllersOut;
-    private final static String HAS_ONE = "hasOne";
-    private final static String HAS_MANY = "hasMany";
+
+    private final static String HAS_ONE = Relation.Type.HAS_ONE.toString();
+    private final static String HAS_MANY = Relation.Type.HAS_MANY.toString();
 
     // String used as prefix to different values in order to fix Handlebars escaping bug:
     // "\{{x}}" compiles to "{{x}}"; whereas "\\{{x}}" compiles to "\{{x}}", as oppose to "\valueOfX"
@@ -95,6 +97,7 @@ public class PhpLumen extends Generator {
 
                 routes += doRoutesPart(res) + "\n\n";
             }
+
             Strings.toFile(
                     this.getTemplateGen().compile("routes", SpecObjectMapper.getInstance().createObjectNode()
                             .put("prefix", "")
@@ -138,11 +141,12 @@ public class PhpLumen extends Generator {
                 this.serverOut.toFile()
         );
 
+        final int randomKeyLength = 32;
         final Database db = this.getSpec().getDatabase();
 
         Strings.toFile(
                 new TemplateGen(PhpLumen.class).compile(".env", SpecObjectMapper.getInstance().createObjectNode()
-                        .put("randomKey", new BigInteger(130, new SecureRandom()).toString(32))
+                        .put("randomKey", new BigInteger(randomKeyLength * 5, new SecureRandom()).toString(32))
                         .put("dbType", db.getDbms().toLowerCase())
                         .put("dbHost", db.getHost())
                         .put("dbPort", db.getPort())

@@ -1,8 +1,38 @@
-angular.module('{{appModule}}').factory('{{resourceClass}}Srv', function ($http) {
-    var srv = {};
-    var resourceRoute = '{{resourceRoute}}/';
-    var baseUrl = API_URL + resourceRoute;
+angular.module('{{appModule}}').factory('{{service}}', ['$http', '$rootScope', function ($http, $rootScope) {
 
+    var srv = {};
+    var resourceRoute = '{{path}}/';
+    var baseUrl = API_URL + resourceRoute;
+    {{#if isUser}}
+
+    // User-related actions
+    // --------------------
+
+    var CURR_USER_KEY = '__current_user_credentials__';
+
+    srv.current = function () {
+        var userRaw = localStorage.getItem(CURR_USER_KEY);
+        if (typeof userRaw !== 'string')
+            return {};
+
+        var userArr = atob(userRaw).split(':');
+        return {
+            username: userArr[0],
+            password: userArr[1]
+        };
+    };
+
+    srv.login = function (username, password) {
+        localStorage.setItem(CURR_USER_KEY, btoa(username + ':' + password));
+        $rootScope.$broadcast('user_logged_in', { username: username });
+    };
+
+    srv.logout = function () {
+        var oldUsername = srv.current().username;
+        localStorage.removeItem(CURR_USER_KEY);
+        $rootScope.$broadcast('user_logged_out', { username: oldUsername });
+    };
+    {{/if}}
 
     // Resource-related actions
     // ------------------------
@@ -67,28 +97,30 @@ angular.module('{{appModule}}').factory('{{resourceClass}}Srv', function ($http)
 
     // Relation-related actions
     // ------------------------
+
+    // TODO
     {{#each relations}}
     srv.find{{subresourceClassPlural}} = function (rid, filter) {
-        return $http.get(baseUrl + rid + '/{{subresourceRoute}}/', { params: filter });
+        return $http.get(baseUrl + rid + '/{{subresourcePath}}/', { params: filter });
     };
 
     srv.findOne{{subresourceClass}} = function (rid, sid) {
-        return $http.get(baseUrl + rid + '/{{subresourceRoute}}/' + sid);
+        return $http.get(baseUrl + rid + '/{{subresourcePath}}/' + sid);
     };
 
     srv.create{{subresourceClassPlural}} = function (rid, data) {
-        return $http.post(baseUrl + rid + '/{{subresourceRoute}}/', data);
+        return $http.post(baseUrl + rid + '/{{subresourcePath}}/', data);
     };
 
     srv.delete{{subresourceClassPlural}} = function (rid, data) {
-        return $http.delete(baseUrl + rid + '/{{subresourceRoute}}/', { data: data });
+        return $http.delete(baseUrl + rid + '/{{subresourcePath}}/', { data: data });
     };
 
     srv.delete{{subresourceClassPlural}} = function (rid, sid) {
-        return $http.delete(baseUrl + rid + '/{{subresourceRoute}}/' + sid);
+        return $http.delete(baseUrl + rid + '/{{subresourcePath}}/' + sid);
     };
     {{/each}}
 
 
     return srv;
-});
+}]);

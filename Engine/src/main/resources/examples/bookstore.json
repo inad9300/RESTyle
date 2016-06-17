@@ -3,7 +3,7 @@
     "title": "Bookstore",
     "description": { "$ref": "bookstore-desc.json#/description" },
     "version": "v1",
-    "baseUrl": "https://api.bookstore.example.org/{version}/",
+    "baseUrl": "http://localhost:4444/",
     "dataFormats": ["application/json"],
     "authenticationMechanism": "Basic",
     "encoding": "UTF-8",
@@ -36,7 +36,7 @@
         "patternOptions": ["i", "D"]
     }],
     "resources": [{
-        "name": "user",
+        "arno": "123@",
         "description": "Resource representing the people in the system",
         "isUser": true,
         "fields": [{

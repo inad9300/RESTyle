@@ -210,6 +210,28 @@ final public class Strings {
 
 
     /**
+     * Convert from camel case notation to a string whose words are dash-separated.
+     */
+    public static String dashify(String str) {
+        String result = "";
+        boolean lastWasLetter = false; // Allows to avoid mistakes such as "--" occurrences in the result
+
+        for (int i = 0; i < str.length(); ++i) {
+            final char ch = str.charAt(i);
+
+            if (Character.isUpperCase(ch) && i != 0 && lastWasLetter)
+                result += "-";
+
+            result += String.valueOf(ch).toLowerCase();
+
+            lastWasLetter = Character.isLetter(ch);
+        }
+
+        return result;
+    }
+
+
+    /**
      * Convert a Iterator of Strings into a List of Strings.
      */
     public static List<String> iteratorToList(Iterator<String> itr) {

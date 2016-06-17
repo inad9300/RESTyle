@@ -44,7 +44,7 @@ final public class App {
             // The following bit allows for some manual testing with "mock args" while not breaking the automatic tests
             final String[] mockArgs = {
                     "-" + CommandOptions.SPEC_S, "src/main/resources/examples/bookstore.json",
-                    "-" + CommandOptions.PLUGINS_S, "MysqlCreationScript" + VALUES_SEP + "PhpLumen",
+                    "-" + CommandOptions.PLUGINS_S, "MysqlCreationScript" + VALUES_SEP + "PhpLumen" + VALUES_SEP + "AngularJs",
                     "-" + CommandOptions.OUT_S, "/home/daniel/Code/RESTyle_output",
                     "-verbose"
             };

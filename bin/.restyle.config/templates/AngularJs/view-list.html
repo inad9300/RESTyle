@@ -1,0 +1,21 @@
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>#</th>
+            {{#each fields}}<th>{{niceName}}</th>
+            {{/each}}
+            <th><!-- Actions --></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="el in elements">
+            <td ng-bind="el.id"></td>
+            {{#each fields}}<td ng-bind="el.{{name}}"></td>
+            {{/each}}
+            <td>
+                <a class="btn btn-sm btn-primary" ng-href="#/{{path}}/\{{el.id}}">Modify</a>
+                <button class="btn btn-sm btn-danger" ng-click="delete(el.id)">Delete</button>
+            </td>
+        </tr>
+    </tbody>
+</table>

@@ -1,5 +1,16 @@
 <?php
 
+// First of all, deal with the pre-flight request problem. More information in
+// https://remysharp.com/2011/04/21/getting-cors-working
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])) {
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT');
+        header('Access-Control-Allow-Headers: Authorization, X-Requested-With, X-Auth-Token, Content-Type');
+    }
+    exit;
+}
+
 require_once __DIR__.'/../vendor/autoload.php';
 
 try {
@@ -77,9 +88,9 @@ $app->singleton(
 |
 */
 
-// $app->middleware([
-//    App\Http\Middleware\ExampleMiddleware::class
-// ]);
+$app->middleware([
+    App\Http\Middleware\CorsMiddleware::class
+]);
 
 $app->routeMiddleware([
     'auth' => App\Http\Middleware\Authenticate::class,

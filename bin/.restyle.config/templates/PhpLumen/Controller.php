@@ -14,6 +14,12 @@ use App\Models{{resourceClassBack}};
 {{/each}}
 class {{resourceClass}}Controller extends RestController {
 
+    private $policy;
+
+    function __construct() {
+        $this->policy = Gate::getPolicyFor({{resourceClass}}::class);
+    }
+
     // Resource end-points callbacks
     // -----------------------------
 
