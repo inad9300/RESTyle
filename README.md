@@ -1,5 +1,5 @@
 # RESTyle
-Automatic implementation of a REST-centric back-end. More information available at ~~[restyle.berry.es](http://restyle.berry.es/)~~.
+Automatic implementation of a REST-centric back-end. ~~More information available at [restyle.berry.es](http://restyle.berry.es/).~~
 
 ## Available plugins
 To this day, the following plugins have been created:
